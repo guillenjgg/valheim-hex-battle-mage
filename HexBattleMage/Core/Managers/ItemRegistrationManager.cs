@@ -14,6 +14,9 @@ namespace HexBattleMage.Core.Managers
 
             attack.m_attackProjectile = AssetBundleHelper.HexMagicBolt;
             attack.m_projectileVel = 100f;
+            attack.m_projectileAccuracy = 0f;
+            attack.m_projectileAccuracyMin = 0f;
+            attack.m_skillAccuracy = false;
 
             var wand = new CustomItem(wandPrefab, fixReference: true);
 
