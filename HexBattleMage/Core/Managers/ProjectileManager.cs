@@ -8,7 +8,13 @@ namespace HexBattleMage.Core
     {
         internal static void RegisterProjectiles()
         {
-            var magicBolt = new CustomPrefab(AssetBundleHelper.HexMagicBolt, fixReference: true);
+            var projectilePrefab = AssetBundleHelper.HexMagicBolt;
+            var projectile = projectilePrefab.GetComponent<Projectile>();
+
+            projectile.m_aoe = 3f;
+            projectile.m_onlyStopOnTerrain = false;
+
+            var magicBolt = new CustomPrefab(projectilePrefab, fixReference: true);
 
             PrefabManager.Instance.AddPrefab(magicBolt);
 

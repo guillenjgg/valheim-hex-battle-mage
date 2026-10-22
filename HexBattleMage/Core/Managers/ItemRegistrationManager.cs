@@ -10,8 +10,10 @@ namespace HexBattleMage.Core.Managers
         {
             var wandPrefab = AssetBundleHelper.HexBeechWand;
             var itemDrop = wandPrefab.GetComponent<ItemDrop>();
+            var attack = itemDrop.m_itemData.m_shared.m_attack;
 
-            itemDrop.m_itemData.m_shared.m_attack.m_attackProjectile = AssetBundleHelper.HexMagicBolt;
+            attack.m_attackProjectile = AssetBundleHelper.HexMagicBolt;
+            attack.m_projectileVel = 100f;
 
             var wand = new CustomItem(wandPrefab, fixReference: true);
 
