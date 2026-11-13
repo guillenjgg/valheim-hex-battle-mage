@@ -2,9 +2,7 @@
 using BepInEx.Logging;
 using HarmonyLib;
 using HexBattleMage.Assets;
-using HexBattleMage.Core;
 using HexBattleMage.Core.Managers;
-using Jotunn.Managers;
 using Jotunn.Utils;
 using System.Reflection;
 
@@ -29,9 +27,20 @@ namespace HexBattleMage
             Instance = this;
             Log = Logger;
 
-            AssetBundleHelper.LoadAssets();
-            ProjectileManager.RegisterProjectiles();
-            ItemRegistrationManager.RegisterItems();
+            if (!AssetBundleHelper.LoadAssets())
+            {
+                return;
+            }
+
+            if (!ProjectileManager.RegisterProjectiles())
+            {
+                return;
+            }
+
+            if (!ItemRegistrationManager.RegisterItems())
+            {
+                return;
+            }
 
             _harmonyInstance = new Harmony(PluginGuid);
             _harmonyInstance.PatchAll(Assembly.GetExecutingAssembly());

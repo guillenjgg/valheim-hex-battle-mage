@@ -6,14 +6,23 @@ namespace HexBattleMage.Core.Managers
 {
     internal static class ItemRegistrationManager
     {
-        internal static void RegisterItems()
+        private const float ProjectileVelocity = 100f;
+
+        internal static bool RegisterItems()
         {
             var wandPrefab = AssetBundleHelper.HexBeechWand;
             var itemDrop = wandPrefab.GetComponent<ItemDrop>();
+
+            if (itemDrop == null)
+            {
+                Plugin.Log.LogError($"Prefab '{wandPrefab.name}' is missing its ItemDrop component.");
+                return false;
+            }
+
             var attack = itemDrop.m_itemData.m_shared.m_attack;
 
             attack.m_attackProjectile = AssetBundleHelper.HexMagicBolt;
-            attack.m_projectileVel = 100f;
+            attack.m_projectileVel = ProjectileVelocity;
             attack.m_projectileAccuracy = 0f;
             attack.m_projectileAccuracyMin = 0f;
             attack.m_skillAccuracy = false;
@@ -21,6 +30,7 @@ namespace HexBattleMage.Core.Managers
             var wand = new CustomItem(wandPrefab, fixReference: true);
 
             ItemManager.Instance.AddItem(wand);
+            return true;
         }
     }
 }
