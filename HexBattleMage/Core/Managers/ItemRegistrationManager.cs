@@ -29,7 +29,12 @@ namespace HexBattleMage.Core.Managers
 
             var wand = new CustomItem(wandPrefab, fixReference: true);
 
-            ItemManager.Instance.AddItem(wand);
+            if (!ItemManager.Instance.AddItem(wand))
+            {
+                Plugin.Log.LogError($"Failed to register item '{wandPrefab.name}'.");
+                return false;
+            }
+
             return true;
         }
     }

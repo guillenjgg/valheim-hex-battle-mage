@@ -20,11 +20,9 @@ namespace HexBattleMage
         private Harmony _harmonyInstance;
 
         internal static ManualLogSource Log;
-        internal static Plugin Instance;
 
         private void Awake()
         {
-            Instance = this;
             Log = Logger;
 
             if (!AssetBundleHelper.LoadAssets())
@@ -54,7 +52,6 @@ namespace HexBattleMage
 
             _harmonyInstance?.UnpatchSelf();
             _harmonyInstance = null;
-            Instance = null;
             Log = null;
         }
     }
