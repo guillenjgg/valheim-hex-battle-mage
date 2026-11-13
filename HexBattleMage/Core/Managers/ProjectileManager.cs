@@ -9,6 +9,8 @@ namespace HexBattleMage.Core.Managers
     {
         private const string SparkEffectName = "SparkEffect";
         private const float SparkStartSize = 2f;
+        private const float SparksPerSecond = 120f;
+        private const float SparksPerMeter = 4f;
         private const float AreaOfEffectRadius = 3f;
         private const float CollisionRadius = 0.25f;
 
@@ -39,9 +41,26 @@ namespace HexBattleMage.Core.Managers
                 return false;
             }
 
+            var sparkRenderer = sparkTransform.GetComponent<ParticleSystemRenderer>();
+
+            if (sparkRenderer == null)
+            {
+                Plugin.Log.LogError($"'{SparkEffectName}' is missing its ParticleSystemRenderer component.");
+                return false;
+            }
+
             var main = sparkEffect.main;
 
             main.startSize = SparkStartSize;
+            main.simulationSpace = ParticleSystemSimulationSpace.World;
+
+            var emission = sparkEffect.emission;
+
+            emission.enabled = true;
+            emission.rateOverTime = SparksPerSecond;
+            emission.rateOverDistance = SparksPerMeter;
+            sparkRenderer.renderMode = ParticleSystemRenderMode.Billboard;
+
             projectile.m_aoe = AreaOfEffectRadius;
             projectile.m_onlyStopOnTerrain = false;
             projectile.m_rayRadius = CollisionRadius;
