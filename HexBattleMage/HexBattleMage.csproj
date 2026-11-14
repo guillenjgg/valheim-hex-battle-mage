@@ -102,10 +102,10 @@
   <ItemGroup>
     <Compile Include="Assets\AssetBundleHelper.cs" />
     <Compile Include="Core\DevConfig.cs" />
-    <Compile Include="Core\Visuals\MageRunestoneStructure.cs" />
     <Compile Include="Core\MageEquipmentCatalog.cs" />
     <Compile Include="Core\UI\MageUnlocksTab.cs" />
     <Compile Include="Patches\MageUnlocksTabPatches.cs" />
+    <Compile Include="Patches\MageTableResourcePatch.cs" />
     <Compile Include="Core\ModLocalization.cs" />
     <Compile Include="Core\Visuals\RotatingArcaneRing.cs" />
     <Compile Include="Core\Managers\CraftingStationManager.cs" />

@@ -9,8 +9,7 @@ namespace HexBattleMage.Core.Visuals
         private const string GlowShaderName = "Custom/Particle (Unlit)";
         private const int CircleSegments = 48;
         private const int RuneCount = 8;
-        private const float TableHeight = MageRunestoneStructure.TableSurfaceHeight + 0.04f;
-        private const float CircleRadius = 0.43f;
+        private const float SurfaceClearance = 0.04f;
         private const float RuneLineWidth = 0.02f;
         private const int SparkTextureSize = 32;
         private static readonly Color ArcaneColor = new Color(0.7f, 0.3f, 1f, 0.9f);
@@ -54,11 +53,9 @@ namespace HexBattleMage.Core.Visuals
             material.SetFloat("_Cull", (float)CullMode.Off);
             material.SetFloat("_SoftParticles", 0f);
 
-            var root = CreateChild(prefab.transform, "HexArcaneVisuals", new Vector3(0f, TableHeight, 0f));
+            float surfaceHeight = GetSurfaceHeight(prefab);
+            var root = CreateChild(prefab.transform, "HexArcaneVisuals", new Vector3(0f, surfaceHeight + SurfaceClearance, 0f));
 
-            MageRunestoneStructure.ReplaceWoodenVisuals(prefab);
-            AddStoneRune(prefab.transform, material);
-            AddRunes(root, material);
             AddOrbitingRing(root, material, "OuterRuneHalo", 0.62f, 0.3f, 18f);
             AddOrbitingRing(root, material, "InnerRuneHalo", 0.42f, 0.48f, -55f);
             AddCrystals(root, material);
@@ -74,25 +71,18 @@ namespace HexBattleMage.Core.Visuals
             return true;
         }
 
-        private static void AddStoneRune(Transform parent, Material material)
+        private static float GetSurfaceHeight(GameObject prefab)
         {
-            var face = CreateChild(parent, "TabletopGlyph", new Vector3(0f, MageRunestoneStructure.TableSurfaceHeight + 0.025f, 0f));
-            var stem = CreateLine(face, "RuneStem", material, 2);
+            float height = 0f;
 
-            stem.widthMultiplier = 0.045f;
-            stem.SetPosition(0, new Vector3(0f, 0f, -0.45f));
-            stem.SetPosition(1, new Vector3(0f, 0f, 0.45f));
+            foreach (var renderer in prefab.GetComponentsInChildren<MeshRenderer>(true))
+            {
+                Vector3 highestPoint = renderer.bounds.center + Vector3.up * renderer.bounds.extents.y;
 
-            var crown = CreateLine(face, "RuneCrown", material, 3);
+                height = Mathf.Max(height, prefab.transform.InverseTransformPoint(highestPoint).y);
+            }
 
-            crown.widthMultiplier = 0.045f;
-            crown.SetPosition(0, new Vector3(-0.3f, 0f, 0.3f));
-            crown.SetPosition(1, Vector3.zero);
-            crown.SetPosition(2, new Vector3(0.3f, 0f, 0.3f));
-
-            var seal = CreateChild(face, "RuneSeal", Vector3.zero);
-
-            AddRunes(seal, material);
+            return height;
         }
 
         private static void AddOrbitingRing(Transform root, Material material, string name, float radius, float height, float tilt)
@@ -127,35 +117,6 @@ namespace HexBattleMage.Core.Visuals
                 glyph.SetPosition(1, new Vector3(0f, 0f, 0.04f));
                 glyph.SetPosition(2, new Vector3(-0.07f, 0f, 0f));
                 glyph.SetPosition(3, new Vector3(0f, 0f, -0.04f));
-            }
-        }
-
-        private static void AddRunes(Transform root, Material material)
-        {
-            var circle = CreateLine(root, "RuneCircle", material, CircleSegments);
-
-            circle.loop = true;
-
-            for (int index = 0; index < CircleSegments; index++)
-            {
-                float angle = index * Mathf.PI * 2f / CircleSegments;
-
-                circle.SetPosition(index, new Vector3(Mathf.Cos(angle) * CircleRadius, 0f, Mathf.Sin(angle) * CircleRadius));
-            }
-
-            for (int index = 0; index < RuneCount; index++)
-            {
-                float angle = index * Mathf.PI * 2f / RuneCount;
-                var runeRoot = CreateChild(root, $"Rune{index}", new Vector3(Mathf.Cos(angle) * CircleRadius, 0.008f, Mathf.Sin(angle) * CircleRadius));
-
-                runeRoot.localRotation = Quaternion.Euler(0f, -angle * Mathf.Rad2Deg, 0f);
-
-                var rune = CreateLine(runeRoot, "Glyph", material, 4);
-
-                rune.SetPosition(0, new Vector3(-0.05f, 0f, -0.025f));
-                rune.SetPosition(1, new Vector3(0.05f, 0f, 0.025f));
-                rune.SetPosition(2, new Vector3(0f, 0f, 0.055f));
-                rune.SetPosition(3, new Vector3(0f, 0f, -0.055f));
             }
         }
 
