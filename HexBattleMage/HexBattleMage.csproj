@@ -66,6 +66,14 @@
       <HintPath>..\..\..\valheim_mod_libraries\UnityEngine.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="UnityEngine.UI">
+      <HintPath>..\..\..\valheim_mod_libraries\UnityEngine.UI.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Unity.TextMeshPro">
+      <HintPath>..\..\..\valheim_mod_libraries\Unity.TextMeshPro.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="UnityEngine.AssetBundleModule">
       <HintPath>..\..\..\valheim_mod_libraries\UnityEngine.AssetBundleModule.dll</HintPath>
       <Private>False</Private>
@@ -76,6 +84,10 @@
     </Reference>
     <Reference Include="UnityEngine.CoreModule">
       <HintPath>..\..\..\valheim_mod_libraries\UnityEngine.CoreModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.LightModule">
+      <HintPath>..\..\..\valheim_mod_libraries\UnityEngine.LightModule.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="UnityEngine.ParticleSystemModule">
@@ -90,6 +102,15 @@
   <ItemGroup>
     <Compile Include="Assets\AssetBundleHelper.cs" />
     <Compile Include="Core\DevConfig.cs" />
+    <Compile Include="Core\Visuals\MageRunestoneStructure.cs" />
+    <Compile Include="Core\MageEquipmentCatalog.cs" />
+    <Compile Include="Core\UI\MageUnlocksTab.cs" />
+    <Compile Include="Patches\MageUnlocksTabPatches.cs" />
+    <Compile Include="Core\ModLocalization.cs" />
+    <Compile Include="Core\Visuals\RotatingArcaneRing.cs" />
+    <Compile Include="Core\Managers\CraftingStationManager.cs" />
+    <Compile Include="Core\Visuals\ArcaneWorkbenchVisuals.cs" />
+    <Compile Include="Core\Visuals\FloatingArcaneCrystal.cs" />
     <Compile Include="Core\DebugLog.cs" />
     <Compile Include="Core\WandStats.cs" />
     <Compile Include="Patches\WandCompendiumPatches.cs" />
@@ -103,6 +124,7 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Assets\AssetBundles\hexbattlemage" />
+    <EmbeddedResource Include="Assets\Translations\English.json" />
     <None Include="CHANGELOG.md">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

@@ -28,6 +28,7 @@ namespace HexBattleMage
         {
             Log = Logger;
             _devConfig = new DevConfig(Config);
+            ModLocalization.Initialize();
 
             if (!AssetBundleHelper.LoadAssets())
             {
@@ -43,6 +44,8 @@ namespace HexBattleMage
             {
                 return;
             }
+
+            CraftingStationManager.Initialize();
 
             _harmonyInstance = new Harmony(PluginGuid);
             _harmonyInstance.PatchAll(Assembly.GetExecutingAssembly());
@@ -71,6 +74,7 @@ namespace HexBattleMage
         private void OnDestroy()
         {
             _initialized = false;
+            CraftingStationManager.Shutdown();
             _devConfig?.Dispose();
             Log.LogInfo($"{PluginName} v{PluginVersion} unloaded.");
 

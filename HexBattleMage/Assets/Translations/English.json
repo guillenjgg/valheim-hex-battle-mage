@@ -1,0 +1,16 @@
+{
+  "piece_hexbattlemage_magetable": "Mage Table",
+  "piece_hexbattlemage_magetable_description": "A rune-bound table for crafting and repairing battlemage equipment.",
+  "item_hexbattlemage_beechwand": "Beech Wand",
+  "item_hexbattlemage_beechwand_description": "A resin-bound beech wand that channels magic into focused bolts. Most effective at close to medium range.",
+  "jotunn_cat_battle_mage": "Battle Mage",
+  "hexbattlemage_unlocks_tab": "Unlocks",
+  "hexbattlemage_unlocks_intro": "Discover these resources to unlock mage equipment. Discovered resources stay known even after you use them.",
+  "hexbattlemage_unlocks_biome": "{0} — Items: {1}",
+  "hexbattlemage_unlocks_known": "{0} — Discovered",
+  "hexbattlemage_unlocks_missing": "{0} — Undiscovered",
+  "hexbattlemage_wandstats_title": "Battle Mage - Wand Stats",
+  "hexbattlemage_wandstats_empty": "Prefab: {0}\nImpact damage: Not recorded\nAoE damage: Not recorded\n\nFire the wand to record an impact.",
+  "hexbattlemage_wandstats_area": "Prefab: {0}\nImpact damage: 0 (area hit)\nAoE damage: {1:0.##} per target ({2:0.##} m radius)\n\nLatest impact, after range falloff and before target defenses. Area damage replaces direct impact damage.",
+  "hexbattlemage_wandstats_direct": "Prefab: {0}\nImpact damage: {1:0.##}\nAoE damage: 0\n\nLatest impact, after range falloff and before target defenses."
+}

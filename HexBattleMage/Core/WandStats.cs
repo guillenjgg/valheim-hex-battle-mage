@@ -4,35 +4,39 @@ namespace HexBattleMage.Core
 {
     internal static class WandStats
     {
-        internal const string CompendiumTopic = "HexBattleMage - Wand Stats";
+        internal const string CompendiumTopic = "$hexbattlemage_wandstats_title";
 
         private static Player _player;
-        private static string _latestImpactText;
+        private static string _prefabName;
+        private static float _damage;
+        private static float _areaRadius;
 
         internal static void RecordImpact(Player player, string prefabName, float damage, float areaRadius)
         {
             _player = player;
-            _latestImpactText = FormatImpact(prefabName, damage, areaRadius);
+            _prefabName = prefabName;
+            _damage = damage;
+            _areaRadius = areaRadius;
         }
 
         internal static string GetText()
         {
-            if (_player == Player.m_localPlayer && _latestImpactText != null)
+            if (_player == Player.m_localPlayer && _prefabName != null)
             {
-                return _latestImpactText;
+                return FormatImpact(_prefabName, _damage, _areaRadius);
             }
 
-            return $"Prefab: {AssetBundleHelper.HexBeechWand.name}\nImpact damage: Not recorded\nAoE damage: Not recorded\n\nFire the wand to record an impact.";
+            return ModLocalization.Format("$hexbattlemage_wandstats_empty", AssetBundleHelper.HexBeechWand.name);
         }
 
         internal static string FormatImpact(string prefabName, float damage, float areaRadius)
         {
             if (areaRadius > 0f)
             {
-                return $"Prefab: {prefabName}\nImpact damage: 0 (area hit)\nAoE damage: {damage:0.##} per target ({areaRadius:0.##} m radius)\n\nLatest impact, after range falloff and before target defenses. Area damage replaces direct impact damage.";
+                return ModLocalization.Format("$hexbattlemage_wandstats_area", prefabName, damage, areaRadius);
             }
 
-            return $"Prefab: {prefabName}\nImpact damage: {damage:0.##}\nAoE damage: 0\n\nLatest impact, after range falloff and before target defenses.";
+            return ModLocalization.Format("$hexbattlemage_wandstats_direct", prefabName, damage);
         }
     }
 }

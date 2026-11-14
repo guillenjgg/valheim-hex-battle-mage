@@ -49,9 +49,9 @@ namespace HexBattleMage.Core
             ProjectileAccuracy = BindFloat(nameof(ProjectileAccuracy), 0f, "Projectile spread in degrees.", 0f, 180f);
             ProjectileAccuracyMin = BindFloat(nameof(ProjectileAccuracyMin), 0f, "Minimum projectile spread in degrees.", 0f, 180f);
             SkillAccuracy = config.Bind(Section, nameof(SkillAccuracy), false, "Let skill affect projectile accuracy.");
-            SparkSize = BindFloat(nameof(SparkSize), 2f, "Spark particle start size.", 0.01f, 20f);
-            SparksPerSecond = BindFloat(nameof(SparksPerSecond), 120f, "Spark emission per second.", 0f, 1000f);
-            SparksPerMeter = BindFloat(nameof(SparksPerMeter), 4f, "Spark emission per metre travelled.", 0f, 100f);
+            SparkSize = BindFloat(nameof(SparkSize), 0.45f, "Spark particle start size.", 0.01f, 20f);
+            SparksPerSecond = BindFloat(nameof(SparksPerSecond), 40f, "Spark emission per second.", 0f, 1000f);
+            SparksPerMeter = BindFloat(nameof(SparksPerMeter), 0.5f, "Spark emission per metre travelled.", 0f, 100f);
             SparkSimulationSpace = config.Bind(Section, nameof(SparkSimulationSpace), ParticleSystemSimulationSpace.World, "World leaves particles along the flight path; Local moves them with the bolt. Custom requires a transform and is treated as World.");
             SparkRenderMode = config.Bind(Section, nameof(SparkRenderMode), ParticleSystemRenderMode.Billboard, "Particle rendering mode. Billboard faces the camera.");
             SparkEmissionEnabled = config.Bind(Section, nameof(SparkEmissionEnabled), true, "Enable spark emission on newly fired bolts.");

@@ -1,11 +1,17 @@
 ﻿using HexBattleMage.Assets;
 using Jotunn.Entities;
+using Jotunn.Configs;
 using Jotunn.Managers;
+using UnityEngine;
 
 namespace HexBattleMage.Core.Managers
 {
     internal static class ItemRegistrationManager
     {
+        private const int BeechWandWoodCost = 20;
+        private const int BeechWandResinCost = 2;
+        private const int BaseStationLevel = 1;
+
         internal static bool RegisterItems()
         {
             var wandPrefab = AssetBundleHelper.HexBeechWand;
@@ -18,15 +24,32 @@ namespace HexBattleMage.Core.Managers
             }
 
             ApplySettings(itemDrop.m_itemData.m_shared.m_attack);
+            itemDrop.m_itemData.m_shared.m_name = ModLocalization.BeechWandName;
+            itemDrop.m_itemData.m_shared.m_description = ModLocalization.BeechWandDescription;
 
-            var wand = new CustomItem(wandPrefab, fixReference: true);
+            return RegisterEquipment(wandPrefab, Heightmap.Biome.Meadows, new[] { new RequirementConfig("Wood", BeechWandWoodCost), new RequirementConfig("Resin", BeechWandResinCost) });
+        }
 
-            if (!ItemManager.Instance.AddItem(wand))
+        private static bool RegisterEquipment(GameObject prefab, Heightmap.Biome biome, RequirementConfig[] requirements)
+        {
+            var config = new ItemConfig
             {
-                DebugLog.LogError($"Failed to register item '{wandPrefab.name}'.");
+                CraftingStation = CraftingStationManager.WorkbenchPrefabName,
+                RepairStation = CraftingStationManager.WorkbenchPrefabName,
+                MinStationLevel = BaseStationLevel,
+                Amount = 1,
+                Requirements = requirements
+            };
+
+            var item = new CustomItem(prefab, true, config);
+
+            if (!ItemManager.Instance.AddItem(item))
+            {
+                DebugLog.LogError($"Failed to register item '{prefab.name}'.");
                 return false;
             }
 
+            MageEquipmentCatalog.Register(item.ItemDrop, item.Recipe.Recipe, biome);
             return true;
         }
 
