@@ -1,4 +1,4 @@
-using HexBattleMage.Assets;
+﻿using HexBattleMage.Assets;
 
 namespace HexBattleMage.Core
 {
@@ -26,7 +26,7 @@ namespace HexBattleMage.Core
                 return FormatImpact(_prefabName, _damage, _areaRadius);
             }
 
-            return ModLocalization.Format("$hexbattlemage_wandstats_empty", AssetBundleHelper.HexBeechWand.name);
+            return ModLocalization.Format("$hexbattlemage_wandstats_empty", AssetBundleHelper.HexBattleMageWand.name);
         }
 
         internal static string FormatImpact(string prefabName, float damage, float areaRadius)

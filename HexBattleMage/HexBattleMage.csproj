@@ -111,6 +111,9 @@
     <Compile Include="Core\Managers\CraftingStationManager.cs" />
     <Compile Include="Core\Visuals\ArcaneWorkbenchVisuals.cs" />
     <Compile Include="Core\Visuals\FloatingArcaneCrystal.cs" />
+    <Compile Include="Core\Visuals\WandTipLight.cs" />
+    <Compile Include="Core\Visuals\WandStyle.cs" />
+    <Compile Include="Patches\WandStylePatches.cs" />
     <Compile Include="Core\DebugLog.cs" />
     <Compile Include="Core\WandStats.cs" />
     <Compile Include="Patches\WandCompendiumPatches.cs" />

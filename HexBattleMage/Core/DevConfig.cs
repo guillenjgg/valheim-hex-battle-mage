@@ -16,6 +16,8 @@ namespace HexBattleMage.Core
         private int _settingsChanged;
 
         internal static ConfigEntry<bool> EnableDebugLogging { get; private set; }
+        internal static ConfigEntry<float> WandLightRange { get; private set; }
+        internal static ConfigEntry<float> WandLightIntensity { get; private set; }
         internal static ConfigEntry<string> AttackAnimation { get; private set; }
         internal static ConfigEntry<int> AttackChainLevels { get; private set; }
         internal static ConfigEntry<int> RandomAttackAnimations { get; private set; }
@@ -41,6 +43,8 @@ namespace HexBattleMage.Core
         {
             _config = config;
             EnableDebugLogging = config.Bind(Section, nameof(EnableDebugLogging), false, "Enable mod logs outside Plugin.cs, including diagnostic warnings and errors.");
+            WandLightRange = BindFloat(nameof(WandLightRange), 5f, "Wand tip light range in metres. Applies immediately to equipped wands.", 0f, 20f);
+            WandLightIntensity = BindFloat(nameof(WandLightIntensity), 3f, "Wand tip light intensity. Applies immediately to equipped wands.", 0f, 10f);
             AttackAnimation = config.Bind(Section, nameof(AttackAnimation), "swing_axe", "Existing player animation trigger prefix. Use swing_axe with 3 chain levels or staff_fireball with 2. Applies to the next attack.");
             AttackChainLevels = config.Bind(Section, nameof(AttackChainLevels), 3, new ConfigDescription("Number of combo stages. Must match the chosen animation's available triggers. 0 disables chaining.", new AcceptableValueRange<int>(0, 10)));
             RandomAttackAnimations = config.Bind(Section, nameof(RandomAttackAnimations), 0, new ConfigDescription("Random animation variants when chaining is disabled. Must match existing triggers.", new AcceptableValueRange<int>(0, 10)));

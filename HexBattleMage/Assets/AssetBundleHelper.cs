@@ -7,12 +7,13 @@ namespace HexBattleMage.Assets
     internal static class AssetBundleHelper
     {
         private const string BundleName = "hexbattlemage";
-        private const string WandPrefabName = "HexBeechWand";
+        private const string WandPrefabName = "HexBattleMageWand";
+        private const string LegacyWandPrefabName = "HexBeechWand";
         private const string ProjectilePrefabName = "HexMagicBolt";
         private const string WorkbenchPrefabName = "HexArcaneWorkbench";
 
         internal static AssetBundle Bundle { get; private set; }
-        internal static GameObject HexBeechWand { get; private set; }
+        internal static GameObject HexBattleMageWand { get; private set; }
         internal static GameObject HexMagicBolt { get; private set; }
         internal static GameObject HexArcaneWorkbench { get; private set; }
 
@@ -26,13 +27,21 @@ namespace HexBattleMage.Assets
                 return false;
             }
 
-            HexBeechWand = Bundle.LoadAsset<GameObject>(WandPrefabName);
+            HexBattleMageWand = Bundle.LoadAsset<GameObject>(WandPrefabName);
 
-            if (HexBeechWand == null)
+            if (HexBattleMageWand == null)
+            {
+                HexBattleMageWand = Bundle.LoadAsset<GameObject>(LegacyWandPrefabName);
+            }
+
+            if (HexBattleMageWand == null)
             {
                 DebugLog.LogError($"Failed to load prefab '{WandPrefabName}'.");
                 return false;
             }
+
+            // Keep the registered identity so existing inventory items and world drops still resolve.
+            HexBattleMageWand.name = LegacyWandPrefabName;
 
             HexMagicBolt = Bundle.LoadAsset<GameObject>(ProjectilePrefabName);
 

@@ -66,7 +66,7 @@ namespace HexBattleMage
                 return;
             }
 
-            ItemRegistrationManager.ApplySettings(AssetBundleHelper.HexBeechWand.GetComponent<ItemDrop>().m_itemData.m_shared.m_attack);
+            ItemRegistrationManager.ApplySettings(AssetBundleHelper.HexBattleMageWand.GetComponent<ItemDrop>().m_itemData.m_shared.m_attack);
             ProjectileManager.ApplySettings();
             Log.LogInfo("Dev settings applied. Wand changes apply to the next attack; projectile changes apply to newly fired bolts.");
         }
