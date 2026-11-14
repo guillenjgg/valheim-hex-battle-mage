@@ -70,6 +70,10 @@
       <HintPath>..\..\..\valheim_mod_libraries\UnityEngine.AssetBundleModule.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="UnityEngine.AnimationModule">
+      <HintPath>..\..\..\valheim_mod_libraries\UnityEngine.AnimationModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="UnityEngine.CoreModule">
       <HintPath>..\..\..\valheim_mod_libraries\UnityEngine.CoreModule.dll</HintPath>
       <Private>False</Private>
@@ -85,6 +89,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\AssetBundleHelper.cs" />
+    <Compile Include="Core\DevConfig.cs" />
+    <Compile Include="Core\DebugLog.cs" />
+    <Compile Include="Core\WandStats.cs" />
+    <Compile Include="Patches\WandCompendiumPatches.cs" />
+    <Compile Include="Core\ProjectileDamageFalloff.cs" />
+    <Compile Include="Patches\WandProjectileFalloffPatch.cs" />
+    <Compile Include="Patches\WandAttackPatches.cs" />
     <Compile Include="Core\Managers\ItemRegistrationManager.cs" />
     <Compile Include="Core\Managers\ProjectileManager.cs" />
     <Compile Include="Plugin.cs" />

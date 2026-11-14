@@ -8,11 +8,9 @@ namespace HexBattleMage.Core.Managers
     internal static class ProjectileManager
     {
         private const string SparkEffectName = "SparkEffect";
-        private const float SparkStartSize = 2f;
-        private const float SparksPerSecond = 120f;
-        private const float SparksPerMeter = 4f;
-        private const float AreaOfEffectRadius = 3f;
-        private const float CollisionRadius = 0.25f;
+        private static Projectile _projectile;
+        private static ParticleSystem _sparkEffect;
+        private static ParticleSystemRenderer _sparkRenderer;
 
         internal static bool RegisterProjectiles()
         {
@@ -21,7 +19,7 @@ namespace HexBattleMage.Core.Managers
 
             if (projectile == null)
             {
-                Plugin.Log.LogError($"Prefab '{projectilePrefab.name}' is missing its Projectile component.");
+                DebugLog.LogError($"Prefab '{projectilePrefab.name}' is missing its Projectile component.");
                 return false;
             }
 
@@ -29,7 +27,7 @@ namespace HexBattleMage.Core.Managers
 
             if (sparkTransform == null)
             {
-                Plugin.Log.LogError($"Prefab '{projectilePrefab.name}' is missing '{SparkEffectName}'.");
+                DebugLog.LogError($"Prefab '{projectilePrefab.name}' is missing '{SparkEffectName}'.");
                 return false;
             }
 
@@ -37,7 +35,7 @@ namespace HexBattleMage.Core.Managers
 
             if (sparkEffect == null)
             {
-                Plugin.Log.LogError($"'{SparkEffectName}' is missing its ParticleSystem component.");
+                DebugLog.LogError($"'{SparkEffectName}' is missing its ParticleSystem component.");
                 return false;
             }
 
@@ -45,30 +43,38 @@ namespace HexBattleMage.Core.Managers
 
             if (sparkRenderer == null)
             {
-                Plugin.Log.LogError($"'{SparkEffectName}' is missing its ParticleSystemRenderer component.");
+                DebugLog.LogError($"'{SparkEffectName}' is missing its ParticleSystemRenderer component.");
                 return false;
             }
 
-            var main = sparkEffect.main;
-
-            main.startSize = SparkStartSize;
-            main.simulationSpace = ParticleSystemSimulationSpace.World;
-
-            var emission = sparkEffect.emission;
-
-            emission.enabled = true;
-            emission.rateOverTime = SparksPerSecond;
-            emission.rateOverDistance = SparksPerMeter;
-            sparkRenderer.renderMode = ParticleSystemRenderMode.Billboard;
-
-            projectile.m_aoe = AreaOfEffectRadius;
-            projectile.m_onlyStopOnTerrain = false;
-            projectile.m_rayRadius = CollisionRadius;
+            _projectile = projectile;
+            _sparkEffect = sparkEffect;
+            _sparkRenderer = sparkRenderer;
+            ApplySettings();
 
             var magicBolt = new CustomPrefab(projectilePrefab, fixReference: true);
 
             PrefabManager.Instance.AddPrefab(magicBolt);
             return true;
+        }
+
+        internal static void ApplySettings()
+        {
+            var main = _sparkEffect.main;
+
+            main.startSize = DevConfig.SparkSize.Value;
+            main.simulationSpace = DevConfig.SparkSimulationSpace.Value == ParticleSystemSimulationSpace.Custom ? ParticleSystemSimulationSpace.World : DevConfig.SparkSimulationSpace.Value;
+
+            var emission = _sparkEffect.emission;
+
+            emission.enabled = DevConfig.SparkEmissionEnabled.Value;
+            emission.rateOverTime = DevConfig.SparksPerSecond.Value;
+            emission.rateOverDistance = DevConfig.SparksPerMeter.Value;
+            _sparkRenderer.renderMode = DevConfig.SparkRenderMode.Value;
+
+            _projectile.m_aoe = DevConfig.AreaOfEffectRadius.Value;
+            _projectile.m_onlyStopOnTerrain = DevConfig.OnlyStopOnTerrain.Value;
+            _projectile.m_rayRadius = DevConfig.CollisionRadius.Value;
         }
     }
 }

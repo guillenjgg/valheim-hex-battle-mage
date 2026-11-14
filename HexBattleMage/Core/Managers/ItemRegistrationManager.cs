@@ -6,8 +6,6 @@ namespace HexBattleMage.Core.Managers
 {
     internal static class ItemRegistrationManager
     {
-        private const float ProjectileVelocity = 100f;
-
         internal static bool RegisterItems()
         {
             var wandPrefab = AssetBundleHelper.HexBeechWand;
@@ -15,27 +13,48 @@ namespace HexBattleMage.Core.Managers
 
             if (itemDrop == null)
             {
-                Plugin.Log.LogError($"Prefab '{wandPrefab.name}' is missing its ItemDrop component.");
+                DebugLog.LogError($"Prefab '{wandPrefab.name}' is missing its ItemDrop component.");
                 return false;
             }
 
-            var attack = itemDrop.m_itemData.m_shared.m_attack;
-
-            attack.m_attackProjectile = AssetBundleHelper.HexMagicBolt;
-            attack.m_projectileVel = ProjectileVelocity;
-            attack.m_projectileAccuracy = 0f;
-            attack.m_projectileAccuracyMin = 0f;
-            attack.m_skillAccuracy = false;
+            ApplySettings(itemDrop.m_itemData.m_shared.m_attack);
 
             var wand = new CustomItem(wandPrefab, fixReference: true);
 
             if (!ItemManager.Instance.AddItem(wand))
             {
-                Plugin.Log.LogError($"Failed to register item '{wandPrefab.name}'.");
+                DebugLog.LogError($"Failed to register item '{wandPrefab.name}'.");
                 return false;
             }
 
             return true;
+        }
+
+        internal static bool IsWand(ItemDrop.ItemData item)
+        {
+            if (item == null)
+            {
+                return false;
+            }
+
+            if (item.m_dropPrefab == null)
+            {
+                return false;
+            }
+
+            return item.m_dropPrefab.name == AssetBundleHelper.HexBeechWand.name;
+        }
+
+        internal static void ApplySettings(Attack attack)
+        {
+            attack.m_attackAnimation = DevConfig.AttackAnimation.Value;
+            attack.m_attackChainLevels = DevConfig.AttackChainLevels.Value;
+            attack.m_attackRandomAnimations = DevConfig.RandomAttackAnimations.Value;
+            attack.m_attackProjectile = AssetBundleHelper.HexMagicBolt;
+            attack.m_projectileVel = DevConfig.ProjectileVelocity.Value;
+            attack.m_projectileAccuracy = DevConfig.ProjectileAccuracy.Value;
+            attack.m_projectileAccuracyMin = DevConfig.ProjectileAccuracyMin.Value;
+            attack.m_skillAccuracy = DevConfig.SkillAccuracy.Value;
         }
     }
 }

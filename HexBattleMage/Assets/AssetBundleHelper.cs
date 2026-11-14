@@ -1,5 +1,6 @@
 ﻿using Jotunn.Utils;
 using UnityEngine;
+using HexBattleMage.Core;
 
 namespace HexBattleMage.Assets
 {
@@ -19,7 +20,7 @@ namespace HexBattleMage.Assets
 
             if (Bundle == null)
             {
-                Plugin.Log.LogError("Failed to load HexBattleMage asset bundle.");
+                DebugLog.LogError("Failed to load HexBattleMage asset bundle.");
                 return false;
             }
 
@@ -27,7 +28,7 @@ namespace HexBattleMage.Assets
 
             if (HexBeechWand == null)
             {
-                Plugin.Log.LogError($"Failed to load prefab '{WandPrefabName}'.");
+                DebugLog.LogError($"Failed to load prefab '{WandPrefabName}'.");
                 return false;
             }
 
@@ -35,11 +36,11 @@ namespace HexBattleMage.Assets
 
             if (HexMagicBolt == null)
             {
-                Plugin.Log.LogError($"Failed to load prefab '{ProjectilePrefabName}'.");
+                DebugLog.LogError($"Failed to load prefab '{ProjectilePrefabName}'.");
                 return false;
             }
 
-            Plugin.Log.LogInfo("HexBattleMage assets loaded.");
+            DebugLog.LogInfo("HexBattleMage assets loaded.");
             return true;
         }
     }
