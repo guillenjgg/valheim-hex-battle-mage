@@ -14,6 +14,7 @@ namespace HexBattleMage.Core
         private const string ProjectileSection = "Development / Projectile";
         private const string AnimationSection = "Development / Wand Animation";
         private const string LightingSection = "Development / Wand Light";
+        private const string WandDamageSection = "Development / Wand Damage";
         private const string DamageSection = "Development / Damage Falloff";
         private const float ReloadCheckInterval = 0.5f;
         private readonly ConfigFile _config;
@@ -38,9 +39,15 @@ namespace HexBattleMage.Core
         internal static ConfigEntry<float> BoltJaggedness { get; private set; }
         internal static ConfigEntry<float> BoltBrightness { get; private set; }
         internal static ConfigEntry<Color> BoltColor { get; private set; }
+        internal static ConfigEntry<float> ImpactSoundVolume { get; private set; }
+        internal static ConfigEntry<float> ImpactVisualDuration { get; private set; }
+        internal static ConfigEntry<float> ImpactBurstOpacity { get; private set; }
+        internal static ConfigEntry<float> ImpactLineWidth { get; private set; }
         internal static ConfigEntry<float> AreaOfEffectRadius { get; private set; }
         internal static ConfigEntry<float> CollisionRadius { get; private set; }
         internal static ConfigEntry<bool> OnlyStopOnTerrain { get; private set; }
+        internal static ConfigEntry<float> WandBluntDamage { get; private set; }
+        internal static ConfigEntry<float> WandPierceDamage { get; private set; }
         internal static ConfigEntry<float> FullDamageRange { get; private set; }
         internal static ConfigEntry<float> DamageFalloffDistance { get; private set; }
         internal static ConfigEntry<float> MinimumDamageMultiplier { get; private set; }
@@ -72,9 +79,15 @@ namespace HexBattleMage.Core
                 BoltJaggedness = BindFloat(ProjectileSection, nameof(BoltJaggedness), 0.07f, "Maximum sideways displacement of the bolt's zigzags, in metres. Applies live.", 0f, 0.3f);
                 BoltBrightness = BindFloat(ProjectileSection, nameof(BoltBrightness), 2f, "Lightning bolt brightness. Applies live.", 0.1f, 6f);
                 BoltColor = BindSetting(ProjectileSection, nameof(BoltColor), new Color(0.3f, 0.6f, 1f, 1f), "Lightning bolt halo color. The narrow core stays white. Applies live.");
+                ImpactSoundVolume = BindFloat(ProjectileSection, nameof(ImpactSoundVolume), 1f, "Local wand impact sound volume multiplier. 1 keeps the current loudness; 0.5 halves the source volume; 0 mutes. Applies to the next impact, including other players wand impacts heard by you.", 0f, 1f);
+                ImpactVisualDuration = BindFloat(ProjectileSection, nameof(ImpactVisualDuration), 0.18f, "Smoke-free explosion burst lifetime in seconds. Applies to the next impact.", 0.05f, 0.5f);
+                ImpactBurstOpacity = BindFloat(ProjectileSection, nameof(ImpactBurstOpacity), 0.85f, "Opacity of the smoke-free explosion burst. Applies to the next impact.", 0f, 1f);
+                ImpactLineWidth = BindFloat(ProjectileSection, nameof(ImpactLineWidth), 0.012f, "Explosion spark width in metres. Burst radius stays within the actual AoE, capped at 0.5 metres; direct hits use a small flash.", 0.005f, 0.05f);
                 AreaOfEffectRadius = BindFloat(ProjectileSection, nameof(AreaOfEffectRadius), 3f, "Projectile impact area radius in metres.", 0f, 30f);
-                CollisionRadius = BindFloat(ProjectileSection, nameof(CollisionRadius), 0.25f, "Projectile collision radius in metres.", 0.01f, 5f);
+                CollisionRadius = BindFloat(ProjectileSection, nameof(CollisionRadius), 0.4f, "Projectile hit detection radius in metres. Larger values make aiming more forgiving and can hit nearby cover sooner. Does not change AoE damage radius. Applies to newly fired projectiles.", 0.01f, 5f);
                 OnlyStopOnTerrain = BindSetting(ProjectileSection, nameof(OnlyStopOnTerrain), false, "Only terrain stops the projectile.");
+                WandBluntDamage = BindFloat(WandDamageSection, nameof(WandBluntDamage), 10f, "Base blunt damage on every wand shot, in addition to pierce and elemental damage. Applies to the next shot.", 0.1f, 1000f);
+                WandPierceDamage = BindFloat(WandDamageSection, nameof(WandPierceDamage), 10f, "Base pierce damage on every wand shot, in addition to blunt and elemental damage. Applies to the next shot.", 0.1f, 1000f);
                 FullDamageRange = BindFloat(DamageSection, nameof(FullDamageRange), 10f, "Full wand projectile damage up to this distance from launch, in metres. Falloff is evaluated at impact for both direct and area damage.", 0f, 100f);
                 DamageFalloffDistance = BindFloat(DamageSection, nameof(DamageFalloffDistance), 20f, "Distance beyond FullDamageRange over which damage gradually falls to its minimum. For example, 10 + 20 reaches minimum damage at 30 metres.", 0.1f, 200f);
                 MinimumDamageMultiplier = BindFloat(DamageSection, nameof(MinimumDamageMultiplier), 0.2f, "Minimum fraction of wand projectile damage at long range. 0.2 retains 20%. Cannot be set to zero.", 0.01f, 1f);

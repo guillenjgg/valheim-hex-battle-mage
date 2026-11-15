@@ -5,6 +5,22 @@ using UnityEngine;
 
 namespace HexBattleMage.Patches
 {
+    [HarmonyPatch(typeof(Humanoid), "SetupAnimationState")]
+    internal static class WandEquipmentAnimationPatch
+    {
+        private static void Prefix(Humanoid __instance)
+        {
+            var weapon = __instance.GetCurrentWeapon();
+
+            if (!ItemRegistrationManager.IsWand(weapon))
+            {
+                return;
+            }
+
+            weapon.m_shared.m_animationState = ItemDrop.ItemData.AnimationState.OneHanded;
+        }
+    }
+
     [HarmonyPatch(typeof(Attack), nameof(Attack.Start))]
     internal static class WandAttackStartPatch
     {
@@ -20,6 +36,7 @@ namespace HexBattleMage.Patches
                 return;
             }
 
+            ItemRegistrationManager.ApplyDamageSettings(weapon);
             ItemRegistrationManager.ApplySettings(__instance);
         }
 

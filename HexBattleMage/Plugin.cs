@@ -66,7 +66,21 @@ namespace HexBattleMage
                 return;
             }
 
-            ItemRegistrationManager.ApplySettings(AssetBundleHelper.HexBattleMageWand.GetComponent<ItemDrop>().m_itemData.m_shared.m_attack);
+            var wandItem = AssetBundleHelper.HexBattleMageWand.GetComponent<ItemDrop>().m_itemData;
+
+            ItemRegistrationManager.ApplyDamageSettings(wandItem);
+            ItemRegistrationManager.ApplySettings(wandItem.m_shared.m_attack);
+
+            if (Player.m_localPlayer != null)
+            {
+                foreach (var item in Player.m_localPlayer.GetInventory().GetAllItems())
+                {
+                    if (ItemRegistrationManager.IsWand(item))
+                    {
+                        ItemRegistrationManager.ApplyDamageSettings(item);
+                    }
+                }
+            }
             ProjectileManager.ApplySettings();
             Log.LogInfo("Development settings applied. Wand lights and bolt appearance update live; attack and projectile gameplay settings apply on the next shot.");
         }

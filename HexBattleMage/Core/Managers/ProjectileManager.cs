@@ -40,6 +40,10 @@ namespace HexBattleMage.Core.Managers
                 light.enabled = false;
             }
 
+            projectile.m_hitEffects = new EffectList();
+            projectile.m_hitWaterEffects = new EffectList();
+            projectilePrefab.AddComponent<WandProjectileImpact>();
+
             var visual = new GameObject("LightningBoltVisual");
 
             visual.transform.SetParent(projectilePrefab.transform, false);
