@@ -1,4 +1,5 @@
-﻿using HexBattleMage.Assets;
+using HexBattleMage.Assets;
+using HexBattleMage.Core.Visuals;
 using Jotunn.Entities;
 using Jotunn.Managers;
 using UnityEngine;
@@ -7,10 +8,7 @@ namespace HexBattleMage.Core.Managers
 {
     internal static class ProjectileManager
     {
-        private const string SparkEffectName = "SparkEffect";
         private static Projectile _projectile;
-        private static ParticleSystem _sparkEffect;
-        private static ParticleSystemRenderer _sparkRenderer;
 
         internal static bool RegisterProjectiles()
         {
@@ -23,34 +21,34 @@ namespace HexBattleMage.Core.Managers
                 return false;
             }
 
-            var sparkTransform = projectilePrefab.transform.Find(SparkEffectName);
-
-            if (sparkTransform == null)
+            foreach (var particles in projectilePrefab.GetComponentsInChildren<ParticleSystem>(true))
             {
-                DebugLog.LogError($"Prefab '{projectilePrefab.name}' is missing '{SparkEffectName}'.");
-                return false;
+                particles.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+
+                var emission = particles.emission;
+
+                emission.enabled = false;
             }
 
-            var sparkEffect = sparkTransform.GetComponent<ParticleSystem>();
-
-            if (sparkEffect == null)
+            foreach (var renderer in projectilePrefab.GetComponentsInChildren<Renderer>(true))
             {
-                DebugLog.LogError($"'{SparkEffectName}' is missing its ParticleSystem component.");
-                return false;
+                renderer.enabled = false;
             }
 
-            var sparkRenderer = sparkTransform.GetComponent<ParticleSystemRenderer>();
-
-            if (sparkRenderer == null)
+            foreach (var light in projectilePrefab.GetComponentsInChildren<Light>(true))
             {
-                DebugLog.LogError($"'{SparkEffectName}' is missing its ParticleSystemRenderer component.");
-                return false;
+                light.enabled = false;
             }
 
+            var visual = new GameObject("LightningBoltVisual");
+
+            visual.transform.SetParent(projectilePrefab.transform, false);
+            visual.AddComponent<LightningBoltVisual>();
+            projectile.m_visual = visual;
+            projectile.m_hideOnHit = visual;
             _projectile = projectile;
-            _sparkEffect = sparkEffect;
-            _sparkRenderer = sparkRenderer;
             ApplySettings();
+            PrefabManager.OnVanillaPrefabsAvailable += PrepareLightningMaterial;
 
             var magicBolt = new CustomPrefab(projectilePrefab, fixReference: true);
 
@@ -58,20 +56,14 @@ namespace HexBattleMage.Core.Managers
             return true;
         }
 
+        private static void PrepareLightningMaterial()
+        {
+            PrefabManager.OnVanillaPrefabsAvailable -= PrepareLightningMaterial;
+            LightningBoltVisual.PrepareMaterial();
+        }
+
         internal static void ApplySettings()
         {
-            var main = _sparkEffect.main;
-
-            main.startSize = DevConfig.SparkSize.Value;
-            main.simulationSpace = DevConfig.SparkSimulationSpace.Value == ParticleSystemSimulationSpace.Custom ? ParticleSystemSimulationSpace.World : DevConfig.SparkSimulationSpace.Value;
-
-            var emission = _sparkEffect.emission;
-
-            emission.enabled = DevConfig.SparkEmissionEnabled.Value;
-            emission.rateOverTime = DevConfig.SparksPerSecond.Value;
-            emission.rateOverDistance = DevConfig.SparksPerMeter.Value;
-            _sparkRenderer.renderMode = DevConfig.SparkRenderMode.Value;
-
             _projectile.m_aoe = DevConfig.AreaOfEffectRadius.Value;
             _projectile.m_onlyStopOnTerrain = DevConfig.OnlyStopOnTerrain.Value;
             _projectile.m_rayRadius = DevConfig.CollisionRadius.Value;

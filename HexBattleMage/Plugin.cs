@@ -68,7 +68,7 @@ namespace HexBattleMage
 
             ItemRegistrationManager.ApplySettings(AssetBundleHelper.HexBattleMageWand.GetComponent<ItemDrop>().m_itemData.m_shared.m_attack);
             ProjectileManager.ApplySettings();
-            Log.LogInfo("Dev settings applied. Wand changes apply to the next attack; projectile changes apply to newly fired bolts.");
+            Log.LogInfo("Development settings applied. Wand lights and bolt appearance update live; attack and projectile gameplay settings apply on the next shot.");
         }
 
         private void OnDestroy()
