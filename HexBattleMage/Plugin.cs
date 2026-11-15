@@ -46,6 +46,7 @@ namespace HexBattleMage
             }
 
             CraftingStationManager.Initialize();
+            MagicShieldManager.Initialize();
 
             _harmonyInstance = new Harmony(PluginGuid);
             _harmonyInstance.PatchAll(Assembly.GetExecutingAssembly());
@@ -89,6 +90,7 @@ namespace HexBattleMage
         {
             _initialized = false;
             CraftingStationManager.Shutdown();
+            MagicShieldManager.Shutdown();
             _devConfig?.Dispose();
             Log.LogInfo($"{PluginName} v{PluginVersion} unloaded.");
 

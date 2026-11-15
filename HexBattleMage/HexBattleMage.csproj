@@ -128,6 +128,11 @@
     <Compile Include="Patches\WandAttackPatches.cs" />
     <Compile Include="Patches\WandHolsterPatch.cs" />
     <Compile Include="Core\Managers\ItemRegistrationManager.cs" />
+    <Compile Include="Core\Managers\MagicShieldManager.cs" />
+    <Compile Include="Core\Visuals\MagicShieldVisual.cs" />
+    <Compile Include="Core\Visuals\MagicBracerVisualController.cs" />
+    <Compile Include="Patches\MagicBracerEquipmentPatches.cs" />
+    <Compile Include="Patches\MagicShieldPatches.cs" />
     <Compile Include="Core\Managers\ProjectileManager.cs" />
     <Compile Include="Plugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
