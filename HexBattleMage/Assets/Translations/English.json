@@ -1,8 +1,11 @@
 {
   "piece_hexbattlemage_magetable": "Mage Table",
   "piece_hexbattlemage_magetable_description": "A rune-bound table for crafting and repairing battlemage equipment.",
-  "item_hexbattlemage_beechwand": "Beech Wand",
-  "item_hexbattlemage_beechwand_description": "A resin-bound beech wand that channels magic into focused bolts. Most effective at close to medium range.",
+  "item_hexbattlemage_beechwand": "Apprentice Wand",
+  "item_hexbattlemage_beechwand_description": "A resin-bound branch that channels an apprentice's magic into focused bolts. Most effective at close to medium range.",
+  "hexbattlemage_style_applied": "Wand appearance applied. No materials consumed.",
+  "hexbattlemage_style_next_craft": "Appearance selected for your first wand.",
+  "hexbattlemage_style_equip_wand": "Equip the wand you want to restyle, or select it under Upgrade.",
   "jotunn_cat_battle_mage": "Battle Mage",
   "hexbattlemage_unlocks_tab": "Unlocks",
   "hexbattlemage_unlocks_intro": "Discover these resources to unlock mage equipment. Discovered resources stay known even after you use them.",

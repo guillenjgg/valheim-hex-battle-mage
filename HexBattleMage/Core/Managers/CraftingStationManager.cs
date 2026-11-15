@@ -1,5 +1,6 @@
 using HexBattleMage.Core.Visuals;
 using Jotunn.Configs;
+using HexBattleMage.Assets;
 using Jotunn.Entities;
 using Jotunn.Managers;
 using UnityEngine;
@@ -10,7 +11,6 @@ namespace HexBattleMage.Core.Managers
     {
         internal const string WorkbenchPrefabName = "HexArcaneWorkbench";
         internal const string CraftingPieceCategory = "Battle Mage";
-        private const string BaseWorkbenchPrefabName = "piece_workbench";
         private const int WoodCost = 10;
         private const int StoneCost = 5;
         private static GameObject _workbenchPrefab;
@@ -45,11 +45,11 @@ namespace HexBattleMage.Core.Managers
                 }
             };
 
-            var workbench = new CustomPiece(WorkbenchPrefabName, BaseWorkbenchPrefabName, config);
+            var workbench = new CustomPiece(AssetBundleHelper.HexArcaneWorkbench, true, config);
 
             if (workbench.PiecePrefab == null)
             {
-                DebugLog.LogError("Could not clone the vanilla workbench.");
+                DebugLog.LogError("The bundled Mage Table prefab is unavailable.");
                 return;
             }
 
@@ -57,7 +57,7 @@ namespace HexBattleMage.Core.Managers
 
             if (station == null)
             {
-                DebugLog.LogError("The cloned workbench is missing its CraftingStation component.");
+                DebugLog.LogError("The bundled Mage Table is missing its CraftingStation component.");
                 Object.Destroy(workbench.PiecePrefab);
                 return;
             }
@@ -65,7 +65,6 @@ namespace HexBattleMage.Core.Managers
             station.m_name = ModLocalization.MageTableName;
             station.m_showBasicRecipies = false;
             workbench.Piece.m_craftingStation = null;
-            MageRunestoneStructure.ConfigureCollision(workbench.PiecePrefab);
 
             if (!PieceManager.Instance.AddPiece(workbench))
             {
@@ -92,11 +91,17 @@ namespace HexBattleMage.Core.Managers
 
             if (!GUIManager.IsHeadless())
             {
-                var icon = RenderManager.Instance.Render(_workbenchPrefab, RenderManager.IsometricRotation);
+                var piece = _workbenchPrefab.GetComponent<Piece>();
+                var icon = piece.m_icon;
+
+                if (icon == null)
+                {
+                    icon = RenderManager.Instance.Render(_workbenchPrefab, RenderManager.IsometricRotation);
+                }
 
                 if (icon != null)
                 {
-                    _workbenchPrefab.GetComponent<Piece>().m_icon = icon;
+                    piece.m_icon = icon;
                     _workbenchPrefab.GetComponent<CraftingStation>().m_icon = icon;
                 }
             }

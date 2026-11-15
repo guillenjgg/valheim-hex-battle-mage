@@ -102,15 +102,19 @@
   <ItemGroup>
     <Compile Include="Assets\AssetBundleHelper.cs" />
     <Compile Include="Core\DevConfig.cs" />
-    <Compile Include="Core\Visuals\MageRunestoneStructure.cs" />
     <Compile Include="Core\MageEquipmentCatalog.cs" />
     <Compile Include="Core\UI\MageUnlocksTab.cs" />
     <Compile Include="Patches\MageUnlocksTabPatches.cs" />
+    <Compile Include="Patches\MageTableResourcePatch.cs" />
     <Compile Include="Core\ModLocalization.cs" />
     <Compile Include="Core\Visuals\RotatingArcaneRing.cs" />
     <Compile Include="Core\Managers\CraftingStationManager.cs" />
     <Compile Include="Core\Visuals\ArcaneWorkbenchVisuals.cs" />
     <Compile Include="Core\Visuals\FloatingArcaneCrystal.cs" />
+    <Compile Include="Core\Visuals\WandTipLight.cs" />
+    <Compile Include="Core\Visuals\WandStyle.cs" />
+    <Compile Include="Core\Visuals\LightningBoltVisual.cs" />
+    <Compile Include="Patches\WandStylePatches.cs" />
     <Compile Include="Core\DebugLog.cs" />
     <Compile Include="Core\WandStats.cs" />
     <Compile Include="Patches\WandCompendiumPatches.cs" />
