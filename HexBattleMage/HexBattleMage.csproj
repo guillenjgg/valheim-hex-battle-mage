@@ -82,6 +82,9 @@
       <HintPath>..\..\..\valheim_mod_libraries\UnityEngine.AnimationModule.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="UnityEngine.AudioModule">
+      <HintPath>..\..\..\valheim_mod_libraries\UnityEngine.AudioModule.dll</HintPath>
+    </Reference>
     <Reference Include="UnityEngine.CoreModule">
       <HintPath>..\..\..\valheim_mod_libraries\UnityEngine.CoreModule.dll</HintPath>
       <Private>False</Private>
@@ -114,6 +117,8 @@
     <Compile Include="Core\Visuals\WandTipLight.cs" />
     <Compile Include="Core\Visuals\WandStyle.cs" />
     <Compile Include="Core\Visuals\LightningBoltVisual.cs" />
+    <Compile Include="Core\Visuals\WandProjectileImpact.cs" />
+    <Compile Include="Core\Visuals\WandImpactVisual.cs" />
     <Compile Include="Patches\WandStylePatches.cs" />
     <Compile Include="Core\DebugLog.cs" />
     <Compile Include="Core\WandStats.cs" />
@@ -121,6 +126,7 @@
     <Compile Include="Core\ProjectileDamageFalloff.cs" />
     <Compile Include="Patches\WandProjectileFalloffPatch.cs" />
     <Compile Include="Patches\WandAttackPatches.cs" />
+    <Compile Include="Patches\WandHolsterPatch.cs" />
     <Compile Include="Core\Managers\ItemRegistrationManager.cs" />
     <Compile Include="Core\Managers\ProjectileManager.cs" />
     <Compile Include="Plugin.cs" />

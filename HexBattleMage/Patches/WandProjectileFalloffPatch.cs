@@ -26,11 +26,13 @@ namespace HexBattleMage.Patches
             float distance = Vector3.Distance(__instance.m_startPoint, hitPoint);
             float multiplier = ProjectileDamageFalloff.CalculateMultiplier(distance, DevConfig.FullDamageRange.Value, DevConfig.DamageFalloffDistance.Value, DevConfig.MinimumDamageMultiplier.Value);
 
+            var impactDamage = __instance.m_damage;
+
+            impactDamage.Modify(multiplier);
+
             if (___m_owner == Player.m_localPlayer && Player.m_localPlayer != null)
             {
-                float damage = __instance.m_damage.GetTotalDamage() * multiplier;
-
-                WandStats.RecordImpact(Player.m_localPlayer, ___m_weapon.m_dropPrefab.name, damage, __instance.m_aoe);
+                WandStats.RecordImpact(Player.m_localPlayer, ___m_weapon.m_dropPrefab.name, impactDamage, __instance.m_aoe);
             }
 
             if (multiplier >= 1f)
@@ -40,7 +42,7 @@ namespace HexBattleMage.Patches
 
             __state.OriginalDamage = __instance.m_damage;
             __state.Modified = true;
-            __instance.m_damage.Modify(multiplier);
+            __instance.m_damage = impactDamage;
         }
 
         private static void Finalizer(Projectile __instance, DamageSnapshot __state)

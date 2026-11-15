@@ -29,6 +29,8 @@ namespace HexBattleMage.Core.Managers
                 return false;
             }
 
+            itemDrop.m_itemData.m_shared.m_animationState = ItemDrop.ItemData.AnimationState.OneHanded;
+            ApplyDamageSettings(itemDrop.m_itemData);
             ApplySettings(itemDrop.m_itemData.m_shared.m_attack);
             itemDrop.m_itemData.m_shared.m_name = ModLocalization.BeechWandName;
             itemDrop.m_itemData.m_shared.m_description = ModLocalization.BeechWandDescription;
@@ -186,6 +188,12 @@ namespace HexBattleMage.Core.Managers
             }
 
             return item.m_dropPrefab.name == AssetBundleHelper.HexBattleMageWand.name;
+        }
+
+        internal static void ApplyDamageSettings(ItemDrop.ItemData item)
+        {
+            item.m_shared.m_damages.m_blunt = DevConfig.WandBluntDamage.Value;
+            item.m_shared.m_damages.m_pierce = DevConfig.WandPierceDamage.Value;
         }
 
         internal static void ApplySettings(Attack attack)

@@ -60,6 +60,7 @@ public static class MageTableAssetBuilder
     [MenuItem("HexBattleMage/Prepare Mage Table and Build Bundle")]
     public static void PrepareAndBuild()
     {
+        HexBattleMageBundlePolicy.PrepareForBuild();
         Directory.CreateDirectory(MaterialPath);
         Directory.CreateDirectory(MockPath);
         AssetDatabase.Refresh();
@@ -124,6 +125,9 @@ public static class MageTableAssetBuilder
                 renderer.sharedMaterials = slots;
             }
 
+            MageTableAlchemyDetails.Prepare(prefab, materials["DarkOak"], materials["CarvedStone"]);
+            MageTableAlchemyDetails.SavePreview(prefab);
+
             foreach (var component in prefab.GetComponentsInChildren<Component>(true))
             {
                 if (component == null)
@@ -174,6 +178,7 @@ public static class MageTableAssetBuilder
         AssetImporter.GetAtPath(PrefabPath).SetAssetBundleNameAndVariant(BundleName, string.Empty);
         AssetDatabase.SaveAssets();
         ValidateDependencies();
+        HexBattleMageBundlePolicy.ValidateDependencies();
         Directory.CreateDirectory(BundleDirectory);
 
         var build = new AssetBundleBuild
@@ -231,7 +236,8 @@ public static class MageTableAssetBuilder
         material.SetTexture("_EmissionMap", LoadTexture(name, "Emission", false));
         material.SetColor("_Color", Color.white);
         material.SetColor("_EmissionColor", name == "RuneInlay" ? Color.white * 1.5f : Color.black);
-        material.SetFloat("_Glossiness", name == "CarvedStone" ? 0.12f : 0.22f);
+        material.SetFloat("_Glossiness", name == "DarkOak" ? 0.08f : 0.12f);
+        material.SetFloat("_BumpScale", name == "DarkOak" ? 0.35f : 1f);
         material.SetFloat("_Metallic", 0f);
         material.SetFloat("_MetallicAlphaGloss", 0f);
         material.SetFloat("_ValueNoise", 0f);
@@ -252,6 +258,12 @@ public static class MageTableAssetBuilder
     private static Texture2D LoadTexture(string name, string suffix, bool normalMap)
     {
         string path = CraftingPath + "/textures/" + name + "_" + suffix + ".png";
+
+        if (name == "DarkOak" && suffix == "BaseColor")
+        {
+            path = CraftingPath + "/textures/DarkOak_Worn_BaseColor.png";
+        }
+
         var importer = AssetImporter.GetAtPath(path) as TextureImporter;
 
         if (importer == null)

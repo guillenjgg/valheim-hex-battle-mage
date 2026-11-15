@@ -18,3 +18,9 @@ The installed Valheim assembly was checked for the variant dialog, item variant 
 - [Jötunn: Item Variants](https://valheim-modding.github.io/Jotunn/tutorials/item-variants.html)
 
 
+
+## Wand damage and compendium
+
+Every wand shot carries positive blunt and pierce damage, alongside its elemental damage. Apprentice defaults are 10 blunt + 10 pierce + the existing 30 fire (quality 1), preserving the previous total of 50. Elemental quality scaling is retained. Development / Wand Damage controls each physical component with a positive minimum; range falloff scales the full damage mix. Enemy defenses can still resist individual damage types.
+
+The compendium shows current wand quality damage before skill/attack/range modifiers, plus the latest local impact after attack modifiers and range falloff but before enemy defenses. Direct and AoE modes are identified separately; AoE is per target and replaces the direct hit.

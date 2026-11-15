@@ -1,12 +1,11 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.Rendering;
-using HexBattleMage.Assets;
 
 namespace HexBattleMage.Core.Visuals
 {
     internal static class ArcaneWorkbenchVisuals
     {
-        private const string GlowShaderName = "Custom/Particle (Unlit)";
+        private const string GlowShaderName = "Sprites/Default";
         private const int CircleSegments = 48;
         private const int RuneCount = 8;
         private const float SurfaceClearance = 0.04f;
@@ -25,19 +24,6 @@ namespace HexBattleMage.Core.Visuals
 
             if (shader == null)
             {
-                var sparkRenderer = AssetBundleHelper.HexMagicBolt.GetComponentInChildren<ParticleSystemRenderer>(true);
-
-                if (sparkRenderer != null)
-                {
-                    if (sparkRenderer.sharedMaterial != null)
-                    {
-                        shader = sparkRenderer.sharedMaterial.shader;
-                    }
-                }
-            }
-
-            if (shader == null)
-            {
                 DebugLog.LogError($"Cannot create workbench visuals: shader '{GlowShaderName}' is unavailable.");
                 return false;
             }
@@ -48,10 +34,7 @@ namespace HexBattleMage.Core.Visuals
                 mainTexture = Texture2D.whiteTexture
             };
 
-            material.SetFloat("_SrcBlend", (float)BlendMode.SrcAlpha);
-            material.SetFloat("_DstBlend", (float)BlendMode.One);
-            material.SetFloat("_Cull", (float)CullMode.Off);
-            material.SetFloat("_SoftParticles", 0f);
+            material.renderQueue = (int)RenderQueue.Transparent;
 
             float surfaceHeight = GetSurfaceHeight(prefab);
             var root = CreateChild(prefab.transform, "HexArcaneVisuals", new Vector3(0f, surfaceHeight + SurfaceClearance, 0f));
@@ -74,6 +57,25 @@ namespace HexBattleMage.Core.Visuals
         private static float GetSurfaceHeight(GameObject prefab)
         {
             float height = 0f;
+            bool foundTabletop = false;
+
+            foreach (var renderer in prefab.GetComponentsInChildren<MeshRenderer>(true))
+            {
+                if (!renderer.name.StartsWith("Oak_Top_Plank_", System.StringComparison.Ordinal))
+                {
+                    continue;
+                }
+
+                foundTabletop = true;
+                Vector3 highestPoint = renderer.bounds.center + Vector3.up * renderer.bounds.extents.y;
+
+                height = Mathf.Max(height, prefab.transform.InverseTransformPoint(highestPoint).y);
+            }
+
+            if (foundTabletop)
+            {
+                return height;
+            }
 
             foreach (var renderer in prefab.GetComponentsInChildren<MeshRenderer>(true))
             {

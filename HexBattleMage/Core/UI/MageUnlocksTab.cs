@@ -45,7 +45,6 @@ namespace HexBattleMage.Core.UI
             }
 
             _panel.SetActive(false);
-
             if (_tab != null)
             {
                 _tab.interactable = true;
@@ -132,10 +131,11 @@ namespace HexBattleMage.Core.UI
             _panel.GetComponent<Image>().color = new Color(0.12f, 0.09f, 0.12f, 1f);
             _panel.GetComponent<Mask>().showMaskGraphic = true;
 
-            var textObject = new GameObject("UnlocksText", typeof(RectTransform), typeof(TextMeshProUGUI));
+            var textObject = new GameObject("UnlocksText", typeof(RectTransform));
 
+            textObject.SetActive(false);
             textObject.transform.SetParent(_panel.transform, false);
-            _text = textObject.GetComponent<TextMeshProUGUI>();
+            _text = textObject.AddComponent<TextMeshProUGUI>();
             _text.font = _gui.m_recipeDecription.font;
             _text.fontSize = 18f;
             _text.color = new Color(0.93f, 0.88f, 0.8f);
@@ -159,6 +159,7 @@ namespace HexBattleMage.Core.UI
             _scroll.movementType = ScrollRect.MovementType.Clamped;
             _scroll.scrollSensitivity = 25f;
             _panel.SetActive(false);
+            textObject.SetActive(true);
         }
 
         private void RefreshText(Player player)
