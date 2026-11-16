@@ -97,9 +97,26 @@ public static class MagicShieldAssetBuilder
             var inlay = new Geometry();
 
             inlay.Line(new Vector3(0f, -0.045f, 0.071f), new Vector3(0f, 0.045f, 0.071f), 0.004f, RuneColor);
-            inlay.Line(new Vector3(-0.025f, 0.03f, 0.071f), new Vector3(0f, 0f, 0.071f), 0.004f, RuneColor);
-            inlay.Line(new Vector3(0.025f, 0.03f, 0.071f), new Vector3(0f, 0f, 0.071f), 0.004f, RuneColor);
-            AddMesh(bracer, "BracerRune", inlay.Mesh(), glow);
+            inlay.Line(new Vector3(-0.028f, 0.045f, 0.071f), new Vector3(0f, 0.012f, 0.071f), 0.004f, RuneColor);
+            inlay.Line(new Vector3(0.028f, 0.045f, 0.071f), new Vector3(0f, 0.012f, 0.071f), 0.004f, RuneColor);
+
+            var runeMesh = inlay.Mesh();
+            var runeVertices = runeMesh.vertices;
+
+            for (int index = 0; index < runeVertices.Length; index++)
+            {
+                var vertex = runeVertices[index];
+                float radius = Mathf.Lerp(0.058f, 0.073f, Mathf.InverseLerp(-0.09f, 0.09f, vertex.y));
+
+                vertex.z = Mathf.Sqrt(radius * radius - vertex.x * vertex.x) + 0.0015f;
+                runeVertices[index] = vertex;
+            }
+
+            runeMesh.vertices = runeVertices;
+            runeMesh.RecalculateNormals();
+            runeMesh.RecalculateBounds();
+            AddMesh(bracer, "BracerRune", runeMesh, glow);
+            bracer.Find("BracerRune").localRotation = Quaternion.Euler(0f, 180f, 0f);
 
             var field = Child(prefab.transform, "MagicField");
             var boundary = new Geometry();
@@ -279,7 +296,7 @@ public static class MagicShieldAssetBuilder
             preview.camera.orthographicSize = showField ? 0.57f : 0.145f;
             preview.camera.nearClipPlane = 0.01f;
             preview.camera.farClipPlane = 5f;
-            preview.camera.transform.position = showField ? new Vector3(0f, 0f, -2f) : new Vector3(0.3f, 0.2f, 0.4f);
+            preview.camera.transform.position = showField ? new Vector3(0f, 0f, -2f) : new Vector3(0.3f, 0.2f, -0.4f);
             preview.camera.transform.LookAt(Vector3.zero);
             preview.camera.clearFlags = CameraClearFlags.SolidColor;
             preview.camera.backgroundColor = new Color(0.035f, 0.045f, 0.065f, 0f);

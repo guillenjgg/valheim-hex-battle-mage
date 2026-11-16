@@ -36,3 +36,7 @@ Development / Projectile provides ImpactVisualDuration, ImpactBurstOpacity (defa
 Positive elemental damage channels select spark colors: orange fire, icy blue frost, violet spirit, blue-white lightning, and green poison. Mixed-element shots display all applicable colors; physical-only shots use BoltColor. These visuals appear on accepted surface impacts without applying character statuses to terrain, trees, or objects.
 
 ImpactSoundVolume controls local impact sound volume from 0 (muted) to 1 (existing loudness), with a default of 1. It hot reloads for the next impact, including other players' wand impacts heard locally. It does not change the game's mixer settings. The sound object outlives the brief visual so playback is not cut short.
+
+## Bracer protection engraving
+
+The cuff carries an upright Algiz-inspired engraving on its negative local Z face, opposite the original hip-facing engraving. Its mesh follows the tapered cuff surface. The forearm fit and body-specific scales remain unchanged. A runtime property override keeps its emission at twice the authored level whenever the bracer is visible, independent of blocking. The field geometry and animation are unchanged. The bracer preparation command also regenerates its transparent inventory icon from the engraved side.

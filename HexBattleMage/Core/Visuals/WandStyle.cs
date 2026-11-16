@@ -1,11 +1,17 @@
 using UnityEngine;
 using HarmonyLib;
+using HexBattleMage.Core.Elements;
 
 namespace HexBattleMage.Core.Visuals
 {
     internal sealed class WandStyle : MonoBehaviour, IEquipmentVisual
     {
         internal const int StyleCount = 3;
+        private const float RuneEmissionStrength = 9f;
+        private static readonly int ColorProperty = Shader.PropertyToID("_Color");
+        private static readonly int EmissionProperty = Shader.PropertyToID("_EmissionColor");
+        private Renderer[] _runeRenderers;
+        private MaterialPropertyBlock _runeProperties;
         [SerializeField] private int _variant;
         [SerializeField] private Material[] _materials;
 
@@ -27,7 +33,62 @@ namespace HexBattleMage.Core.Visuals
 
         private void Awake()
         {
+            var progression = transform.Find("WandModel/ProgressionRunes");
+
+            if (progression != null)
+            {
+                _runeRenderers = progression.GetComponentsInChildren<Renderer>(true);
+                _runeProperties = new MaterialPropertyBlock();
+            }
+
             Setup(_variant);
+        }
+
+        private void Update()
+        {
+            if (_runeRenderers == null)
+            {
+                return;
+            }
+
+            var color = new Color(0.35f, 0.75f, 1f);
+
+            if (WandElementManager.Enabled != null && WandElementManager.Enabled.Value)
+            {
+                color = GetRuneColor(WandElementManager.ActiveElement.Value);
+            }
+
+            _runeProperties.SetColor(ColorProperty, color);
+            _runeProperties.SetColor(EmissionProperty, color * RuneEmissionStrength);
+
+            foreach (var renderer in _runeRenderers)
+            {
+                if (renderer.name != "GlowingInlay")
+                {
+                    continue;
+                }
+
+                renderer.SetPropertyBlock(_runeProperties);
+            }
+        }
+
+        private static Color GetRuneColor(WandElement element)
+        {
+            switch (element)
+            {
+                case WandElement.Fire:
+                    return new Color(1f, 0.3f, 0.05f);
+                case WandElement.Frost:
+                    return new Color(0.35f, 0.8f, 1f);
+                case WandElement.Spirit:
+                    return new Color(0.7f, 0.3f, 1f);
+                case WandElement.Lightning:
+                    return new Color(0.75f, 0.9f, 1f);
+                case WandElement.Poison:
+                    return new Color(0.3f, 1f, 0.15f);
+                default:
+                    return new Color(0.35f, 0.75f, 1f);
+            }
         }
 
         public void Setup(int variant)

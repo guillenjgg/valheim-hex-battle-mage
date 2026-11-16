@@ -17,7 +17,9 @@ namespace HexBattleMage.Core.Visuals
         private const float FieldScale = 1.5f;
         private const float FieldForwardOffset = 0.22f;
         private const float RuneDegreesPerSecond = 8f;
+        private const float RuneBrightness = 2f;
         private static readonly int ColorProperty = Shader.PropertyToID("_Color");
+        private static readonly int EmissionProperty = Shader.PropertyToID("_EmissionColor");
         private static Material _fieldMaterial;
         private Transform _bracer;
         private Transform _field;
@@ -42,6 +44,18 @@ namespace HexBattleMage.Core.Visuals
         {
             _bracer = transform.Find("BracerModel");
             _field = transform.Find("MagicField");
+
+            var rune = transform.Find("BracerModel/BracerRune");
+
+            if (rune != null)
+            {
+                var runeRenderer = rune.GetComponent<Renderer>();
+                var runeProperties = new MaterialPropertyBlock();
+                var runeEmission = runeRenderer.sharedMaterial.GetColor(EmissionProperty);
+
+                runeProperties.SetColor(EmissionProperty, runeEmission * RuneBrightness);
+                runeRenderer.SetPropertyBlock(runeProperties);
+            }
 
             if (_field == null)
             {
