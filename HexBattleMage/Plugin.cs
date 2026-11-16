@@ -4,6 +4,7 @@ using HarmonyLib;
 using HexBattleMage.Assets;
 using HexBattleMage.Core;
 using HexBattleMage.Core.Managers;
+using HexBattleMage.Core.Elements;
 using Jotunn.Utils;
 using System.Reflection;
 
@@ -34,6 +35,8 @@ namespace HexBattleMage
             {
                 return;
             }
+
+            WandElementManager.Initialize(Config);
 
             if (!ProjectileManager.RegisterProjectiles())
             {
@@ -83,7 +86,7 @@ namespace HexBattleMage
                 }
             }
             ProjectileManager.ApplySettings();
-            Log.LogInfo("Development settings applied. Wand lights and bolt appearance update live; attack and projectile gameplay settings apply on the next shot.");
+            Log.LogInfo($"Development settings applied. Wand element: {WandElementManager.ActiveElement.Value}. Initial damage and projectile settings apply to the next shot; active elemental effects read live balance settings.");
         }
 
         private void OnDestroy()

@@ -194,6 +194,7 @@ namespace HexBattleMage.Core.Managers
         {
             item.m_shared.m_damages.m_blunt = DevConfig.WandBluntDamage.Value;
             item.m_shared.m_damages.m_pierce = DevConfig.WandPierceDamage.Value;
+            Elements.WandElementManager.ApplyToItem(item);
         }
 
         internal static void ApplySettings(Attack attack)

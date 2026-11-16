@@ -1,5 +1,7 @@
 # Equipment progression
 
+The configurable elemental prototype is described in [WandElements.md](WandElements.md). Damage-type selection is currently a development setting; Mage Table selection and tier-based element unlocks are not implemented yet.
+
 - One Mage Table, with station extensions providing future crafting upgrades.
 - The player keeps one wand through progression. Preserve the registered `HexBeechWand` identity for existing saves; its Meadows display name is Apprentice Wand.
 - Staffs retain their identities and roles through progression: a Fire Staff remains a Fire Staff as it gains power. Gear follows the same progression model.

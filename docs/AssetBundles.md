@@ -1,5 +1,7 @@
 # Asset bundle workflow
 
+Elemental test profiles are documented in [WandElements.md](WandElements.md). The production bundle also includes the five `HexWandElement<Element>` defaults prefabs. Use the dedicated elemental preparation command to rebuild them without regenerating approved equipment visuals.
+
 Work only in HexModsUnityProject. Never edit ValheimRIP.
 
 The production hexbattlemage bundle contains HexArcaneWorkbench, HexBattleMageWand, HexMagicBolt, HexMagicBracerVisual, MagicBracerIcon, the alternate Apprentice style materials, and their dependencies. Test prefabs remain in Unity but have no production bundle assignment. The wand keeps its existing runtime prefab identity for save compatibility.

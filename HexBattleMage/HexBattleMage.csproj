@@ -105,6 +105,12 @@
   <ItemGroup>
     <Compile Include="Assets\AssetBundleHelper.cs" />
     <Compile Include="Core\DevConfig.cs" />
+    <Compile Include="Core\Elements\WandElementProfile.cs" />
+    <Compile Include="Core\Elements\WandElementSettings.cs" />
+    <Compile Include="Core\Elements\WandElementManager.cs" />
+    <Compile Include="Core\Elements\WandElementStatus.cs" />
+    <Compile Include="Core\Elements\WandElementAnimation.cs" />
+    <Compile Include="Patches\WandElementPatches.cs" />
     <Compile Include="Core\MageEquipmentCatalog.cs" />
     <Compile Include="Core\UI\MageUnlocksTab.cs" />
     <Compile Include="Patches\MageUnlocksTabPatches.cs" />
