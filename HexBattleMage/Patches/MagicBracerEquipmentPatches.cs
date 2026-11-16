@@ -1,9 +1,35 @@
 using HarmonyLib;
 using HexBattleMage.Core.Managers;
 using HexBattleMage.Core.Visuals;
+using System;
+using System.Text;
 
 namespace HexBattleMage.Patches
 {
+    [HarmonyPatch(typeof(ItemDrop.ItemData), nameof(ItemDrop.ItemData.GetTooltip), new[] { typeof(ItemDrop.ItemData), typeof(int), typeof(bool), typeof(float), typeof(int), typeof(bool) })]
+    internal static class MagicBracerTooltipPatch
+    {
+        private static readonly Action<ItemDrop.ItemData, int, StringBuilder> AddBlockTooltip = AccessTools.MethodDelegate<Action<ItemDrop.ItemData, int, StringBuilder>>(AccessTools.Method(typeof(ItemDrop.ItemData), "AddBlockTooltip"));
+
+        private static void Postfix(ItemDrop.ItemData item, int qualityLevel, ref string __result)
+        {
+            if (!MagicShieldManager.IsBracer(item))
+            {
+                return;
+            }
+
+            if (item.m_shared.m_itemType != ItemDrop.ItemData.ItemType.Hands)
+            {
+                return;
+            }
+
+            var text = new StringBuilder(__result);
+
+            AddBlockTooltip(item, qualityLevel, text);
+            __result = text.ToString();
+        }
+    }
+
     [HarmonyPatch(typeof(ItemDrop.ItemData), nameof(ItemDrop.ItemData.IsEquipable))]
     internal static class MagicBracerEquipablePatch
     {

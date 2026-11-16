@@ -135,6 +135,7 @@
     <Compile Include="Patches\WandHolsterPatch.cs" />
     <Compile Include="Core\Managers\ItemRegistrationManager.cs" />
     <Compile Include="Core\Managers\MagicShieldManager.cs" />
+    <Compile Include="Core\Managers\MagicBracerProfile.cs" />
     <Compile Include="Core\Visuals\MagicShieldVisual.cs" />
     <Compile Include="Core\Visuals\MagicBracerVisualController.cs" />
     <Compile Include="Patches\MagicBracerEquipmentPatches.cs" />

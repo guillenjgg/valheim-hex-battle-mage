@@ -1,6 +1,5 @@
 using UnityEngine;
 using HarmonyLib;
-using HexBattleMage.Core.Elements;
 
 namespace HexBattleMage.Core.Visuals
 {
@@ -53,11 +52,6 @@ namespace HexBattleMage.Core.Visuals
 
             var color = new Color(0.35f, 0.75f, 1f);
 
-            if (WandElementManager.Enabled != null && WandElementManager.Enabled.Value)
-            {
-                color = GetRuneColor(WandElementManager.ActiveElement.Value);
-            }
-
             _runeProperties.SetColor(ColorProperty, color);
             _runeProperties.SetColor(EmissionProperty, color * RuneEmissionStrength);
 
@@ -69,25 +63,6 @@ namespace HexBattleMage.Core.Visuals
                 }
 
                 renderer.SetPropertyBlock(_runeProperties);
-            }
-        }
-
-        private static Color GetRuneColor(WandElement element)
-        {
-            switch (element)
-            {
-                case WandElement.Fire:
-                    return new Color(1f, 0.3f, 0.05f);
-                case WandElement.Frost:
-                    return new Color(0.35f, 0.8f, 1f);
-                case WandElement.Spirit:
-                    return new Color(0.7f, 0.3f, 1f);
-                case WandElement.Lightning:
-                    return new Color(0.75f, 0.9f, 1f);
-                case WandElement.Poison:
-                    return new Color(0.3f, 1f, 0.15f);
-                default:
-                    return new Color(0.35f, 0.75f, 1f);
             }
         }
 

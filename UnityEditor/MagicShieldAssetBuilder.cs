@@ -4,6 +4,7 @@ using System.IO;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
+using HexBattleMage.Core.Managers;
 using Object = UnityEngine.Object;
 
 [InitializeOnLoad]
@@ -85,6 +86,13 @@ public static class MagicShieldAssetBuilder
         var bronze = Material("WardBronze", shader, new Color(0.55f, 0.32f, 0.09f), Color.black);
         var glow = Material("WardRune", shader, new Color(0.15f, 0.65f, 0.9f), new Color(0.3f, 1.5f, 2f));
         var prefab = new GameObject("HexMagicBracerVisual");
+        var existingProfile = AssetDatabase.LoadAssetAtPath<GameObject>(PrefabPath)?.GetComponent<MagicBracerProfile>();
+        var profile = prefab.AddComponent<MagicBracerProfile>();
+
+        if (existingProfile != null)
+        {
+            EditorUtility.CopySerialized(existingProfile, profile);
+        }
 
         try
         {

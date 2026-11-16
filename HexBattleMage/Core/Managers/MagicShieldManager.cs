@@ -14,10 +14,12 @@ namespace HexBattleMage.Core.Managers
     {
         internal const string PrefabName = "HexMagicBracer";
         private const string VisualPrefabName = "HexMagicBracerVisual";
-        private const string BaseShieldName = "ShieldWood";
         private const int WoodCost = 10;
         private const int ResinCost = 4;
         private const int LeatherCost = 2;
+        private const int WoodUpgradeCost = 5;
+        private const int ResinUpgradeCost = 2;
+        private const int LeatherUpgradeCost = 2;
         private static readonly Action<Humanoid> SetupAnimationState = AccessTools.MethodDelegate<Action<Humanoid>>(AccessTools.Method(typeof(Humanoid), "SetupAnimationState"));
 
         internal static void Initialize()
@@ -153,7 +155,15 @@ namespace HexBattleMage.Core.Managers
                 return;
             }
 
-            var prefab = PrefabManager.Instance.CreateClonedPrefab(PrefabName, BaseShieldName);
+            var profile = visualPrefab.GetComponent<MagicBracerProfile>();
+
+            if (profile == null)
+            {
+                DebugLog.LogError("Cannot register magic bracer: shield stat profile is missing from the bundle.");
+                return;
+            }
+
+            var prefab = PrefabManager.Instance.CreateClonedPrefab(PrefabName, profile.BaseShieldPrefab);
 
             if (prefab == null)
             {
@@ -184,7 +194,15 @@ namespace HexBattleMage.Core.Managers
             shared.m_itemType = ItemDrop.ItemData.ItemType.Hands;
             shared.m_movementModifier = 0f;
             shared.m_variants = 1;
-            shared.m_maxQuality = 1;
+            shared.m_blockPower = profile.BlockPower;
+            shared.m_blockPowerPerLevel = profile.BlockPowerPerQuality;
+            shared.m_deflectionForce = profile.BlockForce;
+            shared.m_deflectionForcePerLevel = profile.BlockForcePerQuality;
+            shared.m_timedBlockBonus = profile.ParryBonus;
+            shared.m_blockStaminaModifier = profile.BlockStaminaModifier;
+            shared.m_maxDurability = profile.Durability;
+            shared.m_durabilityPerLevel = profile.DurabilityPerQuality;
+            shared.m_maxQuality = profile.MaximumQuality;
             itemDrop.m_itemData.m_variant = 0;
 
             var icon = AssetBundleHelper.Bundle.LoadAsset<Sprite>("MagicBracerIcon");
@@ -200,7 +218,7 @@ namespace HexBattleMage.Core.Managers
                 RepairStation = CraftingStationManager.WorkbenchPrefabName,
                 MinStationLevel = 1,
                 Amount = 1,
-                Requirements = new[] { new RequirementConfig("Wood", WoodCost), new RequirementConfig("Resin", ResinCost), new RequirementConfig("LeatherScraps", LeatherCost) }
+                Requirements = new[] { new RequirementConfig("Wood", WoodCost, WoodUpgradeCost), new RequirementConfig("Resin", ResinCost, ResinUpgradeCost), new RequirementConfig("LeatherScraps", LeatherCost, LeatherUpgradeCost) }
             };
             var item = new CustomItem(prefab, true, config);
 

@@ -40,3 +40,7 @@ ImpactSoundVolume controls local impact sound volume from 0 (muted) to 1 (existi
 ## Bracer protection engraving
 
 The cuff carries an upright Algiz-inspired engraving on its negative local Z face, opposite the original hip-facing engraving. Its mesh follows the tapered cuff surface. The forearm fit and body-specific scales remain unchanged. A runtime property override keeps its emission at twice the authored level whenever the bracer is visible, independent of blocking. The field geometry and animation are unchanged. The bracer preparation command also regenerates its transparent inventory icon from the engraved side.
+
+## Bracer shield stats
+
+MagicBracerProfile on HexMagicBracerVisual stores the editable ShieldWood baseline, block power and per-quality increment, block force and increment, parry bonus, block stamina modifier, durability and increment, and maximum quality. Registration clones the named vanilla shield, applies these authored numbers to the registered HexMagicBracer ItemDrop, and retains native blocking effects and durability behavior. The bracer builder preserves existing profile values. The profile script is mirrored into the Unity HexBattleMage runtime assembly alongside elemental profiles. Changing authored profile values requires rebuilding the bundle and DLL.
