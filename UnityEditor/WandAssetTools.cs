@@ -77,8 +77,10 @@ public static class WandAssetTools
             {
                 var material = AssetDatabase.LoadAssetAtPath<Material>(MaterialDirectory + "/" + materialName + ".mat");
 
-                material.SetTexture("_EmissionMap", emission);
-                material.SetColor("_EmissionColor", new Color(1.8f, 3f, 4.5f));
+                if (material.GetTexture("_EmissionMap") == null)
+                {
+                    material.SetTexture("_EmissionMap", emission);
+                }
                 material.EnableKeyword("_EMISSION");
                 EditorUtility.SetDirty(material);
             }
@@ -120,6 +122,13 @@ public static class WandAssetTools
         const float branchUvLimit = 0.62f;
         const float emissionStart = 0.96f;
         string texturePath = SharedTextureDirectory + "/WandTipEmission.png";
+        var existing = AssetDatabase.LoadAssetAtPath<Texture2D>(texturePath);
+
+        if (existing != null)
+        {
+            return existing;
+        }
+
         var texture = new Texture2D(textureSize, textureSize, TextureFormat.RGBA32, false, true);
         var pixels = new Color[textureSize * textureSize];
 

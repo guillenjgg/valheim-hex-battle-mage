@@ -4,6 +4,7 @@ namespace HexBattleMage.Core.Elements
 {
     internal sealed class WandElementSettings
     {
+        internal WandElementProfile Profile { get; }
         internal ConfigEntry<float> DirectDamage { get; }
         internal ConfigEntry<float> DamagePerQuality { get; }
         internal ConfigEntry<float> TickDamage { get; }
@@ -18,6 +19,8 @@ namespace HexBattleMage.Core.Elements
 
         internal WandElementSettings(ConfigFile config, WandElementProfile profile)
         {
+            Profile = profile;
+
             string section = "Development / Elements / " + profile.Element;
 
             DirectDamage = Bind(config, section, nameof(DirectDamage), profile.DirectDamage, 0f, 1000f, "Initial elemental hit damage. Applies on the next shot, before skill and range modifiers.");

@@ -1,4 +1,5 @@
 using UnityEngine;
+using HexBattleMage.Core.Managers;
 
 namespace HexBattleMage.Core.Visuals
 {
@@ -59,8 +60,8 @@ namespace HexBattleMage.Core.Visuals
 
             if (velocity.sqrMagnitude > 0f)
             {
-                const float surfaceProbeDistance = 2f;
-                const float surfaceOffset = 0.06f;
+                float surfaceProbeDistance = PrefabSettings.Projectile.SurfaceProbeDistance;
+                float surfaceOffset = PrefabSettings.Projectile.SurfaceOffset;
                 var direction = velocity.normalized;
                 var ray = new Ray(hitPoint - direction * surfaceProbeDistance, direction);
 

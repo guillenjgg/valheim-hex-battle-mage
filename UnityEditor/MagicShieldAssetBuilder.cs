@@ -39,9 +39,17 @@ public static class MagicShieldAssetBuilder
     [MenuItem("HexBattleMage/Prepare Magic Bracer and Build Bundle")]
     public static void PrepareAndBuild()
     {
+        if (AssetDatabase.LoadAssetAtPath<GameObject>(PrefabPath) != null)
+        {
+            PrefabDefaultsAssetBuilder.PrepareAndBuild();
+            File.WriteAllText(Workspace + "/magic-shield-result.txt", "SUCCESS: authored bracer settings and existing visuals preserved; bundle rebuilt and copied.");
+            return;
+        }
+
         try
         {
             Prepare();
+            PrefabDefaultsAssetBuilder.PrepareAuthoredDefaults();
             HexBattleMageBundlePolicy.ValidateDependencies();
             Directory.CreateDirectory(BundleDirectory);
 
@@ -65,6 +73,12 @@ public static class MagicShieldAssetBuilder
 
     public static void Prepare()
     {
+        if (AssetDatabase.LoadAssetAtPath<GameObject>(PrefabPath) != null)
+        {
+            PrefabDefaultsAssetBuilder.PrepareAuthoredDefaults();
+            return;
+        }
+
         var stage = PrefabStageUtility.GetCurrentPrefabStage();
 
         if (stage != null && stage.scene.isDirty)
@@ -88,6 +102,17 @@ public static class MagicShieldAssetBuilder
         var prefab = new GameObject("HexMagicBracerVisual");
         var existingProfile = AssetDatabase.LoadAssetAtPath<GameObject>(PrefabPath)?.GetComponent<MagicBracerProfile>();
         var profile = prefab.AddComponent<MagicBracerProfile>();
+        var existingDefinition = AssetDatabase.LoadAssetAtPath<GameObject>(PrefabPath)?.GetComponent<MageEquipmentDefinition>();
+        var definition = prefab.AddComponent<MageEquipmentDefinition>();
+
+        definition.Category = MageEquipmentCategory.Bracer;
+        definition.Slot = MageEquipmentSlot.Bracer;
+        definition.SupportsBlocking = true;
+
+        if (existingDefinition != null)
+        {
+            EditorUtility.CopySerialized(existingDefinition, definition);
+        }
 
         if (existingProfile != null)
         {

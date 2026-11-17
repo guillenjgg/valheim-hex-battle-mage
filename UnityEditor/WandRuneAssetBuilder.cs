@@ -46,6 +46,12 @@ public static class WandRuneAssetBuilder
     [MenuItem("HexBattleMage/Prepare Apprentice Wand Rune")]
     public static void Prepare()
     {
+        if (AssetDatabase.LoadAssetAtPath<GameObject>(RuneDirectory + "/ApprenticeRune.prefab") != null)
+        {
+            PrefabDefaultsAssetBuilder.PrepareAuthoredDefaults();
+            return;
+        }
+
         var stage = PrefabStageUtility.GetCurrentPrefabStage();
 
         if (stage != null && stage.scene.isDirty)

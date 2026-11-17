@@ -14,12 +14,6 @@ namespace HexBattleMage.Core.Managers
     {
         internal const string PrefabName = "HexMagicBracer";
         private const string VisualPrefabName = "HexMagicBracerVisual";
-        private const int WoodCost = 10;
-        private const int ResinCost = 4;
-        private const int LeatherCost = 2;
-        private const int WoodUpgradeCost = 5;
-        private const int ResinUpgradeCost = 2;
-        private const int LeatherUpgradeCost = 2;
         private static readonly Action<Humanoid> SetupAnimationState = AccessTools.MethodDelegate<Action<Humanoid>>(AccessTools.Method(typeof(Humanoid), "SetupAnimationState"));
 
         internal static void Initialize()
@@ -44,12 +38,39 @@ namespace HexBattleMage.Core.Managers
                 return false;
             }
 
-            return item.m_dropPrefab.name == PrefabName;
+            var definition = item.m_dropPrefab.GetComponent<MageEquipmentDefinition>();
+
+            if (definition == null)
+            {
+                return false;
+            }
+
+            if (definition.Category != MageEquipmentCategory.Bracer)
+            {
+                return false;
+            }
+
+            return definition.Slot == MageEquipmentSlot.Bracer;
+        }
+
+        internal static bool SupportsBlocking(ItemDrop.ItemData item)
+        {
+            if (!IsBracer(item))
+            {
+                return false;
+            }
+
+            return item.m_dropPrefab.GetComponent<MageEquipmentDefinition>().SupportsBlocking;
         }
 
         internal static ItemDrop.ItemData GetBlocker(Humanoid humanoid)
         {
             var item = GetEquippedBracer(humanoid);
+
+            if (!SupportsBlocking(item))
+            {
+                return null;
+            }
 
             return IsUsableBracer(item) ? item : null;
         }
@@ -156,6 +177,13 @@ namespace HexBattleMage.Core.Managers
             }
 
             var profile = visualPrefab.GetComponent<MagicBracerProfile>();
+            var sourceDefinition = visualPrefab.GetComponent<MageEquipmentDefinition>();
+
+            if (sourceDefinition == null)
+            {
+                DebugLog.LogError("Cannot register magic bracer: equipment definition is missing from the bundle.");
+                return;
+            }
 
             if (profile == null)
             {
@@ -176,6 +204,14 @@ namespace HexBattleMage.Core.Managers
                 Object.DestroyImmediate(prefab.transform.GetChild(index).gameObject);
             }
 
+            var definition = prefab.AddComponent<MageEquipmentDefinition>();
+
+            definition.Category = sourceDefinition.Category;
+            definition.Slot = sourceDefinition.Slot;
+            definition.SupportsBlocking = sourceDefinition.SupportsBlocking;
+            definition.ProgressionTier = sourceDefinition.ProgressionTier;
+            definition.CatalogBiome = sourceDefinition.CatalogBiome;
+
             var attach = Object.Instantiate(visualPrefab, prefab.transform, false);
 
             attach.name = "model";
@@ -183,16 +219,16 @@ namespace HexBattleMage.Core.Managers
 
             var collider = prefab.AddComponent<BoxCollider>();
 
-            collider.size = new Vector3(0.15f, 0.2f, 0.15f);
+            collider.size = profile.DropColliderSize;
 
             var itemDrop = prefab.GetComponent<ItemDrop>();
             var shared = itemDrop.m_itemData.m_shared;
 
             itemDrop.m_itemData.m_dropPrefab = prefab;
-            shared.m_name = "$item_hexbattlemage_magicbracer";
-            shared.m_description = "$item_hexbattlemage_magicbracer_description";
+            shared.m_name = profile.DisplayName;
+            shared.m_description = profile.Description;
             shared.m_itemType = ItemDrop.ItemData.ItemType.Hands;
-            shared.m_movementModifier = 0f;
+            shared.m_movementModifier = profile.MovementModifier;
             shared.m_variants = 1;
             shared.m_blockPower = profile.BlockPower;
             shared.m_blockPowerPerLevel = profile.BlockPowerPerQuality;
@@ -203,6 +239,15 @@ namespace HexBattleMage.Core.Managers
             shared.m_maxDurability = profile.Durability;
             shared.m_durabilityPerLevel = profile.DurabilityPerQuality;
             shared.m_maxQuality = profile.MaximumQuality;
+            shared.m_weight = profile.Weight;
+            shared.m_useDurability = profile.UseDurability;
+            shared.m_useDurabilityDrain = profile.UseDurabilityDrain;
+            shared.m_durabilityDrain = profile.DurabilityDrain;
+
+            if (!profile.InheritNativeBlockEffects)
+            {
+                shared.m_blockEffect = new EffectList();
+            }
             itemDrop.m_itemData.m_variant = 0;
 
             var icon = AssetBundleHelper.Bundle.LoadAsset<Sprite>("MagicBracerIcon");
@@ -212,15 +257,23 @@ namespace HexBattleMage.Core.Managers
                 shared.m_icons = new[] { icon };
             }
 
+            var recipeProfile = PrefabSettings.Require<MageRecipeProfile>(visualPrefab);
+            var requirements = PrefabSettings.GetRequirements(recipeProfile);
             var config = new ItemConfig
             {
-                CraftingStation = CraftingStationManager.WorkbenchPrefabName,
-                RepairStation = CraftingStationManager.WorkbenchPrefabName,
-                MinStationLevel = 1,
-                Amount = 1,
-                Requirements = new[] { new RequirementConfig("Wood", WoodCost, WoodUpgradeCost), new RequirementConfig("Resin", ResinCost, ResinUpgradeCost), new RequirementConfig("LeatherScraps", LeatherCost, LeatherUpgradeCost) }
+                CraftingStation = recipeProfile.CraftingStation,
+                RepairStation = recipeProfile.RepairStation,
+                MinStationLevel = recipeProfile.MinimumStationLevel,
+                Amount = recipeProfile.Amount,
+                Requirements = requirements
             };
             var item = new CustomItem(prefab, true, config);
+
+            if (item.Recipe == null)
+            {
+                Debug.LogError($"Cannot register '{prefab.name}': Jotunn did not create its authored recipe. Resource count: {config.Requirements.Length}.");
+                return;
+            }
 
             if (!ItemManager.Instance.AddItem(item))
             {
@@ -228,7 +281,7 @@ namespace HexBattleMage.Core.Managers
                 return;
             }
 
-            MageEquipmentCatalog.Register(item.ItemDrop, item.Recipe.Recipe, Heightmap.Biome.Meadows);
+            MageEquipmentCatalog.Register(item.ItemDrop, item.Recipe.Recipe, (Heightmap.Biome)Enum.Parse(typeof(Heightmap.Biome), definition.CatalogBiome));
             DebugLog.LogInfo("Wearable magic bracer registered with an independent bracer slot and native blocking.");
         }
     }

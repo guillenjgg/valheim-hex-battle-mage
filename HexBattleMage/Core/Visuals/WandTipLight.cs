@@ -6,8 +6,6 @@ namespace HexBattleMage.Core.Visuals
 {
     internal sealed class WandTipLight : MonoBehaviour
     {
-        private const float TipEmissionStrength = 4.5f;
-        private const float FireTipEmissionStrength = 2f;
         private static readonly int EmissionProperty = Shader.PropertyToID("_EmissionColor");
         private Renderer _tipRenderer;
         private MaterialPropertyBlock _tipProperties;
@@ -64,10 +62,7 @@ namespace HexBattleMage.Core.Visuals
                 light = tip.gameObject.AddComponent<Light>();
             }
 
-            light.type = LightType.Point;
-            light.color = new Color(0.7f, 0.8f, 1f);
-            light.shadows = LightShadows.None;
-            light.renderMode = LightRenderMode.ForcePixel;
+            light.color = PrefabSettings.Require<WandProfile>(prefab).LightColor;
             light.enabled = false;
             tip.gameObject.AddComponent<WandTipLight>();
         }
@@ -78,39 +73,20 @@ namespace HexBattleMage.Core.Visuals
             _tipRenderer = transform.parent.GetComponent<Renderer>();
             _tipProperties = new MaterialPropertyBlock();
         }
-        private static Color GetTipColor(WandElement element)
-        {
-            switch (element)
-            {
-                case WandElement.Fire:
-                    return new Color(1f, 0f, 0f);
-                case WandElement.Frost:
-                    return new Color(0.35f, 0.8f, 1f);
-                case WandElement.Spirit:
-                    return new Color(0.7f, 0.3f, 1f);
-                case WandElement.Lightning:
-                    return new Color(0.75f, 0.9f, 1f);
-                case WandElement.Poison:
-                    return new Color(0.3f, 1f, 0.15f);
-                default:
-                    return new Color(0.35f, 0.75f, 1f);
-            }
-        }
-
         private void Update()
         {
             var wielder = GetComponentInParent<Humanoid>();
 
             if (_tipRenderer != null)
             {
-                var emission = new Color(1.8f, 3f, 4.5f);
+                var emission = PrefabSettings.Wand.UnattunedTipEmission;
 
                 if (WandElementManager.Enabled != null && WandElementManager.Enabled.Value)
                 {
                     var element = WandElementManager.ActiveElement.Value;
-                    float emissionStrength = element == WandElement.Fire ? FireTipEmissionStrength : TipEmissionStrength;
+                    var profile = WandElementManager.GetSettings(element).Profile;
 
-                    emission = GetTipColor(element) * emissionStrength;
+                    emission = profile.TipColor * profile.TipEmissionStrength;
                 }
 
                 _tipRenderer.GetPropertyBlock(_tipProperties);
@@ -118,6 +94,7 @@ namespace HexBattleMage.Core.Visuals
                 _tipRenderer.SetPropertyBlock(_tipProperties);
             }
 
+            _light.color = PrefabSettings.Wand.LightColor;
             _light.range = DevConfig.WandLightRange.Value;
             _light.intensity = DevConfig.WandLightIntensity.Value;
             _light.enabled = wielder != null && ItemRegistrationManager.IsWand(wielder.GetCurrentWeapon());

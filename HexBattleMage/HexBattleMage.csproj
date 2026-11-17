@@ -85,6 +85,11 @@
     <Reference Include="UnityEngine.AudioModule">
       <HintPath>..\..\..\valheim_mod_libraries\UnityEngine.AudioModule.dll</HintPath>
     </Reference>
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="UnityEngine.JSONSerializeModule">
+      <HintPath>G:\SteamLibrary\steamapps\common\Valheim\Valheim_Data\Managed\UnityEngine.JSONSerializeModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="UnityEngine.CoreModule">
       <HintPath>..\..\..\valheim_mod_libraries\UnityEngine.CoreModule.dll</HintPath>
       <Private>False</Private>
@@ -136,6 +141,12 @@
     <Compile Include="Core\Managers\ItemRegistrationManager.cs" />
     <Compile Include="Core\Managers\MagicShieldManager.cs" />
     <Compile Include="Core\Managers\MagicBracerProfile.cs" />
+    <Compile Include="Core\Managers\MageEquipmentDefinition.cs" />
+    <Compile Include="Core\Managers\MageRecipeProfile.cs" />
+    <Compile Include="Core\Managers\WandProfile.cs" />
+    <Compile Include="Core\Managers\WandProjectileProfile.cs" />
+    <Compile Include="Core\Managers\PrefabSettings.cs" />
+    <Compile Include="Core\Managers\MageTableProfile.cs" />
     <Compile Include="Core\Visuals\MagicShieldVisual.cs" />
     <Compile Include="Core\Visuals\MagicBracerVisualController.cs" />
     <Compile Include="Patches\MagicBracerEquipmentPatches.cs" />

@@ -75,17 +75,17 @@ namespace HexBattleMage.Core.Elements
 
             var effects = character.GetSEMan();
 
-            if (effects.HaveStatusEffect(WandElementManager.GetHash(WandElement.Lightning)))
-            {
-                return 0f;
-            }
-
             float multiplier = 1f;
 
             foreach (WandElement element in System.Enum.GetValues(typeof(WandElement)))
             {
                 if (effects.HaveStatusEffect(WandElementManager.GetHash(element)))
                 {
+                    if (WandElementManager.GetSettings(element).Profile.Stuns)
+                    {
+                        return 0f;
+                    }
+
                     multiplier = Mathf.Min(multiplier, 1f - WandElementManager.GetSettings(element).AttackSlow.Value);
                 }
             }

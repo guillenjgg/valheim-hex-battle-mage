@@ -54,6 +54,7 @@ public static class HexBattleMageBundlePolicy
     [MenuItem("HexBattleMage/Clean Shader Dependencies and Build Bundle")]
     public static void CleanAndBuild()
     {
+        PrefabDefaultsAssetBuilder.PrepareAuthoredDefaults();
         Directory.CreateDirectory(ReportDirectory);
         WriteAudit("before");
         PrepareForBuild();

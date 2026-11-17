@@ -1,4 +1,4 @@
-﻿using BepInEx;
+using BepInEx;
 using BepInEx.Logging;
 using HarmonyLib;
 using HexBattleMage.Assets;
@@ -28,7 +28,6 @@ namespace HexBattleMage
         private void Awake()
         {
             Log = Logger;
-            _devConfig = new DevConfig(Config);
             ModLocalization.Initialize();
 
             if (!AssetBundleHelper.LoadAssets())
@@ -36,6 +35,7 @@ namespace HexBattleMage
                 return;
             }
 
+            _devConfig = new DevConfig(Config);
             WandElementManager.Initialize(Config);
 
             if (!ProjectileManager.RegisterProjectiles())
@@ -43,11 +43,7 @@ namespace HexBattleMage
                 return;
             }
 
-            if (!ItemRegistrationManager.RegisterItems())
-            {
-                return;
-            }
-
+            ItemRegistrationManager.Initialize();
             CraftingStationManager.Initialize();
             MagicShieldManager.Initialize();
 
@@ -92,6 +88,7 @@ namespace HexBattleMage
         private void OnDestroy()
         {
             _initialized = false;
+            ItemRegistrationManager.Shutdown();
             CraftingStationManager.Shutdown();
             MagicShieldManager.Shutdown();
             _devConfig?.Dispose();

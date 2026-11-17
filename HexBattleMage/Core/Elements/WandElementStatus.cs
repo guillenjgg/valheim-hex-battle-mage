@@ -32,9 +32,11 @@ namespace HexBattleMage.Core.Elements
 
         public override void Setup(Character character)
         {
-            if (Element == WandElement.Fire && ObjectDB.instance != null)
+            var profile = WandElementManager.GetSettings(Element).Profile;
+
+            if (!string.IsNullOrEmpty(profile.NativeVisualStatus) && ObjectDB.instance != null)
             {
-                var burning = ObjectDB.instance.GetStatusEffect(SEMan.s_statusEffectBurning);
+                var burning = ObjectDB.instance.m_StatusEffects.Find(effect => effect.name == profile.NativeVisualStatus);
 
                 if (burning != null)
                 {
@@ -62,14 +64,14 @@ namespace HexBattleMage.Core.Elements
                 return;
             }
 
-            _stacks = NextStackCount(Element, _stacks, settings.MaximumStacks.Value);
+            _stacks = settings.Profile.StackDamage ? Mathf.Min(_stacks + 1, settings.MaximumStacks.Value) : 1;
 
-            if (itemLevel > 0)
+            if (itemLevel > 0 && settings.Profile.ResetSpreadOnDirectHit)
             {
                 _spreadTargets.Clear();
             }
 
-            if (Element == WandElement.Lightning && m_character is Humanoid humanoid)
+            if (settings.Profile.Stuns && m_character is Humanoid humanoid)
             {
                 var attack = CurrentAttack(humanoid);
 
@@ -91,7 +93,7 @@ namespace HexBattleMage.Core.Elements
             var settings = WandElementManager.GetSettings(Element);
 
             m_ttl = settings.Duration.Value;
-            _stacks = Mathf.Min(_stacks, Element == WandElement.Poison ? settings.MaximumStacks.Value : 1);
+            _stacks = Mathf.Min(_stacks, settings.Profile.StackDamage ? settings.MaximumStacks.Value : 1);
 
             float activeTime = Mathf.Clamp(m_ttl - m_time, 0f, dt);
 
@@ -107,7 +109,7 @@ namespace HexBattleMage.Core.Elements
                 return;
             }
 
-            if (Element == WandElement.Lightning)
+            if (WandElementManager.GetSettings(Element).Profile.Stuns)
             {
                 m_character.StopMovement();
             }
@@ -156,18 +158,13 @@ namespace HexBattleMage.Core.Elements
                 return;
             }
 
-            if (Element == WandElement.Lightning)
+            if (WandElementManager.GetSettings(Element).Profile.Stuns)
             {
                 speed = 0f;
                 return;
             }
 
             speed *= 1f - WandElementManager.GetSettings(Element).MovementSlow.Value;
-        }
-
-        internal static int NextStackCount(WandElement element, int current, int maximum)
-        {
-            return element == WandElement.Poison ? Mathf.Min(current + 1, maximum) : 1;
         }
 
         private void ApplyTick(WandElementSettings settings)
@@ -199,7 +196,7 @@ namespace HexBattleMage.Core.Elements
 
         private void Spread(WandElementSettings settings)
         {
-            if (Element != WandElement.Spirit && Element != WandElement.Poison)
+            if (!settings.Profile.Spreads)
             {
                 return;
             }
@@ -233,17 +230,17 @@ namespace HexBattleMage.Core.Elements
                     continue;
                 }
 
-                if (candidate.IsPlayer())
+                if (candidate.IsPlayer() && !settings.Profile.SpreadToPlayers)
                 {
                     continue;
                 }
 
-                if (candidate.IsTamed())
+                if (candidate.IsTamed() && !settings.Profile.SpreadToTamed)
                 {
                     continue;
                 }
 
-                if (!BaseAI.IsEnemy(_attacker, candidate))
+                if (settings.Profile.RequireHostileTarget && !BaseAI.IsEnemy(_attacker, candidate))
                 {
                     continue;
                 }

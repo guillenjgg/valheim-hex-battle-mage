@@ -10,10 +10,17 @@ namespace HexBattleMage.Core.Managers
     internal static class CraftingStationManager
     {
         internal const string WorkbenchPrefabName = "HexArcaneWorkbench";
-        internal const string CraftingPieceCategory = "Battle Mage";
-        private const int WoodCost = 10;
-        private const int StoneCost = 5;
         private static GameObject _workbenchPrefab;
+
+        internal static bool IsMageTable(CraftingStation station)
+        {
+            if (station == null)
+            {
+                return false;
+            }
+
+            return station.m_name == PrefabSettings.Require<MageTableProfile>(AssetBundleHelper.HexArcaneWorkbench).DisplayName;
+        }
 
         internal static void Initialize()
         {
@@ -31,18 +38,16 @@ namespace HexBattleMage.Core.Managers
         {
             PrefabManager.OnVanillaPrefabsAvailable -= RegisterWorkbench;
 
+            var profile = PrefabSettings.Require<MageTableProfile>(AssetBundleHelper.HexArcaneWorkbench);
+            var recipe = PrefabSettings.Require<MageRecipeProfile>(AssetBundleHelper.HexArcaneWorkbench);
             var config = new PieceConfig
             {
-                Name = ModLocalization.MageTableName,
-                Description = ModLocalization.MageTableDescription,
-                PieceTable = "Hammer",
-                Category = CraftingPieceCategory,
+                Name = profile.DisplayName,
+                Description = profile.Description,
+                PieceTable = profile.PieceTable,
+                Category = profile.Category,
                 Usage = new[] { PieceUsages.Crafting },
-                Requirements = new[]
-                {
-                    new RequirementConfig("Wood", WoodCost, recover: true),
-                    new RequirementConfig("Stone", StoneCost, recover: true)
-                }
+                Requirements = PrefabSettings.GetRequirements(recipe)
             };
 
             var workbench = new CustomPiece(AssetBundleHelper.HexArcaneWorkbench, true, config);
@@ -62,8 +67,8 @@ namespace HexBattleMage.Core.Managers
                 return;
             }
 
-            station.m_name = ModLocalization.MageTableName;
-            station.m_showBasicRecipies = false;
+            station.m_name = profile.DisplayName;
+            station.m_showBasicRecipies = profile.ShowBasicRecipes;
             workbench.Piece.m_craftingStation = null;
 
             if (!PieceManager.Instance.AddPiece(workbench))

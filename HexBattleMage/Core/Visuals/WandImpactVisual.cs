@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using Jotunn.Managers;
 using UnityEngine;
+using HexBattleMage.Core.Managers;
+using HexBattleMage.Core.Elements;
 using UnityEngine.Rendering;
 
 namespace HexBattleMage.Core.Visuals
@@ -20,13 +22,10 @@ namespace HexBattleMage.Core.Visuals
     internal sealed class WandImpactVisual : MonoBehaviour
     {
         private const string ShaderName = "Sprites/Default";
-        private const int SparkCount = 18;
-        private const float MaximumBurstRadius = 0.5f;
-        private const float DirectHitBurstRadius = 0.12f;
         private static Material _material;
-        private readonly LineRenderer[] _sparks = new LineRenderer[SparkCount];
-        private readonly Vector3[] _directions = new Vector3[SparkCount];
-        private readonly float[] _lengths = new float[SparkCount];
+        private LineRenderer[] _sparks;
+        private Vector3[] _directions;
+        private float[] _lengths;
         private float _radius;
         private float _started;
         private float _duration;
@@ -73,9 +72,9 @@ namespace HexBattleMage.Core.Visuals
                 return;
             }
 
-            const string impactPrefabName = "fx_fireball_staff_explosion";
-            const float minimumDistance = 1f;
-            const float maximumDistance = 20f;
+            string impactPrefabName = PrefabSettings.Projectile.ImpactSoundPrefab;
+            float minimumDistance = PrefabSettings.Projectile.SoundMinimumDistance;
+            float maximumDistance = PrefabSettings.Projectile.SoundMaximumDistance;
             var prefab = PrefabManager.Instance.GetPrefab(impactPrefabName);
 
             if (prefab == null)
@@ -130,20 +129,23 @@ namespace HexBattleMage.Core.Visuals
 
         private void Initialize(float radius, WandImpactElement elements)
         {
+            _sparks = new LineRenderer[PrefabSettings.Projectile.SparkCount];
+            _directions = new Vector3[_sparks.Length];
+            _lengths = new float[_sparks.Length];
             _started = Time.time;
             _duration = DevConfig.ImpactVisualDuration.Value;
             _opacity = DevConfig.ImpactBurstOpacity.Value;
             _elementColors = GetElementColors(elements);
 
-            _radius = radius > 0f ? Mathf.Min(radius, MaximumBurstRadius) : DirectHitBurstRadius;
+            _radius = radius > 0f ? Mathf.Min(radius, PrefabSettings.Projectile.MaximumBurstRadius) : PrefabSettings.Projectile.DirectHitBurstRadius;
 
-            for (int index = 0; index < SparkCount; index++)
+            for (int index = 0; index < _sparks.Length; index++)
             {
                 _directions[index] = UnityEngine.Random.onUnitSphere;
-                _lengths[index] = UnityEngine.Random.Range(0.55f, 1f);
-                _sparks[index] = CreateLine("BurstSpark", 3, DevConfig.ImpactLineWidth.Value * 2f);
+                _lengths[index] = UnityEngine.Random.Range(PrefabSettings.Projectile.MinimumSparkLength, 1f);
+                _sparks[index] = CreateLine("BurstSpark", 3, DevConfig.ImpactLineWidth.Value * PrefabSettings.Projectile.SparkWidthMultiplier);
                 _sparks[index].widthCurve = AnimationCurve.Linear(0f, 1f, 1f, 0f);
-                _sparks[index].widthMultiplier = DevConfig.ImpactLineWidth.Value * 2f;
+                _sparks[index].widthMultiplier = DevConfig.ImpactLineWidth.Value * PrefabSettings.Projectile.SparkWidthMultiplier;
             }
 
             UpdateBurst(0f);
@@ -163,20 +165,20 @@ namespace HexBattleMage.Core.Visuals
             float expansion = 1f - (1f - progress) * (1f - progress);
             float opacity = _opacity * (1f - progress);
 
-            for (int index = 0; index < SparkCount; index++)
+            for (int index = 0; index < _sparks.Length; index++)
             {
-                float reach = _radius * _lengths[index] * Mathf.Lerp(0.15f, 1f, expansion);
+                float reach = _radius * _lengths[index] * Mathf.Lerp(PrefabSettings.Projectile.InitialExpansion, 1f, expansion);
                 var direction = _directions[index];
                 var spark = _sparks[index];
 
                 spark.SetPosition(0, direction * reach * progress);
-                spark.SetPosition(1, direction * reach * Mathf.Lerp(progress, 1f, 0.65f));
+                spark.SetPosition(1, direction * reach * Mathf.Lerp(progress, 1f, PrefabSettings.Projectile.SparkMidpoint));
                 spark.SetPosition(2, direction * reach);
                 var color = _elementColors[index % _elementColors.Length];
-                var coreColor = Color.Lerp(color, Color.white, 0.2f);
+                var coreColor = Color.Lerp(color, Color.white, PrefabSettings.Projectile.SparkCoreWhitening);
 
                 coreColor.a = opacity;
-                color.a = opacity * 0.15f;
+                color.a = opacity * PrefabSettings.Projectile.SparkTailOpacity;
                 spark.startColor = coreColor;
                 spark.endColor = color;
             }
@@ -188,27 +190,27 @@ namespace HexBattleMage.Core.Visuals
 
             if ((elements & WandImpactElement.Fire) != 0)
             {
-                colors.Add(new Color(1f, 0.3f, 0.04f));
+                colors.Add(WandElementManager.GetSettings(WandElement.Fire).Profile.ImpactColor);
             }
 
             if ((elements & WandImpactElement.Frost) != 0)
             {
-                colors.Add(new Color(0.3f, 0.8f, 1f));
+                colors.Add(WandElementManager.GetSettings(WandElement.Frost).Profile.ImpactColor);
             }
 
             if ((elements & WandImpactElement.Spirit) != 0)
             {
-                colors.Add(new Color(0.65f, 0.5f, 1f));
+                colors.Add(WandElementManager.GetSettings(WandElement.Spirit).Profile.ImpactColor);
             }
 
             if ((elements & WandImpactElement.Lightning) != 0)
             {
-                colors.Add(new Color(0.5f, 0.6f, 1f));
+                colors.Add(WandElementManager.GetSettings(WandElement.Lightning).Profile.ImpactColor);
             }
 
             if ((elements & WandImpactElement.Poison) != 0)
             {
-                colors.Add(new Color(0.4f, 1f, 0.12f));
+                colors.Add(WandElementManager.GetSettings(WandElement.Poison).Profile.ImpactColor);
             }
 
             if (colors.Count == 0)

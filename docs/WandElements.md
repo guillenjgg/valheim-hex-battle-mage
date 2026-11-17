@@ -1,5 +1,7 @@
 # Wand elemental testing
 
+The wand now directly references all five profiles through its WandProfile component. Tip/impact colors, spread/stack/stun rules and the native burning visual source are also authored on those profiles. See [PrefabSettings.md](PrefabSettings.md) for the complete component map and preserving rebuild workflow.
+
 Use the BepInEx Configuration Manager under HexBattleMage:
 
 - `Development / Elements / ActiveElement` selects Fire, Frost, Spirit, Lightning or Poison for all test wands.

@@ -13,7 +13,7 @@ namespace HexBattleMage.Patches
 
         private static void Postfix(ItemDrop.ItemData item, int qualityLevel, ref string __result)
         {
-            if (!MagicShieldManager.IsBracer(item))
+            if (!MagicShieldManager.SupportsBlocking(item))
             {
                 return;
             }

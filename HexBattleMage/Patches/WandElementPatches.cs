@@ -137,7 +137,23 @@ namespace HexBattleMage.Patches
                 return true;
             }
 
-            if (!__instance.GetSEMan().HaveStatusEffect(WandElementManager.GetHash(WandElement.Lightning)))
+            bool stunned = false;
+
+            foreach (WandElement element in Enum.GetValues(typeof(WandElement)))
+            {
+                if (!WandElementManager.GetSettings(element).Profile.Stuns)
+                {
+                    continue;
+                }
+
+                if (__instance.GetSEMan().HaveStatusEffect(WandElementManager.GetHash(element)))
+                {
+                    stunned = true;
+                    break;
+                }
+            }
+
+            if (!stunned)
             {
                 return true;
             }

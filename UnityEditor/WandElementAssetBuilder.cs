@@ -113,6 +113,7 @@ public static class WandElementAssetBuilder
                 }
             }
 
+            PrefabDefaultsAssetBuilder.PrepareAuthoredDefaults();
             AssetDatabase.SaveAssets();
             HexBattleMageBundlePolicy.ValidateDependencies();
 

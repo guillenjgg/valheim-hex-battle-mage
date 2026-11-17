@@ -1,26 +1,16 @@
 using UnityEngine;
+using HexBattleMage.Core.Managers;
 using UnityEngine.Rendering;
 
 namespace HexBattleMage.Core.Visuals
 {
     internal sealed class MagicShieldVisual : MonoBehaviour
     {
-        private const float OpenDuration = 0.14f;
-        private const string ForearmBoneName = "LeftForeArm";
-        private const string WristBoneName = "LeftHand";
-        private const int FemaleModelIndex = 1;
-        private const float BracerForearmPosition = 0.62f;
-        private const float ReferenceForearmLength = 0.2600273f;
         private const float MinimumForearmLength = 0.001f;
-        private const float MaleBracerRadialScale = 1.2f;
-        private const float FemaleBracerRadialScale = 1.05f;
-        private const float FieldScale = 1.5f;
-        private const float FieldForwardOffset = 0.22f;
-        private const float RuneDegreesPerSecond = 8f;
-        private const float RuneBrightness = 2f;
         private static readonly int ColorProperty = Shader.PropertyToID("_Color");
         private static readonly int EmissionProperty = Shader.PropertyToID("_EmissionColor");
         private static Material _fieldMaterial;
+        private MagicBracerProfile _profile;
         private Transform _bracer;
         private Transform _field;
         private Transform _runes;
@@ -42,6 +32,7 @@ namespace HexBattleMage.Core.Visuals
 
         private void Awake()
         {
+            _profile = PrefabSettings.Require<MagicBracerProfile>(gameObject);
             _bracer = transform.Find("BracerModel");
             _field = transform.Find("MagicField");
 
@@ -53,7 +44,7 @@ namespace HexBattleMage.Core.Visuals
                 var runeProperties = new MaterialPropertyBlock();
                 var runeEmission = runeRenderer.sharedMaterial.GetColor(EmissionProperty);
 
-                runeProperties.SetColor(EmissionProperty, runeEmission * RuneBrightness);
+                runeProperties.SetColor(EmissionProperty, runeEmission * _profile.RuneBrightness);
                 runeRenderer.SetPropertyBlock(runeProperties);
             }
 
@@ -129,7 +120,7 @@ namespace HexBattleMage.Core.Visuals
                 return;
             }
 
-            var wrist = FindAncestor(handAttachment, WristBoneName);
+            var wrist = FindAncestor(handAttachment, _profile.WristBoneName);
 
             if (wrist == null)
             {
@@ -137,7 +128,7 @@ namespace HexBattleMage.Core.Visuals
                 return;
             }
 
-            var forearm = FindAncestor(wrist, ForearmBoneName);
+            var forearm = FindAncestor(wrist, _profile.ForearmBoneName);
 
             if (forearm == null)
             {
@@ -168,18 +159,21 @@ namespace HexBattleMage.Core.Visuals
                 return;
             }
 
-            _openAmount = Mathf.MoveTowards(_openAmount, 1f, Time.deltaTime / OpenDuration);
-            _runeAngle = Mathf.Repeat(_runeAngle + RuneDegreesPerSecond * Time.deltaTime, 360f);
+            _openAmount = Mathf.MoveTowards(_openAmount, 1f, Time.deltaTime / _profile.OpenDuration);
+            _runeAngle = Mathf.Repeat(_runeAngle + _profile.RuneDegreesPerSecond * Time.deltaTime, 360f);
 
             float opening = Mathf.SmoothStep(0f, 1f, _openAmount);
-            float pulse = 1f + Mathf.Sin(Time.time * 2.5f) * 0.012f;
+            float pulse = 1f + Mathf.Sin(Time.time * _profile.PulseFrequency) * _profile.PulseAmplitude;
 
-            _field.position = handAttachment.position + humanoid.transform.forward * FieldForwardOffset;
+            _field.position = handAttachment.position + humanoid.transform.forward * _profile.FieldForwardOffset;
             _field.rotation = Quaternion.LookRotation(humanoid.transform.forward, humanoid.transform.up);
-            _field.localScale = Vector3.one * FieldScale * Mathf.Lerp(0.08f, pulse, opening);
+            _field.localScale = Vector3.one * _profile.FieldScale * Mathf.Lerp(_profile.InitialFieldScale, pulse, opening);
             _field.gameObject.SetActive(true);
             _runes.localRotation = Quaternion.Euler(0f, 0f, _runeAngle);
-            _properties.SetColor(ColorProperty, new Color(1f, 1f, 1f, opening));
+            var fieldColor = _profile.FieldTint;
+
+            fieldColor.a *= opening;
+            _properties.SetColor(ColorProperty, fieldColor);
 
             foreach (var renderer in _fieldRenderers)
             {
@@ -197,45 +191,45 @@ namespace HexBattleMage.Core.Visuals
                 return;
             }
 
-            float bodyScale = forearmLength / ReferenceForearmLength;
+            float bodyScale = forearmLength / _profile.ReferenceForearmLength;
             float radialScale = bodyScale * GetBracerRadialScale(equipment);
             var parentScale = _bracer.parent.lossyScale;
 
-            _bracer.position = Vector3.Lerp(forearm.position, wrist.position, BracerForearmPosition);
+            _bracer.position = Vector3.Lerp(forearm.position, wrist.position, _profile.BracerForearmPosition);
             _bracer.rotation = Quaternion.LookRotation(forearm.forward, -forearmDirection);
             _bracer.localScale = new Vector3(radialScale / Mathf.Abs(parentScale.x), bodyScale / Mathf.Abs(parentScale.y), radialScale / Mathf.Abs(parentScale.z));
         }
 
-        private static float GetBracerRadialScale(VisEquipment equipment)
+        private float GetBracerRadialScale(VisEquipment equipment)
         {
             if (equipment.m_bodyModel == null)
             {
-                return MaleBracerRadialScale;
+                return _profile.MaleBracerRadialScale;
             }
 
             if (equipment.m_models == null)
             {
-                return MaleBracerRadialScale;
+                return _profile.MaleBracerRadialScale;
             }
 
-            if (equipment.m_models.Length <= FemaleModelIndex)
+            if (equipment.m_models.Length <= _profile.FemaleModelIndex)
             {
-                return MaleBracerRadialScale;
+                return _profile.MaleBracerRadialScale;
             }
 
-            if (equipment.m_models[FemaleModelIndex] == null)
+            if (equipment.m_models[_profile.FemaleModelIndex] == null)
             {
-                return MaleBracerRadialScale;
+                return _profile.MaleBracerRadialScale;
             }
 
-            var femaleMesh = equipment.m_models[FemaleModelIndex].m_mesh;
+            var femaleMesh = equipment.m_models[_profile.FemaleModelIndex].m_mesh;
 
             if (femaleMesh == null)
             {
-                return MaleBracerRadialScale;
+                return _profile.MaleBracerRadialScale;
             }
 
-            return equipment.m_bodyModel.sharedMesh == femaleMesh ? FemaleBracerRadialScale : MaleBracerRadialScale;
+            return equipment.m_bodyModel.sharedMesh == femaleMesh ? _profile.FemaleBracerRadialScale : _profile.MaleBracerRadialScale;
         }
 
         private static Transform FindAncestor(Transform child, string boneName)

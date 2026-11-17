@@ -2,15 +2,13 @@ using HarmonyLib;
 using HexBattleMage.Assets;
 using HexBattleMage.Core;
 using UnityEngine;
+using HexBattleMage.Core.Managers;
 
 namespace HexBattleMage.Patches
 {
     [HarmonyPatch(typeof(VisEquipment), "AttachItem")]
     internal static class WandHolsterPatch
     {
-        private const string HipBoneName = "Hips";
-        private static readonly Vector3 HipOffset = new Vector3(0.24f, 0.02f, 0.18f);
-        private static readonly Vector3 HolsterAngles = new Vector3(90f, 0f, 15f);
 
         private static void Postfix(VisEquipment __instance, int itemHash, bool backAttach, GameObject __result)
         {
@@ -38,7 +36,7 @@ namespace HexBattleMage.Patches
 
             foreach (var bone in __instance.GetComponentsInChildren<Transform>(true))
             {
-                if (bone.name == HipBoneName)
+                if (bone.name == PrefabSettings.Wand.HipBoneName)
                 {
                     hips = bone;
                     break;
@@ -52,11 +50,11 @@ namespace HexBattleMage.Patches
             }
 
             var attachment = __result.transform;
-            var offset = Vector3.Scale(HipOffset, __instance.transform.lossyScale);
+            var offset = Vector3.Scale(PrefabSettings.Wand.HipOffset, __instance.transform.lossyScale);
 
             attachment.SetParent(hips, true);
             attachment.position = hips.position + hips.rotation * offset;
-            attachment.localRotation = Quaternion.Euler(HolsterAngles);
+            attachment.localRotation = Quaternion.Euler(PrefabSettings.Wand.HolsterAngles);
         }
     }
 }

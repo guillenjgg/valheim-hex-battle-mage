@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using BepInEx.Configuration;
 using HexBattleMage.Assets;
+using HexBattleMage.Core.Managers;
 using Jotunn.Entities;
 using Jotunn.Managers;
 using UnityEngine;
@@ -42,13 +43,27 @@ namespace HexBattleMage.Core.Elements
 
             try
             {
-                Enabled = config.Bind(Section, nameof(Enabled), true, "Enable the custom wand elements. Disable to restore the original wand damage/effects. Active custom effects expire immediately when disabled.");
-                ActiveElement = config.Bind(Section, nameof(ActiveElement), WandElement.Fire, "Testing selector: Fire, Frost, Spirit, Lightning or Poison. Applies on the next shot. Mage Table selection and tier unlocks are not implemented yet.");
+                Enabled = config.Bind(Section, nameof(Enabled), PrefabSettings.Wand.EnableElements, "Enable the custom wand elements. Disable to restore the original wand damage/effects. Active custom effects expire immediately when disabled.");
+                ActiveElement = config.Bind(Section, nameof(ActiveElement), PrefabSettings.Wand.DefaultElement, "Testing selector: Fire, Frost, Spirit, Lightning or Poison. Applies on the next shot. Mage Table selection and tier unlocks are not implemented yet.");
 
-                foreach (WandElement element in Enum.GetValues(typeof(WandElement)))
+                var configuredElements = new HashSet<WandElement>();
+
+                foreach (var authoredProfile in PrefabSettings.Wand.Elements)
                 {
+                    if (authoredProfile == null)
+                    {
+                        throw new InvalidOperationException("Wand element profile reference is missing.");
+                    }
+
+                    var element = authoredProfile.Element;
+
+                    if (!configuredElements.Add(element))
+                    {
+                        throw new InvalidOperationException("Duplicate wand element profile: " + element);
+                    }
+
                     string name = "HexWandElement" + element;
-                    var prefab = AssetBundleHelper.Bundle.LoadAsset<GameObject>(name);
+                    var prefab = authoredProfile.gameObject;
 
                     if (prefab == null)
                     {
@@ -68,10 +83,15 @@ namespace HexBattleMage.Core.Elements
 
                     effect.name = "HexWandStatus" + element;
                     effect.Element = element;
-                    effect.m_name = element + " Ward Mark";
+                    effect.m_name = profile.StatusDisplayName;
                     effect.m_ttl = profile.Duration;
 
                     Effects[element] = effect;
+                }
+
+                if (configuredElements.Count != Enum.GetValues(typeof(WandElement)).Length)
+                {
+                    throw new InvalidOperationException("The wand must reference all five elemental profiles.");
                 }
             }
             finally
