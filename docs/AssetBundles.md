@@ -12,6 +12,16 @@ Elemental test profiles are documented in [WandElements.md](WandElements.md). Th
 
 Work only in HexModsUnityProject. Never edit ValheimRIP.
 
+## Meadows table extensions
+
+`Crafting/Extensions/HexMageRuneStone.prefab` is a faceted standing stone on a wooden base with a constant blue Algiz-inspired rune. `HexMageReagentStand.prefab` is a short wooden stand holding resin lumps, feathers and bone fragments, with the same blue rune on its front. Both use existing Mage Table material assets; new blue, amber and bone materials are stored beside the prefabs.
+
+Use **HexBattleMage > Prepare Meadows Table Extensions and Build Bundle** (`UnityEditor/MageTableExtensionAssetBuilder.cs`, mirrored to `Assets/Editor`). Existing authored prefabs, geometry, materials and recipes are preserved. The optional one-shot request is `Temp/HexMageExtensions.request`; results go to `mage-extensions-result.txt` in the shared workspace. Rebuild the DLL to embed the resulting bundle.
+
+Each prefab contains native Piece, ZNetView, WearNTear and StationExtension components, colliders and a MageRecipeProfile with a referenced recipe TextAsset. StationExtension exposes the Mage Table reference, 5-metre radius, non-stacking behavior and a Jotunn mock of the native extension connection effect. Runtime registration uses these authored settings and the Mage Table profile's Hammer category. Transparent sprite icons are baked into the Piece components before registration; Jotunn rejects pieces without icons. The builder seeds a missing icon without overwriting an existing authored icon.
+
+Provisional test recipes: Rune Stone = 10 Wood, 10 Stone, 5 Resin; Reagent Stand = 15 Wood, 8 Resin, 5 Feathers, 5 Bone Fragments. Both require a nearby Mage Table and appear under Battle Mage on the Hammer. No custom research unlocks or forced extension order are implemented yet. With both nearby the table reaches level 3; either alone makes level 2. The installed Valheim extension discovery code was exercised for distinct extensions, duplicates, range and removal. Full construction, destruction/refunds, world reload and multiplayer require in-game testing.
+
 The production hexbattlemage bundle contains HexArcaneWorkbench, HexBattleMageWand, HexMagicBolt, HexMagicBracerVisual, MagicBracerIcon, the alternate Apprentice style materials, and their dependencies. Test prefabs remain in Unity but have no production bundle assignment. The wand keeps its existing runtime prefab identity for save compatibility.
 
 Use HexBattleMage > Prepare Authored Defaults and Build Bundle in Unity for normal rebuilds. The older Prepare Mage Table and Build Bundle command delegates to that preserving workflow when the table exists. Initial table material/model generation is retained for first-time authoring. The one-shot request is Temp/HexBattleMagePrepare.request; the result is written to the shared workspace's mage-table-prepare-result.txt.

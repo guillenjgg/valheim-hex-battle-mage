@@ -3,6 +3,7 @@
 Current authored settings and component locations are described in [PrefabSettings.md](PrefabSettings.md). The configurable elemental prototype is described in [WandElements.md](WandElements.md). Damage-type selection is currently a development setting; Mage Table selection and tier-based element unlocks are not implemented yet.
 
 - One Mage Table, with station extensions providing future crafting upgrades.
+- Meadows station prototype: base Mage Table is level 1. The Rune Stone and Reagent Stand each contribute one native station level within 5 metres, reaching level 3 with both. Duplicate copies do not stack. They are independent extensions at present; sequential unlocks and resource-discovery gates are not implemented. These station levels permit existing native quality recipes; new item tiers, power curves and element unlocks remain separate design work.
 - The player keeps one wand through progression. Preserve the registered `HexBeechWand` identity for existing saves; its Meadows display name is Apprentice Wand.
 - Staffs retain their identities and roles through progression: a Fire Staff remains a Fire Staff as it gains power. Gear follows the same progression model.
 - Equipment progression controls power, abilities, tier display names, and which appearances are available. Cosmetic style selection must not change power.

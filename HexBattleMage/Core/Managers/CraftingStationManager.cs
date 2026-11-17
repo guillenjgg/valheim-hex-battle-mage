@@ -79,7 +79,44 @@ namespace HexBattleMage.Core.Managers
             }
 
             _workbenchPrefab = workbench.PiecePrefab;
+            RegisterExtensions();
             DebugLog.LogInfo("Hex Arcane Workbench registered under Battle Mage with the Crafting usage tag.");
+        }
+
+        private static void RegisterExtensions()
+        {
+            foreach (string name in new[] { "HexMageRuneStone", "HexMageReagentStand" })
+            {
+                var prefab = AssetBundleHelper.Bundle.LoadAsset<GameObject>(name);
+
+                if (prefab == null)
+                {
+                    DebugLog.LogError($"Missing Mage Table extension '{name}'. Rebuild the asset bundle.");
+                    continue;
+                }
+
+                var piece = prefab.GetComponent<Piece>();
+                var recipe = PrefabSettings.Require<MageRecipeProfile>(prefab);
+                var tableProfile = PrefabSettings.Require<MageTableProfile>(_workbenchPrefab);
+                var requirements = PrefabSettings.GetRequirements(recipe);
+                var config = new PieceConfig
+                {
+                    Name = piece.m_name,
+                    Description = piece.m_description,
+                    PieceTable = tableProfile.PieceTable,
+                    Category = tableProfile.Category,
+                    CraftingStation = recipe.CraftingStation,
+                    Requirements = requirements
+                };
+                var extension = new CustomPiece(prefab, true, config);
+
+                extension.PiecePrefab.GetComponent<StationExtension>().m_craftingStation = _workbenchPrefab.GetComponent<CraftingStation>();
+
+                if (!PieceManager.Instance.AddPiece(extension))
+                {
+                    DebugLog.LogError($"Could not register Mage Table extension '{name}'.");
+                }
+            }
         }
 
         private static void AddWorkbenchVisuals()
