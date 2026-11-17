@@ -1,4 +1,5 @@
 using UnityEngine;
+using HexBattleMage.Core.Managers;
 using UnityEngine.Rendering;
 
 namespace HexBattleMage.Core.Visuals
@@ -6,14 +7,10 @@ namespace HexBattleMage.Core.Visuals
     internal sealed class LightningBoltVisual : MonoBehaviour
     {
         private const string GlowShaderName = "Sprites/Default";
-        private const int PointCount = 11;
         private const int TextureHeight = 32;
-        private const float GlowWidthMultiplier = 4f;
-        private const float FlickerFrequency = 24f;
-        private const float MinimumVisibleLength = 0.08f;
         private static Material _material;
         private static bool _shaderWarningLogged;
-        private readonly Vector3[] _points = new Vector3[PointCount];
+        private Vector3[] _points;
         private Projectile _projectile;
         private LineRenderer _core;
         private LineRenderer _halo;
@@ -68,6 +65,7 @@ namespace HexBattleMage.Core.Visuals
 
         private void Awake()
         {
+            _points = new Vector3[PrefabSettings.Projectile.BoltPointCount];
             _projectile = GetComponentInParent<Projectile>();
             _spawnPosition = transform.position;
             _previousPosition = _spawnPosition;
@@ -131,16 +129,16 @@ namespace HexBattleMage.Core.Visuals
 
             var upwards = Vector3.Cross(sideways, direction).normalized;
             float distanceTravelled = Vector3.Distance(_spawnPosition, head);
-            float length = Mathf.Clamp(distanceTravelled, MinimumVisibleLength, DevConfig.BoltLength.Value);
-            float flicker = Mathf.Floor(Time.time * FlickerFrequency);
+            float length = Mathf.Clamp(distanceTravelled, PrefabSettings.Projectile.MinimumVisibleLength, DevConfig.BoltLength.Value);
+            float flicker = Mathf.Floor(Time.time * PrefabSettings.Projectile.FlickerFrequency);
             float seed = Mathf.Abs(GetInstanceID() % 1000);
 
-            _core.enabled = length >= MinimumVisibleLength;
+            _core.enabled = length >= PrefabSettings.Projectile.MinimumVisibleLength;
             _halo.enabled = _core.enabled;
 
-            for (int index = 0; index < PointCount; index++)
+            for (int index = 0; index < _points.Length; index++)
             {
-                float progress = index / (float)(PointCount - 1);
+                float progress = index / (float)(_points.Length - 1);
                 float amplitude = Mathf.Sin(progress * Mathf.PI) * DevConfig.BoltJaggedness.Value;
                 float horizontal = Mathf.PerlinNoise(seed + index * 3.7f, flicker) * 2f - 1f;
                 float vertical = Mathf.PerlinNoise(seed + index * 5.3f, flicker + 17f) * 2f - 1f;
@@ -152,9 +150,9 @@ namespace HexBattleMage.Core.Visuals
             var haloColor = DevConfig.BoltColor.Value;
             var coreColor = new Color(brightness, brightness, brightness, 1f);
 
-            haloColor = new Color(haloColor.r * brightness, haloColor.g * brightness, haloColor.b * brightness, 0.65f);
+            haloColor = new Color(haloColor.r * brightness, haloColor.g * brightness, haloColor.b * brightness, PrefabSettings.Projectile.HaloOpacity);
             _core.widthMultiplier = DevConfig.BoltWidth.Value;
-            _halo.widthMultiplier = DevConfig.BoltWidth.Value * GlowWidthMultiplier;
+            _halo.widthMultiplier = DevConfig.BoltWidth.Value * PrefabSettings.Projectile.GlowWidthMultiplier;
             _core.startColor = coreColor;
             _core.endColor = coreColor;
             _halo.startColor = haloColor;
@@ -179,10 +177,10 @@ namespace HexBattleMage.Core.Visuals
 
             line.sharedMaterial = _material;
             line.useWorldSpace = true;
-            line.positionCount = PointCount;
+            line.positionCount = _points.Length;
             line.alignment = LineAlignment.View;
             line.textureMode = LineTextureMode.Stretch;
-            line.widthCurve = new AnimationCurve(new Keyframe(0f, 1f), new Keyframe(0.2f, 0.8f), new Keyframe(1f, 0f));
+            line.widthCurve = PrefabSettings.Projectile.BoltWidthCurve;
             line.shadowCastingMode = ShadowCastingMode.Off;
             line.receiveShadows = false;
             line.numCapVertices = 2;

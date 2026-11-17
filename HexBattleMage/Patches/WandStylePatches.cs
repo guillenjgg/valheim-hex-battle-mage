@@ -55,7 +55,7 @@ namespace HexBattleMage.Patches
                 return false;
             }
 
-            return station.m_name == ModLocalization.MageTableName;
+            return CraftingStationManager.IsMageTable(station);
         }
 
         internal static ItemDrop.ItemData FindOwnedWand(InventoryGui gui, Player player, out bool ambiguous)

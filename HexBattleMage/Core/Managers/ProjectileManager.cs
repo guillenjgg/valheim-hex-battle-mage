@@ -23,6 +23,11 @@ namespace HexBattleMage.Core.Managers
 
             foreach (var particles in projectilePrefab.GetComponentsInChildren<ParticleSystem>(true))
             {
+                if (!PrefabSettings.Projectile.SuppressNativeParticles)
+                {
+                    continue;
+                }
+
                 particles.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
 
                 var emission = particles.emission;
@@ -32,16 +37,25 @@ namespace HexBattleMage.Core.Managers
 
             foreach (var renderer in projectilePrefab.GetComponentsInChildren<Renderer>(true))
             {
-                renderer.enabled = false;
+                if (PrefabSettings.Projectile.SuppressNativeRenderers)
+                {
+                    renderer.enabled = false;
+                }
             }
 
             foreach (var light in projectilePrefab.GetComponentsInChildren<Light>(true))
             {
-                light.enabled = false;
+                if (PrefabSettings.Projectile.SuppressNativeLights)
+                {
+                    light.enabled = false;
+                }
             }
 
-            projectile.m_hitEffects = new EffectList();
-            projectile.m_hitWaterEffects = new EffectList();
+            if (PrefabSettings.Projectile.SuppressNativeHitEffects)
+            {
+                projectile.m_hitEffects = new EffectList();
+                projectile.m_hitWaterEffects = new EffectList();
+            }
             projectilePrefab.AddComponent<WandProjectileImpact>();
 
             var visual = new GameObject("LightningBoltVisual");

@@ -1,21 +1,29 @@
 using UnityEngine;
 using HarmonyLib;
+using HexBattleMage.Core.Managers;
 
 namespace HexBattleMage.Core.Visuals
 {
     internal sealed class WandStyle : MonoBehaviour, IEquipmentVisual
     {
-        internal const int StyleCount = 3;
+        internal static int StyleCount => PrefabSettings.Wand.StyleMaterials.Length;
+        private static readonly int ColorProperty = Shader.PropertyToID("_Color");
+        private static readonly int EmissionProperty = Shader.PropertyToID("_EmissionColor");
+        private Renderer[] _runeRenderers;
+        private MaterialPropertyBlock _runeProperties;
         [SerializeField] private int _variant;
         [SerializeField] private Material[] _materials;
 
-        internal void ConfigureMaterials(Material darkMaterial, Material birchMaterial)
+        internal void ConfigureMaterials(Material[] materials)
         {
             var renderer = transform.Find("WandModel").GetComponent<MeshRenderer>();
 
-            darkMaterial.shader = renderer.sharedMaterial.shader;
-            birchMaterial.shader = renderer.sharedMaterial.shader;
-            _materials = new[] { renderer.sharedMaterial, darkMaterial, birchMaterial };
+            foreach (var material in materials)
+            {
+                material.shader = renderer.sharedMaterial.shader;
+            }
+
+            _materials = materials;
         }
 
         internal static void EnableEquipmentVariants()
@@ -27,7 +35,45 @@ namespace HexBattleMage.Core.Visuals
 
         private void Awake()
         {
+            var progression = transform.Find("WandModel/ProgressionRunes");
+
+            if (progression != null)
+            {
+                _runeRenderers = progression.GetComponentsInChildren<Renderer>(true);
+                _runeProperties = new MaterialPropertyBlock();
+            }
+
             Setup(_variant);
+        }
+
+        private void Update()
+        {
+            if (_runeRenderers == null)
+            {
+                return;
+            }
+
+            var profile = PrefabSettings.Wand;
+
+            if (profile == null)
+            {
+                return;
+            }
+
+            var color = profile.RuneColor;
+
+            _runeProperties.SetColor(ColorProperty, color);
+            _runeProperties.SetColor(EmissionProperty, color * profile.RuneEmissionStrength);
+
+            foreach (var renderer in _runeRenderers)
+            {
+                if (renderer.name != "GlowingInlay")
+                {
+                    continue;
+                }
+
+                renderer.SetPropertyBlock(_runeProperties);
+            }
         }
 
         public void Setup(int variant)

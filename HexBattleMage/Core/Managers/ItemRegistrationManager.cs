@@ -1,22 +1,40 @@
-﻿using HexBattleMage.Assets;
+using HexBattleMage.Assets;
 using Jotunn.Entities;
 using HexBattleMage.Core.Visuals;
 using Jotunn.Configs;
 using Jotunn.Managers;
 using UnityEngine;
+using System;
+using Object = UnityEngine.Object;
 
 namespace HexBattleMage.Core.Managers
 {
     internal static class ItemRegistrationManager
     {
-        private const int BeechWandWoodCost = 20;
-        private const int BeechWandResinCost = 2;
-        private const int BaseStationLevel = 1;
-        private const string ApprenticeMaterialDirectory = "Assets/_CustomItems/HexBattleMage/Transmogs/Wands/Apprentice/Materials/";
-        private const string DarkBarkMaterialPath = ApprenticeMaterialDirectory + "ApprenticeDarkBark.mat";
-        private const string BirchMaterialPath = ApprenticeMaterialDirectory + "ApprenticeBirch.mat";
         private const string IconShaderName = "Unlit/Texture";
         private const string FallbackIconShaderName = "Sprites/Default";
+
+        internal static void Initialize()
+        {
+            PrefabManager.OnVanillaPrefabsAvailable += RegisterWhenReady;
+        }
+
+        internal static void Shutdown()
+        {
+            PrefabManager.OnVanillaPrefabsAvailable -= RegisterWhenReady;
+            PrefabManager.OnPrefabsRegistered -= CreateWandStyleIcons;
+        }
+
+        private static void RegisterWhenReady()
+        {
+            PrefabManager.OnVanillaPrefabsAvailable -= RegisterWhenReady;
+
+            if (!RegisterItems())
+            {
+                PrefabManager.OnPrefabsRegistered -= CreateWandStyleIcons;
+                Plugin.Log.LogError("Wand registration failed after vanilla prefabs became available.");
+            }
+        }
 
         internal static bool RegisterItems()
         {
@@ -29,11 +47,8 @@ namespace HexBattleMage.Core.Managers
                 return false;
             }
 
-            itemDrop.m_itemData.m_shared.m_animationState = ItemDrop.ItemData.AnimationState.OneHanded;
             ApplyDamageSettings(itemDrop.m_itemData);
             ApplySettings(itemDrop.m_itemData.m_shared.m_attack);
-            itemDrop.m_itemData.m_shared.m_name = ModLocalization.BeechWandName;
-            itemDrop.m_itemData.m_shared.m_description = ModLocalization.BeechWandDescription;
             WandTipLight.Configure(wandPrefab);
             wandPrefab.transform.Find("attach").gameObject.AddComponent<WandStyle>();
             itemDrop.m_itemData.m_shared.m_variants = WandStyle.StyleCount;
@@ -50,7 +65,7 @@ namespace HexBattleMage.Core.Managers
             WandStyle.EnableEquipmentVariants();
             PrefabManager.OnPrefabsRegistered += CreateWandStyleIcons;
 
-            return RegisterEquipment(wandPrefab, Heightmap.Biome.Meadows, new[] { new RequirementConfig("Wood", BeechWandWoodCost), new RequirementConfig("Resin", BeechWandResinCost) });
+            return RegisterEquipment(wandPrefab, (Heightmap.Biome)Enum.Parse(typeof(Heightmap.Biome), PrefabSettings.Require<MageEquipmentDefinition>(wandPrefab).CatalogBiome), PrefabSettings.GetRequirements(PrefabSettings.Require<MageRecipeProfile>(wandPrefab)));
         }
 
         private static void CreateWandStyleIcons()
@@ -59,23 +74,9 @@ namespace HexBattleMage.Core.Managers
 
             var prefab = AssetBundleHelper.HexBattleMageWand;
             var style = prefab.GetComponentInChildren<WandStyle>();
-            var alternateMaterial = AssetBundleHelper.Bundle.LoadAsset<Material>(DarkBarkMaterialPath);
+            var materials = PrefabSettings.Require<WandProfile>(prefab).StyleMaterials;
 
-            if (alternateMaterial == null)
-            {
-                DebugLog.LogError($"Wand style material '{DarkBarkMaterialPath}' is missing from the imported bundle.");
-                return;
-            }
-
-            var birchMaterial = AssetBundleHelper.Bundle.LoadAsset<Material>(BirchMaterialPath);
-
-            if (birchMaterial == null)
-            {
-                DebugLog.LogError($"Wand style material '{BirchMaterialPath}' is missing from the imported bundle.");
-                return;
-            }
-
-            style.ConfigureMaterials(alternateMaterial, birchMaterial);
+            style.ConfigureMaterials(materials);
             DebugLog.LogInfo("Apprentice wand styles configured: warm bark, dark weathered bark, and pale birch.");
 
             if (GUIManager.IsHeadless())
@@ -154,16 +155,30 @@ namespace HexBattleMage.Core.Managers
 
         private static bool RegisterEquipment(GameObject prefab, Heightmap.Biome biome, RequirementConfig[] requirements)
         {
+            var recipeProfile = PrefabSettings.Require<MageRecipeProfile>(prefab);
+
+            if (requirements.Length == 0)
+            {
+                Plugin.Log.LogError($"Cannot register '{prefab.name}': authored recipe data is unavailable after prefab loading. Profile: {JsonUtility.ToJson(recipeProfile)}");
+                return false;
+            }
+
             var config = new ItemConfig
             {
-                CraftingStation = CraftingStationManager.WorkbenchPrefabName,
-                RepairStation = CraftingStationManager.WorkbenchPrefabName,
-                MinStationLevel = BaseStationLevel,
-                Amount = 1,
+                CraftingStation = recipeProfile.CraftingStation,
+                RepairStation = recipeProfile.RepairStation,
+                MinStationLevel = recipeProfile.MinimumStationLevel,
+                Amount = recipeProfile.Amount,
                 Requirements = requirements
             };
 
             var item = new CustomItem(prefab, true, config);
+
+            if (item.Recipe == null)
+            {
+                Plugin.Log.LogError($"Cannot register '{prefab.name}': Jotunn did not create its recipe from {requirements.Length} authored resources.");
+                return false;
+            }
 
             if (!ItemManager.Instance.AddItem(item))
             {
@@ -172,6 +187,7 @@ namespace HexBattleMage.Core.Managers
             }
 
             MageEquipmentCatalog.Register(item.ItemDrop, item.Recipe.Recipe, biome);
+            Plugin.Log.LogInfo($"Wand registered after prefab loading with {requirements.Length} authored recipe resources.");
             return true;
         }
 
@@ -194,6 +210,7 @@ namespace HexBattleMage.Core.Managers
         {
             item.m_shared.m_damages.m_blunt = DevConfig.WandBluntDamage.Value;
             item.m_shared.m_damages.m_pierce = DevConfig.WandPierceDamage.Value;
+            Elements.WandElementManager.ApplyToItem(item);
         }
 
         internal static void ApplySettings(Attack attack)
@@ -201,7 +218,7 @@ namespace HexBattleMage.Core.Managers
             attack.m_attackAnimation = DevConfig.AttackAnimation.Value;
             attack.m_attackChainLevels = DevConfig.AttackChainLevels.Value;
             attack.m_attackRandomAnimations = DevConfig.RandomAttackAnimations.Value;
-            attack.m_attackProjectile = AssetBundleHelper.HexMagicBolt;
+            attack.m_attackProjectile = PrefabSettings.Wand.ProjectilePrefab;
             attack.m_projectileVel = DevConfig.ProjectileVelocity.Value;
             attack.m_projectileAccuracy = DevConfig.ProjectileAccuracy.Value;
             attack.m_projectileAccuracyMin = DevConfig.ProjectileAccuracyMin.Value;

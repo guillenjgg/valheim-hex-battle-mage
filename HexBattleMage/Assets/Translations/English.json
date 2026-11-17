@@ -1,6 +1,8 @@
 {
   "piece_hexbattlemage_magetable": "Mage Table",
   "piece_hexbattlemage_magetable_description": "A rune-bound table for crafting and repairing battlemage equipment.",
+  "item_hexbattlemage_magicbracer": "Apprentice Ward Bracer",
+  "item_hexbattlemage_magicbracer_description": "A rune-bound bracer worn in its own equipment slot. Projects a Nordic magic ward while blocking. Uses stamina to block and parry.",
   "item_hexbattlemage_beechwand": "Apprentice Wand",
   "item_hexbattlemage_beechwand_description": "A resin-bound branch that channels an apprentice's magic into focused bolts. Most effective at close to medium range.",
   "hexbattlemage_style_applied": "Wand appearance applied. No materials consumed.",

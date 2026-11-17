@@ -1,9 +1,10 @@
-﻿using BepInEx;
+using BepInEx;
 using BepInEx.Logging;
 using HarmonyLib;
 using HexBattleMage.Assets;
 using HexBattleMage.Core;
 using HexBattleMage.Core.Managers;
+using HexBattleMage.Core.Elements;
 using Jotunn.Utils;
 using System.Reflection;
 
@@ -27,7 +28,6 @@ namespace HexBattleMage
         private void Awake()
         {
             Log = Logger;
-            _devConfig = new DevConfig(Config);
             ModLocalization.Initialize();
 
             if (!AssetBundleHelper.LoadAssets())
@@ -35,17 +35,17 @@ namespace HexBattleMage
                 return;
             }
 
+            _devConfig = new DevConfig(Config);
+            WandElementManager.Initialize(Config);
+
             if (!ProjectileManager.RegisterProjectiles())
             {
                 return;
             }
 
-            if (!ItemRegistrationManager.RegisterItems())
-            {
-                return;
-            }
-
+            ItemRegistrationManager.Initialize();
             CraftingStationManager.Initialize();
+            MagicShieldManager.Initialize();
 
             _harmonyInstance = new Harmony(PluginGuid);
             _harmonyInstance.PatchAll(Assembly.GetExecutingAssembly());
@@ -82,13 +82,15 @@ namespace HexBattleMage
                 }
             }
             ProjectileManager.ApplySettings();
-            Log.LogInfo("Development settings applied. Wand lights and bolt appearance update live; attack and projectile gameplay settings apply on the next shot.");
+            Log.LogInfo($"Development settings applied. Wand element: {WandElementManager.ActiveElement.Value}. Initial damage and projectile settings apply to the next shot; active elemental effects read live balance settings.");
         }
 
         private void OnDestroy()
         {
             _initialized = false;
+            ItemRegistrationManager.Shutdown();
             CraftingStationManager.Shutdown();
+            MagicShieldManager.Shutdown();
             _devConfig?.Dispose();
             Log.LogInfo($"{PluginName} v{PluginVersion} unloaded.");
 

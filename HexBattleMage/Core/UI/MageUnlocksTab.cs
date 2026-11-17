@@ -60,7 +60,7 @@ namespace HexBattleMage.Core.UI
 
             var player = Player.m_localPlayer;
             var station = player != null ? player.GetCurrentCraftingStation() : null;
-            bool atMageTable = station != null && station.m_name == ModLocalization.MageTableName;
+            bool atMageTable = HexBattleMage.Core.Managers.CraftingStationManager.IsMageTable(station);
 
             _tab.gameObject.SetActive(atMageTable);
 

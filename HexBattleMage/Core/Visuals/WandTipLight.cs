@@ -1,10 +1,14 @@
 using UnityEngine;
+using HexBattleMage.Core.Elements;
 using HexBattleMage.Core.Managers;
 
 namespace HexBattleMage.Core.Visuals
 {
     internal sealed class WandTipLight : MonoBehaviour
     {
+        private static readonly int EmissionProperty = Shader.PropertyToID("_EmissionColor");
+        private Renderer _tipRenderer;
+        private MaterialPropertyBlock _tipProperties;
         private Light _light;
 
         internal static void Configure(GameObject prefab)
@@ -58,10 +62,7 @@ namespace HexBattleMage.Core.Visuals
                 light = tip.gameObject.AddComponent<Light>();
             }
 
-            light.type = LightType.Point;
-            light.color = new Color(0.7f, 0.8f, 1f);
-            light.shadows = LightShadows.None;
-            light.renderMode = LightRenderMode.ForcePixel;
+            light.color = PrefabSettings.Require<WandProfile>(prefab).LightColor;
             light.enabled = false;
             tip.gameObject.AddComponent<WandTipLight>();
         }
@@ -69,12 +70,31 @@ namespace HexBattleMage.Core.Visuals
         private void Awake()
         {
             _light = GetComponent<Light>();
+            _tipRenderer = transform.parent.GetComponent<Renderer>();
+            _tipProperties = new MaterialPropertyBlock();
         }
-
         private void Update()
         {
             var wielder = GetComponentInParent<Humanoid>();
 
+            if (_tipRenderer != null)
+            {
+                var emission = PrefabSettings.Wand.UnattunedTipEmission;
+
+                if (WandElementManager.Enabled != null && WandElementManager.Enabled.Value)
+                {
+                    var element = WandElementManager.ActiveElement.Value;
+                    var profile = WandElementManager.GetSettings(element).Profile;
+
+                    emission = profile.TipColor * profile.TipEmissionStrength;
+                }
+
+                _tipRenderer.GetPropertyBlock(_tipProperties);
+                _tipProperties.SetColor(EmissionProperty, emission);
+                _tipRenderer.SetPropertyBlock(_tipProperties);
+            }
+
+            _light.color = PrefabSettings.Wand.LightColor;
             _light.range = DevConfig.WandLightRange.Value;
             _light.intensity = DevConfig.WandLightIntensity.Value;
             _light.enabled = wielder != null && ItemRegistrationManager.IsWand(wielder.GetCurrentWeapon());

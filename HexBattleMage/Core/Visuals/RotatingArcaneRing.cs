@@ -1,14 +1,16 @@
 using UnityEngine;
+using HexBattleMage.Core.Managers;
 
 namespace HexBattleMage.Core.Visuals
 {
     internal sealed class RotatingArcaneRing : MonoBehaviour
     {
-        private const float RotationSpeed = 12f;
 
         private void Update()
         {
-            transform.Rotate(Vector3.up, RotationSpeed * Time.deltaTime, Space.Self);
+            var profile = GetComponentInParent<MageTableProfile>(true);
+
+            transform.Rotate(Vector3.up, profile.RingRotationSpeed * Time.deltaTime, Space.Self);
         }
     }
 }

@@ -85,6 +85,11 @@
     <Reference Include="UnityEngine.AudioModule">
       <HintPath>..\..\..\valheim_mod_libraries\UnityEngine.AudioModule.dll</HintPath>
     </Reference>
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="UnityEngine.JSONSerializeModule">
+      <HintPath>G:\SteamLibrary\steamapps\common\Valheim\Valheim_Data\Managed\UnityEngine.JSONSerializeModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="UnityEngine.CoreModule">
       <HintPath>..\..\..\valheim_mod_libraries\UnityEngine.CoreModule.dll</HintPath>
       <Private>False</Private>
@@ -105,6 +110,12 @@
   <ItemGroup>
     <Compile Include="Assets\AssetBundleHelper.cs" />
     <Compile Include="Core\DevConfig.cs" />
+    <Compile Include="Core\Elements\WandElementProfile.cs" />
+    <Compile Include="Core\Elements\WandElementSettings.cs" />
+    <Compile Include="Core\Elements\WandElementManager.cs" />
+    <Compile Include="Core\Elements\WandElementStatus.cs" />
+    <Compile Include="Core\Elements\WandElementAnimation.cs" />
+    <Compile Include="Patches\WandElementPatches.cs" />
     <Compile Include="Core\MageEquipmentCatalog.cs" />
     <Compile Include="Core\UI\MageUnlocksTab.cs" />
     <Compile Include="Patches\MageUnlocksTabPatches.cs" />
@@ -128,6 +139,18 @@
     <Compile Include="Patches\WandAttackPatches.cs" />
     <Compile Include="Patches\WandHolsterPatch.cs" />
     <Compile Include="Core\Managers\ItemRegistrationManager.cs" />
+    <Compile Include="Core\Managers\MagicShieldManager.cs" />
+    <Compile Include="Core\Managers\MagicBracerProfile.cs" />
+    <Compile Include="Core\Managers\MageEquipmentDefinition.cs" />
+    <Compile Include="Core\Managers\MageRecipeProfile.cs" />
+    <Compile Include="Core\Managers\WandProfile.cs" />
+    <Compile Include="Core\Managers\WandProjectileProfile.cs" />
+    <Compile Include="Core\Managers\PrefabSettings.cs" />
+    <Compile Include="Core\Managers\MageTableProfile.cs" />
+    <Compile Include="Core\Visuals\MagicShieldVisual.cs" />
+    <Compile Include="Core\Visuals\MagicBracerVisualController.cs" />
+    <Compile Include="Patches\MagicBracerEquipmentPatches.cs" />
+    <Compile Include="Patches\MagicShieldPatches.cs" />
     <Compile Include="Core\Managers\ProjectileManager.cs" />
     <Compile Include="Plugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

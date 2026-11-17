@@ -1,5 +1,9 @@
 # Valheim development
 
+- Prefabs are the source of truth for authored defaults. Serialize item values, equipment roles, progression settings, visual settings and behavior settings on the prefab or explicitly referenced, inspectable profile assets so inspecting the prefab in Unity reveals its complete intended configuration.
+- Runtime code and configuration may override authored values, but must start from those prefab defaults. Keep override precedence explicit and document runtime-derived values. Do not silently replace authored settings with hardcoded initialization values.
+- Asset builders must preserve existing authored values on rebuild and seed defaults only for new settings or assets. For new or changed features, move their defaults into inspectable prefab components or referenced profiles. Existing code-only settings remain migration work; do not claim all existing prefabs are already complete.
+
 - Validate game behavior, member visibility, and Harmony hook signatures against the installed Valheim assemblies before implementing changes. The runtime assembly is `G:\SteamLibrary\steamapps\common\Valheim\Valheim_Data\Managed\assembly_valheim.dll`.
 - Publicized build references do not change runtime member visibility. Use public APIs or Harmony access mechanisms for private members.
 - Consult the Valheim Modding Wiki when applicable, including its animation replacement guide, and Jotunn documentation for Jotunn APIs.

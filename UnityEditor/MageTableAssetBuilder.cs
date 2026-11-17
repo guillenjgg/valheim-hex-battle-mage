@@ -60,6 +60,12 @@ public static class MageTableAssetBuilder
     [MenuItem("HexBattleMage/Prepare Mage Table and Build Bundle")]
     public static void PrepareAndBuild()
     {
+        if (AssetDatabase.LoadAssetAtPath<GameObject>(PrefabPath) != null)
+        {
+            PrefabDefaultsAssetBuilder.PrepareAndBuild();
+            return;
+        }
+
         HexBattleMageBundlePolicy.PrepareForBuild();
         Directory.CreateDirectory(MaterialPath);
         Directory.CreateDirectory(MockPath);
