@@ -1,5 +1,15 @@
 # Equipment progression
 
+## Planned mage gear and first trinket
+
+The agreed gear lineup is head, chest, pants, cloak and one equipped trinket. Every mage gear piece will supply flat maximum Eitr, and gear-provided Eitr must regenerate without Eitr food. The first trinket supplies an immediate maximum-Eitr and Eitr-regeneration benefit, then rewards a successful parry with increased wand damage for 5 seconds. The trigger must recognize successful parries against bosses independently of whether the enemy can be staggered. Repeat parries refresh the duration rather than stack the damage bonus. Numerical bonuses remain undecided. No adrenaline buildup is required.
+
+The stone pendant is now registered as `HexStoneParryTrinket` (Stone of Reprisal), using Valheim's native single trinket slot. Initial test defaults are +25 maximum Eitr, +15% Eitr regeneration and +25% wand projectile damage for 5 seconds after a successful parry. It costs 10 Stone, 4 Resin and 2 Leather Scraps at a level-1 Mage Table. It appears in the Unlocks list and uses native material discovery. Other mage clothing and their Eitr profiles remain future work.
+
+The reward hooks the native successful timed-block branch before the attacker-stagger condition, so bosses need not stagger. Ordinary blocks, guard breaks and stamina failures do not grant the reward. The timed Rune Reprisal status shows the trinket icon; re-parrying refreshes rather than stacks it. Unequipping, replacing the trinket or dying clears the reward. Equipped Eitr adds to the native food-derived maximum; native regeneration works with that positive maximum without Eitr food. Equip/unequip updates the cap without refilling current Eitr. Native regeneration delays and attack/dodge/block modifiers still apply. Shot damage is copied before modification, including physical and elemental channels, so shared item stats and subsequent projectiles do not compound the bonus. Separately configured elemental tick damage is unchanged. Wand resource costs are unchanged in this pass.
+
+See AssetBundles.md for authoring locations and PrefabSettings.md for configuration precedence. Isolated integration checks exercise native equipment and parry methods; actual game startup/crafting, visible armor clearance, regeneration ticks, save/reload and multiplayer still require in-game testing.
+
 Current authored settings and component locations are described in [PrefabSettings.md](PrefabSettings.md). The configurable elemental prototype is described in [WandElements.md](WandElements.md). Damage-type selection is currently a development setting; Mage Table selection and tier-based element unlocks are not implemented yet.
 
 - One Mage Table, with station extensions providing future crafting upgrades.

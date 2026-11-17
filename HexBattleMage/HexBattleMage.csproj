@@ -147,6 +147,11 @@
     <Compile Include="Core\Managers\WandProjectileProfile.cs" />
     <Compile Include="Core\Managers\PrefabSettings.cs" />
     <Compile Include="Core\Managers\MageTableProfile.cs" />
+    <Compile Include="Core\Managers\MageEitrProfile.cs" />
+    <Compile Include="Core\Managers\StoneTrinketProfile.cs" />
+    <Compile Include="Core\Managers\StoneTrinketManager.cs" />
+    <Compile Include="Patches\StoneTrinketPatches.cs" />
+    <Compile Include="Core\Visuals\StoneTrinketWornVisual.cs" />
     <Compile Include="Core\Visuals\MagicShieldVisual.cs" />
     <Compile Include="Core\Visuals\MagicBracerVisualController.cs" />
     <Compile Include="Patches\MagicBracerEquipmentPatches.cs" />

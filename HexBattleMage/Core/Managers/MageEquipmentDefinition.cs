@@ -6,14 +6,16 @@ namespace HexBattleMage.Core.Managers
     {
         None,
         Bracer,
-        Wand
+        Wand,
+        Trinket
     }
 
     public enum MageEquipmentSlot
     {
         None,
         Bracer,
-        MainHand
+        MainHand,
+        Trinket
     }
 
     public sealed class MageEquipmentDefinition : MonoBehaviour
