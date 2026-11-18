@@ -46,7 +46,7 @@ namespace HexBattleMage
             ItemRegistrationManager.Initialize();
             CraftingStationManager.Initialize();
             MagicShieldManager.Initialize();
-            StoneTrinketManager.Initialize(Config);
+            TrinketManager.Initialize(Config);
 
             _harmonyInstance = new Harmony(PluginGuid);
             _harmonyInstance.PatchAll(Assembly.GetExecutingAssembly());
@@ -92,7 +92,7 @@ namespace HexBattleMage
             ItemRegistrationManager.Shutdown();
             CraftingStationManager.Shutdown();
             MagicShieldManager.Shutdown();
-            StoneTrinketManager.Shutdown();
+            TrinketManager.Shutdown();
             _devConfig?.Dispose();
             Log.LogInfo($"{PluginName} v{PluginVersion} unloaded.");
 

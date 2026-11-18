@@ -48,8 +48,8 @@ public static class MageTableExtensionAssetBuilder
 
         Directory.CreateDirectory(Root);
         AssetDatabase.Refresh();
-        Prepare("HexMageRuneStone", "Rune Stone", "A protection rune that enhances the Mage Table.", false);
-        Prepare("HexMageReagentStand", "Reagent Stand", "Meadows reagents prepared for stronger magic.", true);
+        Prepare("HexMageRuneStone", "$piece_hexbattlemage_runestone", "$piece_hexbattlemage_runestone_description", false);
+        Prepare("HexMageReagentStand", "$piece_hexbattlemage_reagentstand", "$piece_hexbattlemage_reagentstand_description", true);
         AssetDatabase.SaveAssets();
         Preview("HexMageRuneStone");
         Preview("HexMageReagentStand");

@@ -387,7 +387,7 @@ public static class MagicShieldAssetBuilder
 
         try
         {
-            foreach (string name in new[] { "HexMagicBracerVisual", "HexBattleMageWand", "HexArcaneWorkbench", "HexMagicBolt" })
+            foreach (string name in new[] { "HexMagicBracerVisual", "HexBattleMage_Wand_Meadows_01", "HexArcaneWorkbench", "HexMagicBolt" })
             {
                 var prefab = bundle.LoadAsset<GameObject>(name);
 

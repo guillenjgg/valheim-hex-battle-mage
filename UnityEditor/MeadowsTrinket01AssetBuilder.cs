@@ -5,16 +5,16 @@ using UnityEditor;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-public static class StoneTrinketAssetBuilder
+public static class MeadowsTrinket01AssetBuilder
 {
-    private const string Root = "Assets/_CustomItems/HexBattleMage/Trinkets/ApprenticeStone";
-    private const string PrefabPath = Root + "/HexStoneParryTrinketVisual.prefab";
+    private const string Root = "Assets/_CustomItems/HexBattleMage/Trinkets/Meadows/Trinket_Meadows_01";
+    private const string PrefabPath = Root + "/HexBattleMage_Trinket_Meadows_01.prefab";
     private const string Workspace = "C:/Users/Jonathan/Documents/ChatGPT/HexBattleMage/";
     private const int StoneSides = 16;
     private static readonly float[] Heights = { -0.045f, -0.037f, -0.022f, 0f, 0.022f, 0.036f, 0.045f };
     private static readonly float[] Widths = { 0.006f, 0.02f, 0.027f, 0.029f, 0.021f, 0.012f, 0.009f };
 
-    [MenuItem("HexBattleMage/Prepare Stone Trinket Visual and Build Bundle")]
+    [MenuItem("HexBattleMage/Prepare Meadows Trinket 01 Visual and Build Bundle")]
     public static void Build()
     {
         var stage = UnityEditor.SceneManagement.PrefabStageUtility.GetCurrentPrefabStage();
@@ -51,7 +51,7 @@ public static class StoneTrinketAssetBuilder
         }
 
         File.Copy("Assets/AssetBundles/hexbattlemage", "C:/Users/Jonathan/Documents/valheim_mods/repos/valheim-hex-battle-mage/HexBattleMage/Assets/AssetBundles/hexbattlemage", true);
-        File.WriteAllText(Workspace + "stone-trinket-result.txt", "PASS: stone pendant, two leather bindings, cord, recessed border and constant blue rune saved as six inspectable mesh assets and bundled. Visual prototype only; no equip slot, recipe or combat effects registered.");
+        File.WriteAllText(Workspace + "trinket-meadows-01-visual-result.txt", "PASS: Meadows trinket 01 visual assets saved and bundled; existing authored geometry and profiles preserved.");
     }
 
     private static void Create()
@@ -70,7 +70,7 @@ public static class StoneTrinketAssetBuilder
 
         stone.mainTexture = StoneTexture();
 
-        var root = new GameObject("HexStoneParryTrinketVisual");
+        var root = new GameObject("HexBattleMage_Trinket_Meadows_01");
 
         AddMesh(root, "RiverStonePendant", Stone(), stone);
         AddMesh(root, "UpperLeatherBinding", Binding(1f), leather);
@@ -300,7 +300,7 @@ public static class StoneTrinketAssetBuilder
         image.ReadPixels(new Rect(0f, 0f, rendered.width, rendered.height), 0, 0);
         image.Apply();
         RenderTexture.active = previous;
-        File.WriteAllBytes(Workspace + "stone-trinket-preview.png", image.EncodeToPNG());
+        File.WriteAllBytes(Workspace + "trinket-meadows-01-preview.png", image.EncodeToPNG());
         Object.DestroyImmediate(image);
         preview.Cleanup();
 

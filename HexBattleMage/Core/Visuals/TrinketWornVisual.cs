@@ -1,9 +1,9 @@
-using HexBattleMage.Core.Managers;
+using HexBattleMage.Core.Trinkets;
 using UnityEngine;
 
 namespace HexBattleMage.Core.Visuals
 {
-    internal sealed class StoneTrinketWornVisual : MonoBehaviour
+    internal sealed class TrinketWornVisual : MonoBehaviour
     {
         private void LateUpdate()
         {
@@ -14,7 +14,7 @@ namespace HexBattleMage.Core.Visuals
                 return;
             }
 
-            var profile = GetComponent<StoneTrinketProfile>();
+            var profile = GetComponent<HexBattleMageTrinketProfile>();
 
             if (profile == null)
             {

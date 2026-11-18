@@ -10,19 +10,42 @@ namespace HexBattleMage.Core
     {
         internal const string MageTableName = "$piece_hexbattlemage_magetable";
         internal const string MageTableDescription = "$piece_hexbattlemage_magetable_description";
-        internal const string BeechWandName = "$item_hexbattlemage_beechwand";
-        internal const string BeechWandDescription = "$item_hexbattlemage_beechwand_description";
-        private const string EnglishResourceName = "HexBattleMage.Assets.Translations.English.json";
+        internal const string BeechWandName = "$item_hexbattlemage_wand_meadows_01";
+        internal const string BeechWandDescription = "$item_hexbattlemage_wand_meadows_01_description";
+        private const string TranslationResourcePrefix = "HexBattleMage.Assets.Translations.";
+        private const string TranslationResourceExtension = ".json";
         private static CustomLocalization _localization;
 
         internal static void Initialize()
         {
-            _localization = LocalizationManager.Instance.GetLocalization();
+            LoadTranslations(LocalizationManager.Instance.GetLocalization());
+        }
 
-            using (Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(EnglishResourceName))
-            using (var reader = new StreamReader(stream))
+        internal static void LoadTranslations(CustomLocalization localization)
+        {
+            _localization = localization;
+
+            var assembly = Assembly.GetExecutingAssembly();
+
+            foreach (string resourceName in assembly.GetManifestResourceNames())
             {
-                _localization.AddJsonFile("English", reader.ReadToEnd());
+                if (!resourceName.StartsWith(TranslationResourcePrefix, System.StringComparison.Ordinal))
+                {
+                    continue;
+                }
+
+                if (!resourceName.EndsWith(TranslationResourceExtension, System.StringComparison.Ordinal))
+                {
+                    continue;
+                }
+
+                string language = resourceName.Substring(TranslationResourcePrefix.Length, resourceName.Length - TranslationResourcePrefix.Length - TranslationResourceExtension.Length);
+
+                using (Stream stream = assembly.GetManifestResourceStream(resourceName))
+                using (var reader = new StreamReader(stream))
+                {
+                    _localization.AddJsonFile(language, reader.ReadToEnd());
+                }
             }
         }
 

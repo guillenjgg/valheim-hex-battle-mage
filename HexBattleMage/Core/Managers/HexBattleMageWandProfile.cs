@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace HexBattleMage.Core.Managers
 {
-    public sealed class WandProfile : MonoBehaviour
+    public sealed class HexBattleMageWandProfile : MonoBehaviour
     {
         [Header("Combat defaults; development configuration overrides these values")]
         public float WandBluntDamage = 10f;

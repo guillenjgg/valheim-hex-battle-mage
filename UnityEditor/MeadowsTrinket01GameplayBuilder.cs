@@ -1,15 +1,16 @@
 using System;
 using System.IO;
 using HexBattleMage.Core.Managers;
+using HexBattleMage.Core.Trinkets;
 using UnityEditor;
 using UnityEngine;
 
-public static class StoneTrinketGameplayBuilder
+public static class MeadowsTrinket01GameplayBuilder
 {
-    private const string Root = "Assets/_CustomItems/HexBattleMage/Trinkets/ApprenticeStone";
-    private const string Path = Root + "/HexStoneParryTrinketVisual.prefab";
+    private const string Root = "Assets/_CustomItems/HexBattleMage/Trinkets/Meadows/Trinket_Meadows_01";
+    private const string Path = Root + "/HexBattleMage_Trinket_Meadows_01.prefab";
 
-    [MenuItem("HexBattleMage/Prepare Stone Trinket Gameplay and Build Bundle")]
+    [MenuItem("HexBattleMage/Prepare Meadows Trinket 01 Gameplay and Build Bundle")]
     public static void Build()
     {
         var stage = UnityEditor.SceneManagement.PrefabStageUtility.GetCurrentPrefabStage();
@@ -30,11 +31,18 @@ public static class StoneTrinketGameplayBuilder
 
         try
         {
-            var profile = prefab.GetComponent<StoneTrinketProfile>();
+            var profile = prefab.GetComponent<HexBattleMageTrinketProfile>();
 
             if (profile == null)
             {
-                profile = prefab.AddComponent<StoneTrinketProfile>();
+                profile = prefab.AddComponent<HexBattleMageTrinketProfile>();
+                profile.ItemPrefabName = "HexBattleMage_Trinket_Meadows_01";
+                profile.DisplayName = "$item_hexbattlemage_trinket_meadows_01";
+                profile.Description = "$item_hexbattlemage_trinket_meadows_01_description";
+                profile.RewardTrigger = TrinketRewardTrigger.SuccessfulParry;
+                profile.WandDamageBonus = 0.25f;
+                profile.BossParryDamageBonus = 0.10f;
+                profile.BuffDisplayName = "$se_hexbattlemage_trinket_meadows_01";
             }
 
             if (prefab.GetComponent<MageEitrProfile>() == null)
@@ -63,7 +71,7 @@ public static class StoneTrinketGameplayBuilder
                 };
             }
 
-            string recipePath = Root + "/Recipe_HexStoneParryTrinketVisual.json";
+            string recipePath = Root + "/Recipe_HexBattleMage_Trinket_Meadows_01.json";
 
             File.WriteAllText(recipePath, recipe.GetBakedData());
             AssetDatabase.ImportAsset(recipePath);
@@ -71,13 +79,13 @@ public static class StoneTrinketGameplayBuilder
 
             if (profile.Icon == null)
             {
-                StoneTrinketAssetBuilder.RenderPreview(asset);
+                MeadowsTrinket01AssetBuilder.RenderPreview(asset);
 
-                string iconPath = Root + "/StoneTrinketIcon.png";
+                string iconPath = Root + "/HexBattleMage_Trinket_Meadows_01_Icon.png";
 
                 if (!File.Exists(iconPath))
                 {
-                    File.Copy("C:/Users/Jonathan/Documents/ChatGPT/HexBattleMage/stone-trinket-preview.png", iconPath);
+                    File.Copy("C:/Users/Jonathan/Documents/ChatGPT/HexBattleMage/trinket-meadows-01-preview.png", iconPath);
                 }
 
                 AssetDatabase.ImportAsset(iconPath);
@@ -103,6 +111,7 @@ public static class StoneTrinketGameplayBuilder
             PrefabUtility.UnloadPrefabContents(prefab);
         }
 
+        TrinketAssetPreparation.PrepareAll();
         AssetDatabase.SaveAssets();
         HexBattleMageBundlePolicy.ValidateDependencies();
 
@@ -114,6 +123,6 @@ public static class StoneTrinketGameplayBuilder
         }
 
         File.Copy("Assets/AssetBundles/hexbattlemage", "C:/Users/Jonathan/Documents/valheim_mods/repos/valheim-hex-battle-mage/HexBattleMage/Assets/AssetBundles/hexbattlemage", true);
-        File.WriteAllText("C:/Users/Jonathan/Documents/ChatGPT/HexBattleMage/stone-trinket-gameplay-result.txt", "PASS: trinket role, Eitr profile, parry reward settings, attachment settings, transparent icon and full recipe baked into the existing visual prefab; meshes/materials preserved.");
+        File.WriteAllText("C:/Users/Jonathan/Documents/ChatGPT/HexBattleMage/trinket-meadows-01-gameplay-result.txt", "PASS: trinket role, Eitr profile, parry reward settings, attachment settings, transparent icon and full recipe baked into the existing visual prefab; meshes/materials preserved.");
     }
 }

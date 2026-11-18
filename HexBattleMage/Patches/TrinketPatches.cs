@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Reflection.Emit;
 using HarmonyLib;
 using HexBattleMage.Core.Managers;
+using HexBattleMage.Core.Trinkets;
 
 namespace HexBattleMage.Patches
 {
@@ -11,7 +12,7 @@ namespace HexBattleMage.Patches
     {
         private static void Postfix(Player __instance, ref float __2)
         {
-            __2 += StoneTrinketManager.EitrBonus(__instance, false);
+            __2 += TrinketEffects.EitrBonus(__instance, false);
         }
     }
 
@@ -20,54 +21,61 @@ namespace HexBattleMage.Patches
     {
         private static void Postfix(Player __instance, ref float __result)
         {
-            __result += StoneTrinketManager.EitrBonus(__instance, true);
+            __result += TrinketEffects.EitrBonus(__instance, true);
         }
     }
 
     [HarmonyPatch(typeof(Humanoid), nameof(Humanoid.EquipItem))]
-    internal static class StoneTrinketEquipPatch
+    internal static class TrinketEquipPatch
     {
-        private static void Postfix(Humanoid __instance, ItemDrop.ItemData item, bool __result)
+        private static void Prefix(Humanoid __instance, out float __state)
+        {
+            var player = __instance as Player;
+
+            __state = player != null ? player.GetEitr() : 0f;
+        }
+
+        private static void Postfix(Humanoid __instance, ItemDrop.ItemData item, bool __result, float __state)
         {
             if (!__result)
             {
                 return;
             }
 
-            if (StoneTrinketManager.GetProfile(item) == null)
+            if (TrinketManager.GetProfile(item) == null)
             {
                 return;
             }
 
-            StoneTrinketManager.RefreshEitr(__instance);
+            TrinketEffects.RefreshEitr(__instance, __state);
         }
     }
 
     [HarmonyPatch(typeof(Humanoid), nameof(Humanoid.UnequipItem))]
-    internal static class StoneTrinketUnequipPatch
+    internal static class TrinketUnequipPatch
     {
         private static void Postfix(Humanoid __instance, ItemDrop.ItemData item)
         {
-            if (StoneTrinketManager.GetProfile(item) == null)
+            if (TrinketManager.GetProfile(item) == null)
             {
                 return;
             }
 
-            StoneTrinketManager.RefreshEitr(__instance);
+            TrinketEffects.RefreshEitr(__instance);
         }
     }
 
     [HarmonyPatch(typeof(Player), "OnDeath")]
-    internal static class StoneTrinketDeathPatch
+    internal static class TrinketDeathPatch
     {
         private static void Prefix(Player __instance)
         {
-            StoneTrinketManager.ClearReward(__instance);
+            TrinketEffects.ClearRewards(__instance);
         }
     }
 
     [HarmonyPatch(typeof(Humanoid), "BlockAttack")]
-    internal static class StoneTrinketParryPatch
+    internal static class TrinketParryPatch
     {
         private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
@@ -84,7 +92,8 @@ namespace HexBattleMage.Patches
                 }
 
                 yield return new CodeInstruction(OpCodes.Ldarg_0);
-                yield return new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(StoneTrinketManager), nameof(StoneTrinketManager.RewardParry)));
+                yield return new CodeInstruction(OpCodes.Ldarg_2);
+                yield return new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(TrinketEffects), nameof(TrinketEffects.RewardParry)));
                 matches++;
             }
 
@@ -96,7 +105,7 @@ namespace HexBattleMage.Patches
     }
 
     [HarmonyPatch(typeof(Projectile), nameof(Projectile.Setup))]
-    internal static class StoneTrinketWandDamagePatch
+    internal static class TrinketWandDamagePatch
     {
         private static void Prefix(Character owner, ref HitData hitData, ItemDrop.ItemData item)
         {
@@ -117,7 +126,7 @@ namespace HexBattleMage.Patches
                 return;
             }
 
-            float multiplier = StoneTrinketManager.DamageMultiplier(player);
+            float multiplier = TrinketEffects.DamageMultiplier(player);
 
             if (multiplier <= 1f)
             {
@@ -130,13 +139,15 @@ namespace HexBattleMage.Patches
     }
 
     [HarmonyPatch(typeof(ItemDrop.ItemData), nameof(ItemDrop.ItemData.GetTooltip), new[] { typeof(ItemDrop.ItemData), typeof(int), typeof(bool), typeof(float), typeof(int), typeof(bool) })]
-    internal static class StoneTrinketTooltipPatch
+    internal static class TrinketTooltipPatch
     {
         private static void Postfix(ItemDrop.ItemData item, ref string __result)
         {
-            if (StoneTrinketManager.GetProfile(item) != null)
+            var profile = TrinketManager.GetProfile(item);
+
+            if (profile != null)
             {
-                __result += StoneTrinketManager.Tooltip();
+                __result += TrinketEffects.Tooltip(profile);
             }
         }
     }

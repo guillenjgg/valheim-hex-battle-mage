@@ -10,7 +10,7 @@ using UnityEngine;
 public static class PrefabDefaultsAssetBuilder
 {
     private const string Root = "Assets/_CustomItems/HexBattleMage/";
-    private const string WandPath = Root + "Wands/HexBattleMageWand/HexBattleMageWand.prefab";
+    private const string WandPath = Root + "Wands/Meadows/Wand_Meadows_01/HexBattleMage_Wand_Meadows_01.prefab";
     private const string ProjectilePath = Root + "Projectiles/HexMagicBolt.prefab";
     private const string BracerPath = Root + "Shields/Apprentice/HexMagicBracerVisual.prefab";
     private const string TablePath = Root + "Crafting/HexArcaneWorkbench.prefab";
@@ -84,8 +84,8 @@ public static class PrefabDefaultsAssetBuilder
 
         Edit(WandPath, prefab =>
         {
-            bool firstMigration = prefab.GetComponent<WandProfile>() == null;
-            var profile = GetOrAdd<WandProfile>(prefab);
+            bool firstMigration = prefab.GetComponent<HexBattleMageWandProfile>() == null;
+            var profile = GetOrAdd<HexBattleMageWandProfile>(prefab);
 
             if (firstMigration)
             {
@@ -116,14 +116,32 @@ public static class PrefabDefaultsAssetBuilder
 
             if (firstMigration)
             {
-                shared.m_name = "$item_hexbattlemage_beechwand";
-                shared.m_description = "$item_hexbattlemage_beechwand_description";
+                shared.m_name = "$item_hexbattlemage_wand_meadows_01";
+                shared.m_description = "$item_hexbattlemage_wand_meadows_01_description";
                 shared.m_animationState = ItemDrop.ItemData.AnimationState.OneHanded;
             }
 
             shared.m_damages.m_blunt = profile.WandBluntDamage;
             shared.m_damages.m_pierce = profile.WandPierceDamage;
             shared.m_variants = profile.StyleMaterials.Length;
+
+            if (shared.m_icons.Length == 0)
+            {
+                throw new InvalidOperationException("The wand must have an authored inventory icon.");
+            }
+
+            if (shared.m_icons.Length != shared.m_variants)
+            {
+                var icons = new Sprite[shared.m_variants];
+
+                for (int variant = 0; variant < icons.Length; variant++)
+                {
+                    icons[variant] = shared.m_icons[Math.Min(variant, shared.m_icons.Length - 1)];
+                }
+
+                shared.m_icons = icons;
+            }
+
             shared.m_attack.m_attackAnimation = profile.AttackAnimation;
             shared.m_attack.m_attackChainLevels = profile.AttackChainLevels;
             shared.m_attack.m_attackRandomAnimations = profile.RandomAttackAnimations;
@@ -170,6 +188,7 @@ public static class PrefabDefaultsAssetBuilder
             piece.m_description = profile.Description;
         });
 
+        TrinketAssetPreparation.PrepareAll();
         AssetDatabase.SaveAssets();
     }
 
@@ -182,7 +201,7 @@ public static class PrefabDefaultsAssetBuilder
             return;
         }
 
-        profile.StatusDisplayName = profile.Element + " Ward Mark";
+        profile.StatusDisplayName = "$se_hexbattlemage_wand_" + profile.Element.ToString().ToLowerInvariant();
         profile.Spreads = profile.Element == WandElement.Spirit || profile.Element == WandElement.Poison;
         profile.StackDamage = profile.Element == WandElement.Poison;
         profile.Stuns = profile.Element == WandElement.Lightning;

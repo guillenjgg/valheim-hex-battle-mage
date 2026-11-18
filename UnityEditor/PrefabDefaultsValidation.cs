@@ -9,7 +9,7 @@ using UnityEngine;
 public static class PrefabDefaultsValidation
 {
     private const string RequestPath = "Temp/HexPrefabDefaultsValidation.request";
-    private const string WandPath = "Assets/_CustomItems/HexBattleMage/Wands/HexBattleMageWand/HexBattleMageWand.prefab";
+    private const string WandPath = "Assets/_CustomItems/HexBattleMage/Wands/Meadows/Wand_Meadows_01/HexBattleMage_Wand_Meadows_01.prefab";
     private const string ReportPath = "C:/Users/Jonathan/Documents/ChatGPT/HexBattleMage/prefab-preservation-tests.txt";
 
     static PrefabDefaultsValidation()
@@ -51,7 +51,7 @@ public static class PrefabDefaultsValidation
 
             try
             {
-                var settings = prefab.GetComponent<WandProfile>();
+                var settings = prefab.GetComponent<HexBattleMageWandProfile>();
                 var recipe = prefab.GetComponent<MageRecipeProfile>();
 
                 settings.WandLightRange += 0.75f;
@@ -70,7 +70,7 @@ public static class PrefabDefaultsValidation
 
             var saved = AssetDatabase.LoadAssetAtPath<GameObject>(WandPath);
 
-            if (saved.GetComponent<WandProfile>().WandLightRange != editedRange)
+            if (saved.GetComponent<HexBattleMageWandProfile>().WandLightRange != editedRange)
             {
                 throw new InvalidOperationException("Builder reset the authored wand light range.");
             }

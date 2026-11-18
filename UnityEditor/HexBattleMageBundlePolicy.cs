@@ -157,7 +157,7 @@ public static class HexBattleMageBundlePolicy
 
     private static void FixWandProjectileReference()
     {
-        const string wandPath = "Assets/_CustomItems/HexBattleMage/Wands/HexBattleMageWand/HexBattleMageWand.prefab";
+        const string wandPath = "Assets/_CustomItems/HexBattleMage/Wands/Meadows/Wand_Meadows_01/HexBattleMage_Wand_Meadows_01.prefab";
         var projectile = AssetDatabase.LoadAssetAtPath<GameObject>(ProjectilePath);
 
         BackupFile(wandPath);
@@ -316,7 +316,7 @@ public static class HexBattleMageBundlePolicy
             var shaderNames = new HashSet<string>();
 
             bundle.LoadAllAssets<Shader>();
-            string[] required = { "HexArcaneWorkbench", "HexBattleMageWand", "HexMagicBolt" };
+            string[] required = { "HexArcaneWorkbench", "HexBattleMage_Wand_Meadows_01", "HexMagicBolt" };
 
             foreach (string name in required)
             {

@@ -62,7 +62,7 @@ namespace HexBattleMage.Core.Visuals
                 light = tip.gameObject.AddComponent<Light>();
             }
 
-            light.color = PrefabSettings.Require<WandProfile>(prefab).LightColor;
+            light.color = PrefabSettings.Require<HexBattleMageWandProfile>(prefab).LightColor;
             light.enabled = false;
             tip.gameObject.AddComponent<WandTipLight>();
         }

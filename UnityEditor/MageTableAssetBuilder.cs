@@ -208,7 +208,7 @@ public static class MageTableAssetBuilder
 
         try
         {
-            foreach (string name in new[] { "HexArcaneWorkbench", "HexBattleMageWand", "HexMagicBolt" })
+            foreach (string name in new[] { "HexArcaneWorkbench", "HexBattleMage_Wand_Meadows_01", "HexMagicBolt" })
             {
                 if (bundle.LoadAsset<GameObject>(name) == null)
                 {

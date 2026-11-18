@@ -163,7 +163,7 @@ public static class WandElementAssetBuilder
                 }
             }
 
-            foreach (string name in new[] { "HexBattleMageWand", "HexMagicBracerVisual", "HexMagicBolt", "HexArcaneWorkbench" })
+            foreach (string name in new[] { "HexBattleMage_Wand_Meadows_01", "HexMagicBracerVisual", "HexMagicBolt", "HexArcaneWorkbench" })
             {
                 if (bundle.LoadAsset<GameObject>(name) == null)
                 {

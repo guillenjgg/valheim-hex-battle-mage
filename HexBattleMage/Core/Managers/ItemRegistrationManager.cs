@@ -74,7 +74,7 @@ namespace HexBattleMage.Core.Managers
 
             var prefab = AssetBundleHelper.HexBattleMageWand;
             var style = prefab.GetComponentInChildren<WandStyle>();
-            var materials = PrefabSettings.Require<WandProfile>(prefab).StyleMaterials;
+            var materials = PrefabSettings.Require<HexBattleMageWandProfile>(prefab).StyleMaterials;
 
             style.ConfigureMaterials(materials);
             DebugLog.LogInfo("Apprentice wand styles configured: warm bark, dark weathered bark, and pale birch.");
