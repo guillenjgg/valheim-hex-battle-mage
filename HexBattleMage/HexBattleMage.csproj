@@ -54,6 +54,10 @@
       <HintPath>..\..\..\bepinex_mod_libs\Jotunn.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="MagicaClothV2">
+      <HintPath>G:\SteamLibrary\steamapps\common\Valheim\Valheim_Data\Managed\MagicaClothV2.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -160,6 +164,15 @@
     <Compile Include="Patches\MagicBracerEquipmentPatches.cs" />
     <Compile Include="Patches\MagicShieldPatches.cs" />
     <Compile Include="Core\Managers\ProjectileManager.cs" />
+    <Compile Include="Core\Managers\HexBattleMageCloakProfile.cs" />
+    <Compile Include="Core\Managers\CloakManager.cs" />
+    <Compile Include="Patches\CloakAttachmentPatch.cs" />
+    <Compile Include="Core\Managers\HexBattleMageCloakCollisionProfile.cs" />
+    <Compile Include="Core\Visuals\CloakCollisionGeometry.cs" />
+    <Compile Include="Core\Visuals\CloakCollisionController.cs" />
+    <Compile Include="Patches\CloakCollisionPatch.cs" />
+    <Compile Include="Patches\CloakEitrPatches.cs" />
+    <Compile Include="Core\Managers\CloakMotionSettings.cs" />
     <Compile Include="Plugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

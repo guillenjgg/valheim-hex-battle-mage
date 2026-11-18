@@ -7,7 +7,8 @@ namespace HexBattleMage.Core.Managers
         None,
         Bracer,
         Wand,
-        Trinket
+        Trinket,
+        Cloak
     }
 
     public enum MageEquipmentSlot
@@ -15,7 +16,8 @@ namespace HexBattleMage.Core.Managers
         None,
         Bracer,
         MainHand,
-        Trinket
+        Trinket,
+        Cloak
     }
 
     public sealed class MageEquipmentDefinition : MonoBehaviour

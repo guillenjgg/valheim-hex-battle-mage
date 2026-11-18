@@ -47,6 +47,7 @@ namespace HexBattleMage
             CraftingStationManager.Initialize();
             MagicShieldManager.Initialize();
             TrinketManager.Initialize(Config);
+            CloakManager.Initialize();
 
             _harmonyInstance = new Harmony(PluginGuid);
             _harmonyInstance.PatchAll(Assembly.GetExecutingAssembly());
@@ -93,6 +94,7 @@ namespace HexBattleMage
             CraftingStationManager.Shutdown();
             MagicShieldManager.Shutdown();
             TrinketManager.Shutdown();
+            CloakManager.Shutdown();
             _devConfig?.Dispose();
             Log.LogInfo($"{PluginName} v{PluginVersion} unloaded.");
 

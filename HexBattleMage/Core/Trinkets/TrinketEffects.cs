@@ -61,6 +61,12 @@ namespace HexBattleMage.Core.Trinkets
 
         internal static void RefreshEitr(Humanoid humanoid, float previousEitr = 0f)
         {
+            RefreshGearEitr(humanoid, previousEitr);
+            ClearRewards(humanoid);
+        }
+
+        internal static void RefreshGearEitr(Humanoid humanoid, float previousEitr = 0f)
+        {
             var player = humanoid as Player;
 
             if (player == null)
@@ -84,7 +90,6 @@ namespace HexBattleMage.Core.Trinkets
                 player.AddEitr(removedEitr);
             }
 
-            ClearRewards(player);
         }
 
         internal static void ClearRewards(Humanoid humanoid)

@@ -1,4 +1,7 @@
 {
+  "hexbattlemage_gear_maximum_eitr": "Maximum Eitr: <color=orange>+{0:0.#}</color>",
+  "item_hexbattlemage_cloak_meadows_01": "Wayfarer Cloak",
+  "item_hexbattlemage_cloak_meadows_01_description": "A plain, patched cloak wrapped close against the wind.",
   "piece_hexbattlemage_magetable": "Mage Table",
   "piece_hexbattlemage_magetable_description": "A rune-bound table for crafting and repairing battlemage equipment.",
   "item_hexbattlemage_magicbracer": "Apprentice Ward Bracer",
