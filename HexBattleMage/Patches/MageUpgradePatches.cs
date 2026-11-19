@@ -27,6 +27,11 @@ namespace HexBattleMage.Patches
                 return;
             }
 
+            if (!profile.UseFixedStationLevel)
+            {
+                return;
+            }
+
             __result = Mathf.Max(1, profile.RequiredStationLevel);
         }
     }

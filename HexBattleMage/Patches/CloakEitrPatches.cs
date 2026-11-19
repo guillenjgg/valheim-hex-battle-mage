@@ -1,3 +1,4 @@
+using System.Text;
 using HarmonyLib;
 using HexBattleMage.Core;
 using HexBattleMage.Core.Managers;
@@ -73,12 +74,31 @@ namespace HexBattleMage.Patches
 
             var eitr = item.m_dropPrefab.GetComponent<MageEitrProfile>();
 
-            if (eitr == null)
+            var vitals = item.m_dropPrefab.GetComponent<HexBattleMageVitalityProfile>();
+
+            if (eitr == null && vitals == null)
             {
                 return;
             }
 
-            __result = GearTooltip.InsertPerks(item, __result, ModLocalization.Format("$hexbattlemage_gear_maximum_eitr", eitr.GetMaximumEitr(qualityLevel)));
+            var perks = new StringBuilder();
+
+            if (vitals != null && vitals.MaximumHealth > 0f)
+            {
+                perks.AppendLine(ModLocalization.Format("$hexbattlemage_gear_maximum_health", vitals.MaximumHealth));
+            }
+
+            if (vitals != null && vitals.MaximumStamina > 0f)
+            {
+                perks.AppendLine(ModLocalization.Format("$hexbattlemage_gear_maximum_stamina", vitals.MaximumStamina));
+            }
+
+            if (eitr != null)
+            {
+                perks.AppendLine(ModLocalization.Format("$hexbattlemage_gear_maximum_eitr", eitr.GetMaximumEitr(qualityLevel)));
+            }
+
+            __result = GearTooltip.InsertPerks(item, __result, perks.ToString());
         }
     }
 }

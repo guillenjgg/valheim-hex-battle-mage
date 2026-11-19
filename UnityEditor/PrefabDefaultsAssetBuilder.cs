@@ -67,6 +67,8 @@ public static class PrefabDefaultsAssetBuilder
             throw new InvalidOperationException("Save the open prefab before preparing authored defaults.");
         }
 
+        MageCatalogAssetPreparation.Prepare();
+
         foreach (WandElement element in Enum.GetValues(typeof(WandElement)))
         {
             Edit(Root + "Elements/HexWandElement" + element + ".prefab", MigrateElement);
@@ -92,7 +94,9 @@ public static class PrefabDefaultsAssetBuilder
                 profile.ProjectilePrefab = AssetDatabase.LoadAssetAtPath<GameObject>(ProjectilePath);
                 profile.Elements = new WandElementProfile[Enum.GetValues(typeof(WandElement)).Length];
 
-                foreach (WandElement element in Enum.GetValues(typeof(WandElement)))
+                MageCatalogAssetPreparation.Prepare();
+
+        foreach (WandElement element in Enum.GetValues(typeof(WandElement)))
                 {
                     profile.Elements[(int)element] = AssetDatabase.LoadAssetAtPath<GameObject>(Root + "Elements/HexWandElement" + element + ".prefab").GetComponent<WandElementProfile>();
                 }
@@ -110,7 +114,8 @@ public static class PrefabDefaultsAssetBuilder
                 definition.Slot = MageEquipmentSlot.MainHand;
             }
 
-            AddRecipe(prefab, new[] { Resource("Wood", 20), Resource("Resin", 2) });
+            SeedFixedUpgradeCosts(prefab);
+            AddRecipe(prefab, new[] { Resource("Wood", 20, 10), Resource("Resin", 2, 1) });
 
             var shared = prefab.GetComponent<ItemDrop>().m_itemData.m_shared;
 
@@ -123,6 +128,8 @@ public static class PrefabDefaultsAssetBuilder
 
             shared.m_damages.m_blunt = profile.WandBluntDamage;
             shared.m_damages.m_pierce = profile.WandPierceDamage;
+            shared.m_damagesPerLevel.m_blunt = profile.WandBluntDamagePerQuality;
+            shared.m_damagesPerLevel.m_pierce = profile.WandPierceDamagePerQuality;
             shared.m_variants = profile.StyleMaterials.Length;
 
             if (shared.m_icons.Length == 0)
@@ -171,7 +178,8 @@ public static class PrefabDefaultsAssetBuilder
         Edit(BracerPath, prefab =>
         {
             GetOrAdd<MagicBracerProfile>(prefab);
-            AddRecipe(prefab, new[] { Resource("Wood", 10, 5), Resource("Resin", 4, 2), Resource("LeatherScraps", 2, 2) });
+            SeedFixedUpgradeCosts(prefab);
+            AddRecipe(prefab, new[] { Resource("Wood", 10, 5), Resource("Resin", 4, 2), Resource("LeatherScraps", 2, 1) });
         });
 
         Edit(TablePath, prefab =>
@@ -236,6 +244,19 @@ public static class PrefabDefaultsAssetBuilder
         }
 
         profile.AuthoredVersion = 1;
+    }
+
+    private static void SeedFixedUpgradeCosts(GameObject prefab)
+    {
+        if (prefab.GetComponent<MageUpgradeProfile>() != null)
+        {
+            return;
+        }
+
+        var upgrades = prefab.AddComponent<MageUpgradeProfile>();
+
+        upgrades.FixedResourceCosts = true;
+        upgrades.UseFixedStationLevel = false;
     }
 
     private static MageRecipeResource Resource(string name, int amount, int upgradeAmount = 0)

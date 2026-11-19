@@ -1,3 +1,4 @@
+using HexBattleMage.Core.Tuning;
 using UnityEngine;
 
 namespace HexBattleMage.Core.Elements
@@ -68,7 +69,7 @@ namespace HexBattleMage.Core.Elements
 
         internal static float GetMultiplier(Character character)
         {
-            if (WandElementManager.Enabled == null || !WandElementManager.Enabled.Value)
+            if (WandElementManager.Enabled == null || !WandElementManager.Enabled.EffectiveValue())
             {
                 return 1f;
             }
@@ -86,7 +87,7 @@ namespace HexBattleMage.Core.Elements
                         return 0f;
                     }
 
-                    multiplier = Mathf.Min(multiplier, 1f - WandElementManager.GetSettings(element).AttackSlow.Value);
+                    multiplier = Mathf.Min(multiplier, 1f - WandElementManager.GetSettings(element).AttackSlow.EffectiveValue());
                 }
             }
 

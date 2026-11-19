@@ -1,3 +1,4 @@
+using HexBattleMage.Core.Tuning;
 using HarmonyLib;
 using HexBattleMage.Core;
 using HexBattleMage.Core.Managers;
@@ -14,7 +15,7 @@ namespace HexBattleMage.Patches
             internal HitData.DamageTypes OriginalDamage;
         }
 
-        private static void Prefix(Projectile __instance, ItemDrop.ItemData ___m_weapon, Character ___m_owner, Vector3 hitPoint, out DamageSnapshot __state)
+        private static void Prefix(Projectile __instance, ItemDrop.ItemData ___m_weapon, Vector3 hitPoint, out DamageSnapshot __state)
         {
             __state = default(DamageSnapshot);
 
@@ -24,16 +25,11 @@ namespace HexBattleMage.Patches
             }
 
             float distance = Vector3.Distance(__instance.m_startPoint, hitPoint);
-            float multiplier = ProjectileDamageFalloff.CalculateMultiplier(distance, DevConfig.FullDamageRange.Value, DevConfig.DamageFalloffDistance.Value, DevConfig.MinimumDamageMultiplier.Value);
+            float multiplier = ProjectileDamageFalloff.CalculateMultiplier(distance, DevConfig.FullDamageRange.EffectiveValue(), DevConfig.DamageFalloffDistance.EffectiveValue(), DevConfig.MinimumDamageMultiplier.EffectiveValue());
 
             var impactDamage = __instance.m_damage;
 
             impactDamage.Modify(multiplier);
-
-            if (___m_owner == Player.m_localPlayer && Player.m_localPlayer != null)
-            {
-                WandStats.RecordImpact(Player.m_localPlayer, ___m_weapon.m_dropPrefab.name, impactDamage, __instance.m_aoe);
-            }
 
             if (multiplier >= 1f)
             {

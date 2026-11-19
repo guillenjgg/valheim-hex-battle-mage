@@ -212,6 +212,8 @@ namespace HexBattleMage.Core.Managers
             definition.DropCollisionDetection = sourceDefinition.DropCollisionDetection;
             definition.ProgressionTier = sourceDefinition.ProgressionTier;
             definition.CatalogBiome = sourceDefinition.CatalogBiome;
+            definition.CatalogRequiresBiomeDiscovery = sourceDefinition.CatalogRequiresBiomeDiscovery;
+            definition.CatalogBossDefeatKey = sourceDefinition.CatalogBossDefeatKey;
 
             var attach = Object.Instantiate(visualPrefab, prefab.transform, false);
 
@@ -259,6 +261,8 @@ namespace HexBattleMage.Core.Managers
                 shared.m_icons = new[] { icon };
             }
 
+            GearUpgradeRules.CopyProfile(visualPrefab, prefab);
+
             var recipeProfile = PrefabSettings.Require<MageRecipeProfile>(visualPrefab);
             var requirements = PrefabSettings.GetRequirements(recipeProfile);
             var config = new ItemConfig
@@ -283,6 +287,7 @@ namespace HexBattleMage.Core.Managers
                 return;
             }
 
+            GearUpgradeRules.Register(item.Recipe.Recipe, prefab.GetComponent<MageUpgradeProfile>());
             MageEquipmentCatalog.Register(item.ItemDrop, item.Recipe.Recipe, (Heightmap.Biome)Enum.Parse(typeof(Heightmap.Biome), definition.CatalogBiome));
             DebugLog.LogInfo("Wearable magic bracer registered with an independent bracer slot and native blocking.");
         }

@@ -18,6 +18,11 @@ namespace HexBattleMage.Core.Managers
         private static readonly AccessTools.FieldRef<VisEquipment, int> CurrentModel = AccessTools.FieldRefAccess<VisEquipment, int>("m_currentModelIndex");
         private const int FemaleModelIndex = 1;
 
+        private sealed class MaterialReferences
+        {
+            public Material[] Materials;
+        }
+
         internal static void Initialize()
         {
             PrefabManager.OnVanillaPrefabsAvailable += Register;
@@ -83,6 +88,8 @@ namespace HexBattleMage.Core.Managers
                 field.SetValue(authored, field.GetValue(profile));
             }
 
+            GearVitals.CopyProfile(visual, prefab);
+
             var authoredEitr = prefab.AddComponent<MageEitrProfile>();
 
             authoredEitr.MaximumEitr = eitr.MaximumEitr;
@@ -95,6 +102,7 @@ namespace HexBattleMage.Core.Managers
             {
                 var registeredUpgrades = prefab.AddComponent<MageUpgradeProfile>();
 
+                registeredUpgrades.UseFixedStationLevel = upgrades.UseFixedStationLevel;
                 registeredUpgrades.RequiredStationLevel = upgrades.RequiredStationLevel;
                 registeredUpgrades.FixedResourceCosts = upgrades.FixedResourceCosts;
             }
@@ -105,9 +113,11 @@ namespace HexBattleMage.Core.Managers
             equipmentDefinition.Slot = definition.Slot;
             equipmentDefinition.ProgressionTier = definition.ProgressionTier;
             equipmentDefinition.CatalogBiome = definition.CatalogBiome;
+            equipmentDefinition.CatalogRequiresBiomeDiscovery = definition.CatalogRequiresBiomeDiscovery;
+            equipmentDefinition.CatalogBossDefeatKey = definition.CatalogBossDefeatKey;
             equipmentDefinition.DropCollisionDetection = definition.DropCollisionDetection;
 
-            // Keep both fits inside the registered prefab so Jotunn resolves all material mocks.
+            // Retain both fits so their material mocks can be resolved before equipment attachment.
             var sources = new GameObject("BodyFits");
 
             sources.transform.SetParent(prefab.transform, false);
@@ -189,7 +199,16 @@ namespace HexBattleMage.Core.Managers
                 Amount = recipe.Amount,
                 Requirements = requirements
             };
-            var item = requirements.Length > 0 ? new CustomItem(prefab, true, config) : new CustomItem(prefab, true);
+            // MagicaCloth runtime dictionaries are not mock assets; resolve only visual references.
+            foreach (var renderer in prefab.GetComponentsInChildren<Renderer>(true))
+            {
+                var references = new MaterialReferences { Materials = renderer.sharedMaterials };
+
+                Jotunn.PrefabExtension.FixReferences(references);
+                renderer.sharedMaterials = references.Materials;
+            }
+
+            var item = requirements.Length > 0 ? new CustomItem(prefab, false, config) : new CustomItem(prefab, false);
 
             if (!ItemManager.Instance.AddItem(item))
             {

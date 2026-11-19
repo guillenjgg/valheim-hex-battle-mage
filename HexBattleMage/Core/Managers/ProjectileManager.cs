@@ -1,3 +1,4 @@
+using HexBattleMage.Core.Tuning;
 using HexBattleMage.Assets;
 using HexBattleMage.Core.Visuals;
 using Jotunn.Entities;
@@ -82,9 +83,9 @@ namespace HexBattleMage.Core.Managers
 
         internal static void ApplySettings()
         {
-            _projectile.m_aoe = DevConfig.AreaOfEffectRadius.Value;
-            _projectile.m_onlyStopOnTerrain = DevConfig.OnlyStopOnTerrain.Value;
-            _projectile.m_rayRadius = DevConfig.CollisionRadius.Value;
+            _projectile.m_aoe = DevConfig.AreaOfEffectRadius.EffectiveValue();
+            _projectile.m_onlyStopOnTerrain = DevConfig.OnlyStopOnTerrain.EffectiveValue();
+            _projectile.m_rayRadius = DevConfig.CollisionRadius.EffectiveValue();
         }
     }
 }

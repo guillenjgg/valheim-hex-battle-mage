@@ -6,8 +6,10 @@ namespace HexBattleMage.Core.Managers
     public sealed class HexBattleMageWandProfile : MonoBehaviour
     {
         [Header("Combat defaults; development configuration overrides these values")]
-        public float WandBluntDamage = 10f;
-        public float WandPierceDamage = 10f;
+        public float WandBluntDamage = 5f;
+        public float WandPierceDamage = 5f;
+        public float WandBluntDamagePerQuality = 1f;
+        public float WandPierceDamagePerQuality = 1f;
         public string AttackAnimation = "swing_axe";
         public int AttackChainLevels = 3;
         public int RandomAttackAnimations;
@@ -16,7 +18,7 @@ namespace HexBattleMage.Core.Managers
         public float ProjectileAccuracy;
         public float ProjectileAccuracyMin;
         public bool SkillAccuracy;
-        public float FullDamageRange = 10f;
+        public float FullDamageRange = 15f;
         public float DamageFalloffDistance = 20f;
         public float MinimumDamageMultiplier = 0.2f;
         public bool EnableElements = true;

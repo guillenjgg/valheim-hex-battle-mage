@@ -66,6 +66,9 @@ namespace HexBattleMage.Core.Managers
                 ReplaceVisuals(prefab, authored);
             }
 
+            GearVitals.CopyProfile(definition, prefab);
+            GearUpgradeRules.CopyProfile(definition, prefab);
+
             var authoredEitr = prefab.AddComponent<MageEitrProfile>();
 
             authoredEitr.MaximumEitr = eitr.MaximumEitr;
@@ -78,6 +81,8 @@ namespace HexBattleMage.Core.Managers
             authoredEquipment.Slot = equipment.Slot;
             authoredEquipment.ProgressionTier = equipment.ProgressionTier;
             authoredEquipment.CatalogBiome = equipment.CatalogBiome;
+            authoredEquipment.CatalogRequiresBiomeDiscovery = equipment.CatalogRequiresBiomeDiscovery;
+            authoredEquipment.CatalogBossDefeatKey = equipment.CatalogBossDefeatKey;
             authoredEquipment.DropCollisionDetection = equipment.DropCollisionDetection;
             WorldDropPhysics.Configure(prefab, equipment.DropCollisionDetection);
 
@@ -156,6 +161,7 @@ namespace HexBattleMage.Core.Managers
 
             if (item.Recipe != null)
             {
+                GearUpgradeRules.Register(item.Recipe.Recipe, prefab.GetComponent<MageUpgradeProfile>());
                 MageEquipmentCatalog.Register(item.ItemDrop, item.Recipe.Recipe, (Heightmap.Biome)Enum.Parse(typeof(Heightmap.Biome), equipment.CatalogBiome));
             }
 

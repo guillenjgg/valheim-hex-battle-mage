@@ -1,3 +1,4 @@
+using HexBattleMage.Core.Tuning;
 using System.Collections.Generic;
 using System.Linq;
 using HarmonyLib;
@@ -27,7 +28,7 @@ namespace HexBattleMage.Core.Elements
                 return false;
             }
 
-            return WandElementManager.Enabled.Value && base.CanAdd(character);
+            return WandElementManager.Enabled.EffectiveValue() && base.CanAdd(character);
         }
 
         public override void Setup(Character character)
@@ -57,14 +58,14 @@ namespace HexBattleMage.Core.Elements
         {
             var settings = WandElementManager.GetSettings(Element);
 
-            m_ttl = settings.Duration.Value;
+            m_ttl = settings.Duration.EffectiveValue();
 
             if (m_character == null)
             {
                 return;
             }
 
-            _stacks = settings.Profile.StackDamage ? Mathf.Min(_stacks + 1, settings.MaximumStacks.Value) : 1;
+            _stacks = settings.Profile.StackDamage ? Mathf.Min(_stacks + 1, settings.MaximumStacks.EffectiveValue()) : 1;
 
             if (itemLevel > 0 && settings.Profile.ResetSpreadOnDirectHit)
             {
@@ -92,14 +93,14 @@ namespace HexBattleMage.Core.Elements
         {
             var settings = WandElementManager.GetSettings(Element);
 
-            m_ttl = settings.Duration.Value;
-            _stacks = Mathf.Min(_stacks, settings.Profile.StackDamage ? settings.MaximumStacks.Value : 1);
+            m_ttl = settings.Duration.EffectiveValue();
+            _stacks = Mathf.Min(_stacks, settings.Profile.StackDamage ? settings.MaximumStacks.EffectiveValue() : 1);
 
             float activeTime = Mathf.Clamp(m_ttl - m_time, 0f, dt);
 
             base.UpdateStatusEffect(dt);
 
-            if (!WandElementManager.Enabled.Value)
+            if (!WandElementManager.Enabled.EffectiveValue())
             {
                 return;
             }
@@ -116,9 +117,9 @@ namespace HexBattleMage.Core.Elements
 
             _tickTimer += activeTime;
 
-            while (_tickTimer + TickToleranceSeconds >= settings.TickInterval.Value)
+            while (_tickTimer + TickToleranceSeconds >= settings.TickInterval.EffectiveValue())
             {
-                _tickTimer -= settings.TickInterval.Value;
+                _tickTimer -= settings.TickInterval.EffectiveValue();
                 ApplyTick(settings);
 
                 if (m_character.IsDead())
@@ -129,7 +130,7 @@ namespace HexBattleMage.Core.Elements
 
             _spreadTimer += activeTime;
 
-            if (_spreadTimer >= settings.SpreadInterval.Value)
+            if (_spreadTimer >= settings.SpreadInterval.EffectiveValue())
             {
                 _spreadTimer = 0f;
                 Spread(settings);
@@ -138,7 +139,7 @@ namespace HexBattleMage.Core.Elements
 
         public override bool IsDone()
         {
-            if (!WandElementManager.Enabled.Value)
+            if (!WandElementManager.Enabled.EffectiveValue())
             {
                 return true;
             }
@@ -153,7 +154,7 @@ namespace HexBattleMage.Core.Elements
 
         public override void ModifySpeed(float baseSpeed, ref float speed, Character character, Vector3 direction)
         {
-            if (!WandElementManager.Enabled.Value)
+            if (!WandElementManager.Enabled.EffectiveValue())
             {
                 return;
             }
@@ -164,16 +165,16 @@ namespace HexBattleMage.Core.Elements
                 return;
             }
 
-            speed *= 1f - WandElementManager.GetSettings(Element).MovementSlow.Value;
+            speed *= 1f - WandElementManager.GetSettings(Element).MovementSlow.EffectiveValue();
         }
 
         private void ApplyTick(WandElementSettings settings)
         {
-            float damage = settings.TickDamage.Value * _stacks;
+            float damage = settings.TickDamage.EffectiveValue() * _stacks;
 
             if (m_character.IsBoss())
             {
-                damage *= settings.BossTickMultiplier.Value;
+                damage *= settings.BossTickMultiplier.EffectiveValue();
             }
 
             if (damage <= 0f)
@@ -201,7 +202,7 @@ namespace HexBattleMage.Core.Elements
                 return;
             }
 
-            if (settings.SpreadRadius.Value <= 0f)
+            if (settings.SpreadRadius.EffectiveValue() <= 0f)
             {
                 return;
             }
@@ -211,7 +212,7 @@ namespace HexBattleMage.Core.Elements
                 return;
             }
 
-            float radiusSquared = settings.SpreadRadius.Value * settings.SpreadRadius.Value;
+            float radiusSquared = settings.SpreadRadius.EffectiveValue() * settings.SpreadRadius.EffectiveValue();
 
             foreach (var candidate in Character.GetAllCharacters().ToArray())
             {

@@ -34,6 +34,8 @@ namespace HexBattleMage.Core.Managers
         public GameObject WorldModel;
         public bool ReplaceNativeVisuals;
         public bool ClearBodyArmorMaterial;
+        [Tooltip("Extra world-space clearance for skinned utility visuals worn over this armor.")]
+        public float UtilityVisualPadding;
         [Header("Custom world-drop collider; native visuals retain their native collider")]
         public Vector3 DropColliderCenter;
         public Vector3 DropColliderSize = new Vector3(0.15f, 0.15f, 0.15f);

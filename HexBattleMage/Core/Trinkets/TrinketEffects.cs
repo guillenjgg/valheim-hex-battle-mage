@@ -1,3 +1,4 @@
+using HexBattleMage.Core.Tuning;
 using System;
 using System.Text;
 using HarmonyLib;
@@ -52,7 +53,7 @@ namespace HexBattleMage.Core.Trinkets
 
                 if (settings != null)
                 {
-                    total += Mathf.Max(0f, regeneration ? settings.Regeneration.Value : settings.MaximumEitr.Value);
+                    total += Mathf.Max(0f, regeneration ? settings.Regeneration.EffectiveValue() : settings.MaximumEitr.EffectiveValue());
                 }
             }
 
@@ -147,7 +148,7 @@ namespace HexBattleMage.Core.Trinkets
 
             if (effect != null)
             {
-                effect.m_ttl = Mathf.Max(TrinketSettings.MinimumRewardDuration, settings.Duration.Value);
+                effect.m_ttl = Mathf.Max(TrinketSettings.MinimumRewardDuration, settings.Duration.EffectiveValue());
                 effect.FromBossParry = attacker != null && attacker.IsBoss();
             }
         }
@@ -179,11 +180,11 @@ namespace HexBattleMage.Core.Trinkets
                 return 1f;
             }
 
-            float bonus = Mathf.Max(0f, settings.DamageBonus.Value);
+            float bonus = Mathf.Max(0f, settings.DamageBonus.EffectiveValue());
 
             if (effect.FromBossParry)
             {
-                bonus += Mathf.Max(0f, settings.BossDamageBonus.Value);
+                bonus += Mathf.Max(0f, settings.BossDamageBonus.EffectiveValue());
             }
 
             return 1f + bonus;
@@ -201,17 +202,17 @@ namespace HexBattleMage.Core.Trinkets
             var text = new StringBuilder();
 
             AppendHeading(text, profile.PassiveHeading);
-            text.AppendLine(ModLocalization.Format("$hexbattlemage_trinket_maximum_eitr", Mathf.Max(0f, settings.MaximumEitr.Value)));
-            text.Append(ModLocalization.Format("$hexbattlemage_trinket_eitr_regeneration", Mathf.Max(0f, settings.Regeneration.Value) * 100f));
+            text.AppendLine(ModLocalization.Format("$hexbattlemage_trinket_maximum_eitr", Mathf.Max(0f, settings.MaximumEitr.EffectiveValue())));
+            text.Append(ModLocalization.Format("$hexbattlemage_trinket_eitr_regeneration", Mathf.Max(0f, settings.Regeneration.EffectiveValue()) * 100f));
 
             if (profile.RewardTrigger == TrinketRewardTrigger.None)
             {
                 return text.ToString();
             }
 
-            float normalBonus = Mathf.Max(0f, settings.DamageBonus.Value) * 100f;
-            float additionalBossBonus = Mathf.Max(0f, settings.BossDamageBonus.Value) * 100f;
-            float duration = Mathf.Max(TrinketSettings.MinimumRewardDuration, settings.Duration.Value);
+            float normalBonus = Mathf.Max(0f, settings.DamageBonus.EffectiveValue()) * 100f;
+            float additionalBossBonus = Mathf.Max(0f, settings.BossDamageBonus.EffectiveValue()) * 100f;
+            float duration = Mathf.Max(TrinketSettings.MinimumRewardDuration, settings.Duration.EffectiveValue());
 
             AppendHeading(text, profile.RewardHeading);
             text.AppendLine(ModLocalization.Format(profile.RewardCondition));

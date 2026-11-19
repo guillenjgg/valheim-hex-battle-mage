@@ -114,6 +114,15 @@
   <ItemGroup>
     <Compile Include="Assets\AssetBundleHelper.cs" />
     <Compile Include="Core\DevConfig.cs" />
+    <Compile Include="Core\Tuning\PrefabTuning.cs" />
+    <Compile Include="Core\Tuning\CraftingTuning.cs" />
+    <Compile Include="Core\Tuning\WandTuning.cs" />
+    <Compile Include="Core\Tuning\ArmorTuning.cs" />
+    <Compile Include="Core\Tuning\CloakTuning.cs" />
+    <Compile Include="Core\Tuning\BracerTuning.cs" />
+    <Compile Include="Core\Tuning\TrinketTuning.cs" />
+    <Compile Include="Core\Tuning\TuningConfiguration.cs" />
+
     <Compile Include="Core\Elements\WandElementProfile.cs" />
     <Compile Include="Core\Elements\WandElementSettings.cs" />
     <Compile Include="Core\Elements\WandElementManager.cs" />
@@ -136,8 +145,8 @@
     <Compile Include="Core\Visuals\WandImpactVisual.cs" />
     <Compile Include="Patches\WandStylePatches.cs" />
     <Compile Include="Core\DebugLog.cs" />
-    <Compile Include="Core\WandStats.cs" />
-    <Compile Include="Patches\WandCompendiumPatches.cs" />
+    <Compile Include="Core\MageGearStats.cs" />
+    <Compile Include="Patches\MageCompendiumPatches.cs" />
     <Compile Include="Core\ProjectileDamageFalloff.cs" />
     <Compile Include="Patches\WandProjectileFalloffPatch.cs" />
     <Compile Include="Patches\WandAttackPatches.cs" />
@@ -172,6 +181,9 @@
     <Compile Include="Core\Visuals\MageArmorStyleVisual.cs" />
     <Compile Include="Core\GearTooltip.cs" />
     <Compile Include="Core\WorldDropPhysics.cs" />
+    <Compile Include="Core\GearVitals.cs" />
+    <Compile Include="Core\Managers\HexBattleMageVitalityProfile.cs" />
+    <Compile Include="Patches\GearVitalityPatches.cs" />
     <Compile Include="Core\Managers\MageUpgradeProfile.cs" />
     <Compile Include="Core\GearUpgradeRules.cs" />
     <Compile Include="Patches\MageUpgradePatches.cs" />
@@ -179,6 +191,7 @@
     <Compile Include="Patches\CloakAttachmentPatch.cs" />
     <Compile Include="Patches\ArmorAttachmentPatch.cs" />
     <Compile Include="Patches\HelmetStylePatches.cs" />
+    <Compile Include="Patches\UtilityVisualPatches.cs" />
     <Compile Include="Core\Managers\HexBattleMageCloakCollisionProfile.cs" />
     <Compile Include="Core\Visuals\CloakCollisionGeometry.cs" />
     <Compile Include="Core\Visuals\CloakCollisionController.cs" />

@@ -65,3 +65,8 @@ Preparation projects overlapping custom defaults onto native fields and supplies
 The current runtime still operates on one wand definition and one development element selector. This cleanup establishes the authoring convention; independent per-wand settings and discovery, later tiers and persistent per-item element attunement are separate future work. New definitions should use progression names such as HexBattleMage_Wand_Meadows_02 and reuse the shared component when that runtime support is implemented.
 
 `Tests/Wands/WandPrefabValidation.cs` checks the compiled mod and production bundle for the canonical identity, references, native projections, localization tokens, prefab-derived config defaults, saved/code override precedence, unchanged baseline data and cold recipe recovery. The authored-default preservation test separately verifies that preparation retains Unity edits.
+
+
+## Central code tuning (2026-11-19)
+
+See [PrefabTuning.md](PrefabTuning.md) for category files and bundle, code, optional configuration precedence. Saved config overrides remain enabled by default to preserve accepted test settings.

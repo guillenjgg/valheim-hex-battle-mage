@@ -6,12 +6,12 @@ namespace HexBattleMage.Core.Visuals
     internal sealed class MageArmorStyleVisual : MonoBehaviour, IEquipmentVisual
     {
         [SerializeField] private MageArmorStyleProfile _profile;
-        [SerializeField] private bool _applyToAllRenderers;
+        [SerializeField] private bool _applyToRootRenderer;
 
-        internal void Configure(MageArmorStyleProfile profile, bool applyToAllRenderers = false)
+        internal void Configure(MageArmorStyleProfile profile, bool applyToRootRenderer = false)
         {
             _profile = profile;
-            _applyToAllRenderers = applyToAllRenderers;
+            _applyToRootRenderer = applyToRootRenderer;
         }
 
         public void Setup(int variant)
@@ -33,9 +33,16 @@ namespace HexBattleMage.Core.Visuals
                 return;
             }
 
+            var rootRenderer = _applyToRootRenderer ? GetComponent<Renderer>() : null;
+
             foreach (var renderer in GetComponentsInChildren<Renderer>(true))
             {
-                if (!_applyToAllRenderers && renderer.name != _profile.RendererName)
+                if (_applyToRootRenderer && renderer != rootRenderer)
+                {
+                    continue;
+                }
+
+                if (!_applyToRootRenderer && renderer.name != _profile.RendererName)
                 {
                     continue;
                 }

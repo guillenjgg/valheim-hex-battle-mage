@@ -6,7 +6,7 @@ using System.Reflection;
 namespace HexBattleMage.Patches
 {
     [HarmonyPatch(typeof(TextsDialog), "UpdateTextsList")]
-    internal static class WandCompendiumListPatch
+    internal static class MageCompendiumListPatch
     {
         private static void Postfix(List<TextsDialog.TextInfo> ___m_texts)
         {
@@ -15,26 +15,26 @@ namespace HexBattleMage.Patches
                 return;
             }
 
-            ___m_texts.Add(new TextsDialog.TextInfo(WandStats.CompendiumTopic, WandStats.GetText()));
+            ___m_texts.Add(new TextsDialog.TextInfo(MageGearStats.CompendiumTopic, MageGearStats.GetText()));
         }
     }
 
     [HarmonyPatch(typeof(TextsDialog), "ShowText", new[] { typeof(TextsDialog.TextInfo) })]
-    internal static class WandCompendiumSelectionPatch
+    internal static class MageCompendiumSelectionPatch
     {
         private static void Prefix(TextsDialog.TextInfo text)
         {
-            if (text.m_topic != WandStats.CompendiumTopic)
+            if (text.m_topic != MageGearStats.CompendiumTopic)
             {
                 return;
             }
 
-            text.m_text = WandStats.GetText();
+            text.m_text = MageGearStats.GetText();
         }
     }
 
     [HarmonyPatch(typeof(TextsDialog), "Update")]
-    internal static class WandCompendiumRefreshPatch
+    internal static class MageCompendiumRefreshPatch
     {
         private static readonly MethodInfo ShowTextMethod = AccessTools.Method(typeof(TextsDialog), "ShowText", new[] { typeof(TextsDialog.TextInfo) });
 
@@ -52,12 +52,12 @@ namespace HexBattleMage.Patches
 
             var entry = ___m_texts[___m_selectionIndex];
 
-            if (entry.m_topic != WandStats.CompendiumTopic)
+            if (entry.m_topic != MageGearStats.CompendiumTopic)
             {
                 return;
             }
 
-            string currentText = WandStats.GetText();
+            string currentText = MageGearStats.GetText();
 
             if (entry.m_text == currentText)
             {

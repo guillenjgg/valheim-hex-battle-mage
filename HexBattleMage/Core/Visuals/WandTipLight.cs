@@ -1,3 +1,4 @@
+using HexBattleMage.Core.Tuning;
 using UnityEngine;
 using HexBattleMage.Core.Elements;
 using HexBattleMage.Core.Managers;
@@ -81,7 +82,7 @@ namespace HexBattleMage.Core.Visuals
             {
                 var emission = PrefabSettings.Wand.UnattunedTipEmission;
 
-                if (WandElementManager.Enabled != null && WandElementManager.Enabled.Value)
+                if (WandElementManager.Enabled != null && WandElementManager.Enabled.EffectiveValue())
                 {
                     var element = WandElementManager.ActiveElement.Value;
                     var profile = WandElementManager.GetSettings(element).Profile;
@@ -95,8 +96,8 @@ namespace HexBattleMage.Core.Visuals
             }
 
             _light.color = PrefabSettings.Wand.LightColor;
-            _light.range = DevConfig.WandLightRange.Value;
-            _light.intensity = DevConfig.WandLightIntensity.Value;
+            _light.range = DevConfig.WandLightRange.EffectiveValue();
+            _light.intensity = DevConfig.WandLightIntensity.EffectiveValue();
             _light.enabled = wielder != null && ItemRegistrationManager.IsWand(wielder.GetCurrentWeapon());
         }
     }

@@ -1,3 +1,4 @@
+using HexBattleMage.Core.Tuning;
 using UnityEngine;
 using HexBattleMage.Core.Managers;
 using UnityEngine.Rendering;
@@ -129,7 +130,7 @@ namespace HexBattleMage.Core.Visuals
 
             var upwards = Vector3.Cross(sideways, direction).normalized;
             float distanceTravelled = Vector3.Distance(_spawnPosition, head);
-            float length = Mathf.Clamp(distanceTravelled, PrefabSettings.Projectile.MinimumVisibleLength, DevConfig.BoltLength.Value);
+            float length = Mathf.Clamp(distanceTravelled, PrefabSettings.Projectile.MinimumVisibleLength, DevConfig.BoltLength.EffectiveValue());
             float flicker = Mathf.Floor(Time.time * PrefabSettings.Projectile.FlickerFrequency);
             float seed = Mathf.Abs(GetInstanceID() % 1000);
 
@@ -139,20 +140,20 @@ namespace HexBattleMage.Core.Visuals
             for (int index = 0; index < _points.Length; index++)
             {
                 float progress = index / (float)(_points.Length - 1);
-                float amplitude = Mathf.Sin(progress * Mathf.PI) * DevConfig.BoltJaggedness.Value;
+                float amplitude = Mathf.Sin(progress * Mathf.PI) * DevConfig.BoltJaggedness.EffectiveValue();
                 float horizontal = Mathf.PerlinNoise(seed + index * 3.7f, flicker) * 2f - 1f;
                 float vertical = Mathf.PerlinNoise(seed + index * 5.3f, flicker + 17f) * 2f - 1f;
 
                 _points[index] = head - direction * (length * progress) + sideways * (horizontal * amplitude) + upwards * (vertical * amplitude);
             }
 
-            float brightness = DevConfig.BoltBrightness.Value;
-            var haloColor = DevConfig.BoltColor.Value;
+            float brightness = DevConfig.BoltBrightness.EffectiveValue();
+            var haloColor = DevConfig.BoltColor.EffectiveValue();
             var coreColor = new Color(brightness, brightness, brightness, 1f);
 
             haloColor = new Color(haloColor.r * brightness, haloColor.g * brightness, haloColor.b * brightness, PrefabSettings.Projectile.HaloOpacity);
-            _core.widthMultiplier = DevConfig.BoltWidth.Value;
-            _halo.widthMultiplier = DevConfig.BoltWidth.Value * PrefabSettings.Projectile.GlowWidthMultiplier;
+            _core.widthMultiplier = DevConfig.BoltWidth.EffectiveValue();
+            _halo.widthMultiplier = DevConfig.BoltWidth.EffectiveValue() * PrefabSettings.Projectile.GlowWidthMultiplier;
             _core.startColor = coreColor;
             _core.endColor = coreColor;
             _halo.startColor = haloColor;
@@ -162,7 +163,7 @@ namespace HexBattleMage.Core.Visuals
 
             if (!_renderLogged)
             {
-                DebugLog.LogInfo($"Lightning visual drawing: shader={_material.shader.name}, supported={_material.shader.isSupported}, width={DevConfig.BoltWidth.Value}, length={length}, movement={movement.magnitude}, reported speed={velocity.magnitude}.");
+                DebugLog.LogInfo($"Lightning visual drawing: shader={_material.shader.name}, supported={_material.shader.isSupported}, width={DevConfig.BoltWidth.EffectiveValue()}, length={length}, movement={movement.magnitude}, reported speed={velocity.magnitude}.");
                 _renderLogged = true;
             }
         }

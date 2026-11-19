@@ -1,3 +1,4 @@
+using HexBattleMage.Core.Tuning;
 using System;
 using System.Collections.Generic;
 using Jotunn.Managers;
@@ -65,7 +66,7 @@ namespace HexBattleMage.Core.Visuals
 
         private static void PlayImpactSound(Vector3 position)
         {
-            float volumeMultiplier = DevConfig.ImpactSoundVolume.Value;
+            float volumeMultiplier = DevConfig.ImpactSoundVolume.EffectiveValue();
 
             if (volumeMultiplier <= 0f)
             {
@@ -133,8 +134,8 @@ namespace HexBattleMage.Core.Visuals
             _directions = new Vector3[_sparks.Length];
             _lengths = new float[_sparks.Length];
             _started = Time.time;
-            _duration = DevConfig.ImpactVisualDuration.Value;
-            _opacity = DevConfig.ImpactBurstOpacity.Value;
+            _duration = DevConfig.ImpactVisualDuration.EffectiveValue();
+            _opacity = DevConfig.ImpactBurstOpacity.EffectiveValue();
             _elementColors = GetElementColors(elements);
 
             _radius = radius > 0f ? Mathf.Min(radius, PrefabSettings.Projectile.MaximumBurstRadius) : PrefabSettings.Projectile.DirectHitBurstRadius;
@@ -143,9 +144,9 @@ namespace HexBattleMage.Core.Visuals
             {
                 _directions[index] = UnityEngine.Random.onUnitSphere;
                 _lengths[index] = UnityEngine.Random.Range(PrefabSettings.Projectile.MinimumSparkLength, 1f);
-                _sparks[index] = CreateLine("BurstSpark", 3, DevConfig.ImpactLineWidth.Value * PrefabSettings.Projectile.SparkWidthMultiplier);
+                _sparks[index] = CreateLine("BurstSpark", 3, DevConfig.ImpactLineWidth.EffectiveValue() * PrefabSettings.Projectile.SparkWidthMultiplier);
                 _sparks[index].widthCurve = AnimationCurve.Linear(0f, 1f, 1f, 0f);
-                _sparks[index].widthMultiplier = DevConfig.ImpactLineWidth.Value * PrefabSettings.Projectile.SparkWidthMultiplier;
+                _sparks[index].widthMultiplier = DevConfig.ImpactLineWidth.EffectiveValue() * PrefabSettings.Projectile.SparkWidthMultiplier;
             }
 
             UpdateBurst(0f);
@@ -215,7 +216,7 @@ namespace HexBattleMage.Core.Visuals
 
             if (colors.Count == 0)
             {
-                colors.Add(DevConfig.BoltColor.Value);
+                colors.Add(DevConfig.BoltColor.EffectiveValue());
             }
 
             return colors.ToArray();

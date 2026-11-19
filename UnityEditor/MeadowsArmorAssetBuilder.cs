@@ -47,6 +47,7 @@ public static class MeadowsArmorAssetBuilder
             if (profile == null)
             {
                 profile = root.AddComponent<HexBattleMageArmorProfile>();
+                profile.MaximumQuality = 4;
                 profile.ItemPrefabName = identity;
                 profile.BaseItemPrefab = baseline;
                 profile.DisplayName = "$item_hexbattlemage_" + category.ToLowerInvariant() + "_meadows_01";
@@ -83,7 +84,15 @@ public static class MeadowsArmorAssetBuilder
             if (recipe == null)
             {
                 recipe = root.AddComponent<MageRecipeProfile>();
-                recipe.Resources = new[] { new MageRecipeResource { ItemPrefab = "DeerHide", Amount = 6 }, new MageRecipeResource { ItemPrefab = "Resin", Amount = 2 } };
+                recipe.Resources = new[] { new MageRecipeResource { ItemPrefab = "DeerHide", Amount = 6, AmountPerQuality = 3 }, new MageRecipeResource { ItemPrefab = "Resin", Amount = 2, AmountPerQuality = 1 } };
+            }
+
+            if (root.GetComponent<MageUpgradeProfile>() == null)
+            {
+                var upgrades = root.AddComponent<MageUpgradeProfile>();
+
+                upgrades.FixedResourceCosts = true;
+                upgrades.UseFixedStationLevel = false;
             }
 
             if (root.GetComponent<MageArmorStyleProfile>() == null)

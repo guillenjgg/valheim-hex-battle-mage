@@ -90,3 +90,12 @@ The 2026-11-18 audit covered 38 imports. Production-sized textures imported as D
 Gear drop physics: MageEquipmentDefinition authors continuous collision detection. Custom armor profiles author fitted world-drop collider dimensions; registration adds solid colliders after replacing native visuals. Worn visual meshes do not receive drop colliders. Nine gear drops passed an isolated Unity physics test onto solid ground at 12 m/s. This does not establish that every world geometry edge case is impossible.
 
 GearIconAssetBuilder renders transparent 256px inventory icons from authored world models, preserving existing icon files on rebuild. Bracer/trinket renders face their rune engraving. Imports retain Read/Write and Crunch compression. Approved wand and native leg icons remain unchanged.
+
+Meadows quality migration: HexBattleMage > Apply Meadows Quality and Table Costs bakes four armor qualities, native leather upgrade increments and chopping-block/tanning-rack extension costs, refreshes managed recipe JSON and rebuilds hexbattlemage. This is an explicit migration; ordinary preparation preserves authored edits. No geometry/material/texture changes are included.
+
+
+## Approved Mage Table appearance (2026-11-19)
+
+The user selected the knots-cracks-v6 previews: KnottedSplitOak_BaseColor and CrackedFieldstone_BaseColor, chipped RoughV5 wood meshes and the original cracked-stone support/standing-stone silhouettes. River-rock supports and denser-knot revisions were rejected. Textures retain max size 256, Read/Write, Normal compression, Crunch 100 and Point filtering. Their UVs follow board direction. Source images are preserved alongside imported textures. Materials are matte with rain gloss disabled; the table profile authors reduced violet glow/crystal size. Runtime floating effects are not depicted in material-only previews.
+
+MageTableWeatheringAssetBuilder is an explicit appearance migration; Build authors/validates/previews, BuildBundle also rebuilds production assets. Normal prefab preparation preserves the authored appearance. Unused draft mesh bundle assignments are cleared so only referenced meshes enter the bundle. Station identities, recipes and collider counts are checked for preservation. No crafting-role split is implemented: Rune-Whittler's Block remains planned.

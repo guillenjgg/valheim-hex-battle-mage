@@ -1,3 +1,4 @@
+using HexBattleMage.Core.Tuning;
 using HexBattleMage.Assets;
 using Jotunn.Entities;
 using HexBattleMage.Core.Visuals;
@@ -187,6 +188,7 @@ namespace HexBattleMage.Core.Managers
                 return false;
             }
 
+            GearUpgradeRules.Register(item.Recipe.Recipe, prefab.GetComponent<MageUpgradeProfile>());
             MageEquipmentCatalog.Register(item.ItemDrop, item.Recipe.Recipe, biome);
             Plugin.Log.LogInfo($"Wand registered after prefab loading with {requirements.Length} authored recipe resources.");
             return true;
@@ -209,21 +211,23 @@ namespace HexBattleMage.Core.Managers
 
         internal static void ApplyDamageSettings(ItemDrop.ItemData item)
         {
-            item.m_shared.m_damages.m_blunt = DevConfig.WandBluntDamage.Value;
-            item.m_shared.m_damages.m_pierce = DevConfig.WandPierceDamage.Value;
+            item.m_shared.m_damages.m_blunt = DevConfig.WandBluntDamage.EffectiveValue();
+            item.m_shared.m_damages.m_pierce = DevConfig.WandPierceDamage.EffectiveValue();
+            item.m_shared.m_damagesPerLevel.m_blunt = DevConfig.WandBluntDamagePerQuality.EffectiveValue();
+            item.m_shared.m_damagesPerLevel.m_pierce = DevConfig.WandPierceDamagePerQuality.EffectiveValue();
             Elements.WandElementManager.ApplyToItem(item);
         }
 
         internal static void ApplySettings(Attack attack)
         {
-            attack.m_attackAnimation = DevConfig.AttackAnimation.Value;
-            attack.m_attackChainLevels = DevConfig.AttackChainLevels.Value;
-            attack.m_attackRandomAnimations = DevConfig.RandomAttackAnimations.Value;
+            attack.m_attackAnimation = DevConfig.AttackAnimation.EffectiveValue();
+            attack.m_attackChainLevels = DevConfig.AttackChainLevels.EffectiveValue();
+            attack.m_attackRandomAnimations = DevConfig.RandomAttackAnimations.EffectiveValue();
             attack.m_attackProjectile = PrefabSettings.Wand.ProjectilePrefab;
-            attack.m_projectileVel = DevConfig.ProjectileVelocity.Value;
-            attack.m_projectileAccuracy = DevConfig.ProjectileAccuracy.Value;
-            attack.m_projectileAccuracyMin = DevConfig.ProjectileAccuracyMin.Value;
-            attack.m_skillAccuracy = DevConfig.SkillAccuracy.Value;
+            attack.m_projectileVel = DevConfig.ProjectileVelocity.EffectiveValue();
+            attack.m_projectileAccuracy = DevConfig.ProjectileAccuracy.EffectiveValue();
+            attack.m_projectileAccuracyMin = DevConfig.ProjectileAccuracyMin.EffectiveValue();
+            attack.m_skillAccuracy = DevConfig.SkillAccuracy.EffectiveValue();
         }
     }
 }

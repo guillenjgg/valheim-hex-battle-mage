@@ -127,8 +127,8 @@ public static class MageTableExtensionAssetBuilder
 
         recipe.CraftingStation = "HexArcaneWorkbench";
         recipe.Resources = reagentStand
-            ? new[] { Resource("Wood", 15), Resource("Resin", 8), Resource("Feathers", 5), Resource("BoneFragments", 5) }
-            : new[] { Resource("Wood", 10), Resource("Stone", 10), Resource("Resin", 5) };
+            ? new[] { Resource("Wood", 10), Resource("Flint", 15), Resource("LeatherScraps", 20), Resource("DeerHide", 5) }
+            : new[] { Resource("Wood", 10), Resource("Flint", 10) };
 
         string recipePath = Root + "/Recipe_" + name + ".json";
 

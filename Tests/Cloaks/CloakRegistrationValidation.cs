@@ -21,6 +21,7 @@ public static class CloakRegistrationValidation
     private static GameObject _visual;
     private static Game _gameFixture;
     private static bool _helmetNetworkOwner = true;
+    private static int _materialResolutionCount;
 
     public static void Run()
     {
@@ -59,6 +60,9 @@ public static class CloakRegistrationValidation
         Set(mockType, null, "_instance", mocks);
         Set(mockType, mocks, "MockPrefabContainer", container);
         Set(mockType, mocks, "mockedPrefabs", new Dictionary<string, GameObject>());
+        _materialResolutionCount = 0;
+        harmony.Patch(AccessTools.Method(mockType, "FixReferences", new[] { typeof(object), typeof(int) }), prefix: new HarmonyMethod(typeof(CloakRegistrationValidation), "ValidateMockTarget"));
+        harmony.Patch(AccessTools.Method(mockType, "TryFixMaterial"), prefix: new HarmonyMethod(typeof(CloakRegistrationValidation), "CountMaterialResolution"));
 
         var bundle = AssetBundle.LoadFromFile(Environment.GetEnvironmentVariable("HEXBATTLEMAGE_TEST_BUNDLE"));
         var mod = typeof(HexBattleMageCloakProfile).Assembly;
@@ -72,6 +76,7 @@ public static class CloakRegistrationValidation
 
         try
         {
+            mod.GetType("HexBattleMage.Core.Tuning.PrefabTuning").GetMethod("Apply", Fields).Invoke(null, new object[] { bundle });
             _visual = bundle.LoadAsset<GameObject>("HexBattleMage_Cloak_Meadows_01");
             var profile = _visual.GetComponent<HexBattleMageCloakProfile>();
             var sourceStyles = _visual.GetComponent<MageArmorStyleProfile>();
@@ -94,6 +99,11 @@ public static class CloakRegistrationValidation
             Check(registered.ContainsKey(profile.ItemPrefabName), "Actual registration adds the cloak despite the loaded visual name.");
             var item = registered[profile.ItemPrefabName];
 
+            Check(_materialResolutionCount > 0, "Actual Jotunn resolver processes cloak materials without scanning cloth internals.");
+
+            Check(!item.FixReference, "Cloak registration excludes cloth internals from recursive mock resolution.");
+            Check(item.Recipe.FixReference, "Recipe mock resolution remains enabled independently.");
+            Check(item.ItemPrefab.GetComponent<HexBattleMageVitalityProfile>().MaximumStamina == 5f, "Cloak registration retains the authored flat stamina bonus.");
             Check(item.ItemPrefab != _visual, "Gameplay item is a separate native-base clone.");
             Check(item.ItemDrop.m_itemData.m_shared.m_itemType == ItemDrop.ItemData.ItemType.Shoulder, "Native cape item type is applied.");
             Check(item.Recipe.Recipe.m_resources.Length == 3, "Mage Table recipe includes all authored costs.");
@@ -125,6 +135,7 @@ public static class CloakRegistrationValidation
 
             Check(item.ItemDrop.m_itemData.m_shared.m_icons[0] == item.ItemPrefab.GetComponent<MageArmorStyleProfile>().Styles[0].Icon, "Authored default style icon is retained.");
             ValidateArmor(bundle, registered, mod, harmony);
+            ValidateFixedRecipes(bundle, mod);
             ValidateWorldDrops(bundle, registered, mod);
             File.WriteAllText(Path.Combine(Path.GetDirectoryName(Application.dataPath), "cloak-registration-report.txt"), "PASS: actual cloak registration and Jotunn AddItem/AddRecipe; three color styles across both body fits and world drop; perks before durability/weight; authored icons and three-resource Mage Table recipe (including 5 Resin); native cape category; male/female lookup, vanilla pass-through and native AttachArmor transpiler verified. Native base/manager bootstrap are fixtures. Full game cloth/movement remains an in-game check.");
         }
@@ -135,6 +146,59 @@ public static class CloakRegistrationValidation
             bundle.Unload(true);
             harmony.UnpatchSelf();
         }
+    }
+
+    private static void ValidateMockTarget(object __0)
+    {
+        Check(__0 == null || !__0.GetType().FullName.StartsWith("MagicaCloth2.", StringComparison.Ordinal), "Mock resolver must not traverse MagicaCloth runtime state.");
+    }
+
+    private static void CountMaterialResolution()
+    {
+        _materialResolutionCount++;
+    }
+
+    private static void ValidateFixedRecipes(AssetBundle bundle, Assembly mod)
+    {
+        var rules = mod.GetType("HexBattleMage.Core.GearUpgradeRules");
+
+        foreach (string identity in new[] { "HexBattleMage_Wand_Meadows_01", "HexMagicBracerVisual" })
+        {
+            var source = bundle.LoadAsset<GameObject>(identity);
+            var authoredRecipe = source.GetComponent<MageRecipeProfile>();
+            var fixture = new GameObject("Upgrade fixture");
+            var recipe = ScriptableObject.CreateInstance<Recipe>();
+
+            try
+            {
+                rules.GetMethod("CopyProfile", Fields).Invoke(null, new object[] { source, fixture });
+                recipe.m_item = fixture.AddComponent<ItemDrop>();
+                recipe.m_minStationLevel = authoredRecipe.MinimumStationLevel;
+                recipe.m_resources = authoredRecipe.GetResources().Select(resource => new Piece.Requirement { m_amount = resource.Amount, m_amountPerLevel = resource.AmountPerQuality }).ToArray();
+                rules.GetMethod("Register", Fields).Invoke(null, new object[] { recipe, fixture.GetComponent<MageUpgradeProfile>() });
+                int maximumQuality = identity == "HexMagicBracerVisual" ? 3 : 4;
+
+                for (int quality = 2; quality <= maximumQuality; quality++)
+                {
+                    Check(recipe.GetRequiredStationLevel(quality) == authoredRecipe.MinimumStationLevel + quality - 1, "Fixed material costs retain native station progression.");
+
+                    foreach (var resource in recipe.m_resources)
+                    {
+                        Check(resource.GetAmount(quality) == resource.m_amountPerLevel && resource.GetAmount(quality) < resource.GetAmount(1), "Every wand/bracer upgrade costs less than the initial craft.");
+                    }
+                }
+            }
+            finally
+            {
+                Object.DestroyImmediate(recipe);
+                Object.DestroyImmediate(fixture);
+            }
+        }
+
+        var trinket = bundle.LoadAsset<GameObject>("HexBattleMage_Trinket_Meadows_01");
+
+        Check(trinket.GetComponent<HexBattleMage.Core.Trinkets.HexBattleMageTrinketProfile>().MaximumQuality == 1, "Trinket cannot be upgraded.");
+        Check(trinket.GetComponent<MageRecipeProfile>().GetResources().Any(resource => resource.ItemPrefab == "BoneFragments" && resource.Amount == 5), "Trinket retains its bone crafting cost.");
     }
 
     private static void ValidateArmor(AssetBundle bundle, Dictionary<string, CustomItem> registered, Assembly mod, Harmony harmony)
@@ -182,6 +246,12 @@ public static class CloakRegistrationValidation
             {
                 ValidateCustomClothing(manager, item, category);
             }
+            if (category == "Chest")
+            {
+                ValidateTunicFasteners(item, mod);
+            }
+
+            Check(item.ItemPrefab.GetComponent<HexBattleMageVitalityProfile>().MaximumHealth == 2f, "Armor registration retains the authored flat health bonus.");
             Check(shared.m_itemType == nativeType, "Native equipment slot survives cloning.");
             Check(shared.m_armor == 2f && shared.m_movementModifier == 0f && shared.m_setSize == 0 && shared.m_setName == string.Empty, "Starter stats replace inherited Fenris power.");
             Check(baseline.m_itemData.m_shared.m_armor == 10f && baseline.m_itemData.m_shared.m_setSize == 3, "Vanilla baseline stats remain unchanged.");
@@ -192,6 +262,27 @@ public static class CloakRegistrationValidation
                 ValidateHelmetStyles(item, mod, harmony);
             }
             Check(item.Recipe.Recipe.m_resources.Length == 2 && item.Recipe.Recipe.m_craftingStation.name.EndsWith("HexArcaneWorkbench", StringComparison.Ordinal), "Armor recipe targets the Mage Table.");
+            Check(shared.m_maxQuality == 4, "Hood, tunic and trousers support four qualities.");
+
+            for (int quality = 1; quality <= 4; quality++)
+            {
+                Check(item.ItemDrop.m_itemData.GetArmor(quality, 0f) == quality * 2f, "Native armor scales 2/4/6/8.");
+                Check(item.Recipe.Recipe.GetRequiredStationLevel(quality) == quality, "Native Mage Table requirements scale 1/2/3/4.");
+                Check(item.ItemPrefab.GetComponent<MageEitrProfile>().GetMaximumEitr(quality) == 5f, "Quality does not increase armor Eitr.");
+            }
+
+            var resources = item.Recipe.Recipe.m_resources;
+            var hide = resources.Single(resource => resource.m_resItem.name.EndsWith("DeerHide", StringComparison.Ordinal));
+            var resin = resources.Single(resource => resource.m_resItem.name.EndsWith("Resin", StringComparison.Ordinal));
+
+            Check(hide.GetAmount(1) == 6 && resin.GetAmount(1) == 2, "Base armor recipe is preserved.");
+            Check(!resources.Any(resource => resource.m_resItem.name.EndsWith("BoneFragments", StringComparison.Ordinal)), "Meadows armor has no bone requirement.");
+
+            for (int quality = 2; quality <= 4; quality++)
+            {
+                Check(hide.GetAmount(quality) == 3 && resin.GetAmount(quality) == 1, "Every armor upgrade uses fixed cheaper costs.");
+            }
+
             Check(profile.Icon != null && profile.Icon.texture.isReadable && profile.Icon.texture.width <= 256, "Authored icon follows texture policy.");
             Check(profile.DisplayName.StartsWith("$") && profile.Description.StartsWith("$"), "Player-facing identity is localized.");
 
@@ -205,6 +296,90 @@ public static class CloakRegistrationValidation
         File.WriteAllText(Path.Combine(Path.GetDirectoryName(Application.dataPath), "armor-registration-report.txt"), "PASS: all three authored armor definitions register through actual Jotunn CreateClonedPrefab/AddItem/AddRecipe; native slots retained; custom hood/tunic visuals selected for both body types; native chest/hood visuals removed; both native attachment transpilers installed; 53-bone bindings and full sleeve reach checked; vanilla fixture unchanged; Fenris bonuses removed; +5 Eitr; localized identity; recipes and baked style recovery validated. Native item bootstraps are fixtures; actual movement remains an in-game check.");
     }
 
+    private static void ValidateTunicFasteners(CustomItem item, Assembly mod)
+    {
+        var profile = item.ItemPrefab.GetComponent<HexBattleMageArmorProfile>();
+
+        foreach (var fit in new[] { profile.MaleVisual, profile.FemaleVisual })
+        {
+            var renderer = fit.GetComponentsInChildren<SkinnedMeshRenderer>(true).Single(value => value.name == "Buttons");
+            var mesh = renderer.sharedMesh;
+            var triangles = mesh.GetTriangles(0);
+            var adjacency = new Dictionary<int, HashSet<int>>();
+
+            for (int index = 0; index < triangles.Length; index += 3)
+            {
+                for (int edge = 0; edge < 3; edge++)
+                {
+                    int a = triangles[index + edge];
+                    int b = triangles[index + (edge + 1) % 3];
+
+                    if (!adjacency.ContainsKey(a))
+                    {
+                        adjacency[a] = new HashSet<int>();
+                    }
+
+                    if (!adjacency.ContainsKey(b))
+                    {
+                        adjacency[b] = new HashSet<int>();
+                    }
+
+                    adjacency[a].Add(b);
+                    adjacency[b].Add(a);
+                }
+            }
+
+            var visited = new HashSet<int>();
+            int groups = 0;
+
+            foreach (int vertex in adjacency.Keys)
+            {
+                if (!visited.Add(vertex))
+                {
+                    continue;
+                }
+
+                groups++;
+                var pending = new Stack<int>();
+
+                pending.Push(vertex);
+
+                while (pending.Count > 0)
+                {
+                    int current = pending.Pop();
+
+                    foreach (int neighbor in adjacency[current])
+                    {
+                        if (visited.Add(neighbor))
+                        {
+                            pending.Push(neighbor);
+                        }
+                    }
+                }
+            }
+
+            Check(groups == 4, "Each tunic fit has four geometric wooden buttons.");
+            Check(renderer.bones.Length == 53 && mesh.bindposes.Length == 53, "Buttons follow native clothing skinning.");
+            Check(mesh.boneWeights.All(weight => Mathf.Abs(weight.weight0 + weight.weight1 + weight.weight2 + weight.weight3 - 1f) < 0.001f), "Button skin weights are normalized.");
+        }
+
+        var clone = Object.Instantiate(item.ItemPrefab);
+
+        try
+        {
+            var model = clone.transform.Find("model");
+            var buttons = model.Find("Buttons").GetComponent<Renderer>();
+            var materials = buttons.sharedMaterials;
+            var visualType = mod.GetType("HexBattleMage.Core.Visuals.MageArmorStyleVisual");
+
+            visualType.GetMethod("Setup", Fields).Invoke(model.GetComponent(visualType), new object[] { 0 });
+            Check(buttons.sharedMaterials.SequenceEqual(materials), "World-drop style changes preserve wooden fasteners and thread materials.");
+        }
+        finally
+        {
+            Object.DestroyImmediate(clone);
+        }
+    }
     private static void ValidateWorldDrops(AssetBundle bundle, Dictionary<string, CustomItem> registered, Assembly mod)
     {
         var previousMode = Physics.simulationMode;

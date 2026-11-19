@@ -33,6 +33,10 @@ namespace HexBattleMage.Core.Managers
         public bool SupportsBlocking;
         public string ProgressionTier = "Apprentice";
         public string CatalogBiome = "Meadows";
+        [Header("Unlock catalog visibility")]
+        public bool CatalogRequiresBiomeDiscovery = true;
+        [Tooltip("Native world boss-defeat key required to reveal this item in the unlock catalog.")]
+        public string CatalogBossDefeatKey;
         [Header("Dropped-item physics")]
         public CollisionDetectionMode DropCollisionDetection = CollisionDetectionMode.ContinuousDynamic;
     }

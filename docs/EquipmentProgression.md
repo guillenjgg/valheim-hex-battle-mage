@@ -71,3 +71,74 @@ The player equipment anchor is `LeftHand_Attach`, below `LeftHand`, which is bel
 Verification: the new files compile against the installed unmodified Valheim assembly and compiled Jotunn 2.30.0. Unity tests exercise the actual Harmony equip/unequip hooks, equipped/type queries, belt/hand independence, one-bracer invariant, native saved-equipment restoration and inventory toggling, blocking without a wand, idle animation preservation, worn/field visibility, broken-item handling and explicit unequip. Existing male/female fit and 13 field checks also pass. Full in-game UI, save-file reload, armor clearance, animation blending and multiplayer still need verification. This is a runtime-code change; it reuses the approved visual bundle.
 
 Appearance progression is cumulative per gear category: later tiers add looks while retaining earlier choices. Cosmetic unlock tiers and item quality/stat upgrades are distinct. Keep saved variant order stable when extending options. The exact player-unlock trigger remains undecided.
+
+## Equipment summary and unlock list (2026-11-19)
+
+The compendium's Battle Mage - Equipment page replaces the old wand-impact diagnostic page. It reads the current weapon and quality, positive damage components, live wand range samples, the actual native/Harmony-selected blocker and blocking skill, and TrinketEffects.EitrBonus for the equipped-gear Eitr total. Food and carried-but-unequipped items are excluded. No prefab identities, fallback inventory wand or latest-impact telemetry is shown. The author-requested full-damage range is now 15 metres; falloff remains linear over the next 20 metres to the existing 20 percent minimum. These values are prefab-authored and remain configurable; the page reads current tuning rather than embedding the example ranges.
+
+Unlocks lists every catalog-registered recipe under its biome. Rows start collapsed and show an item icon, disclosure sign, explicit LOCKED/UNLOCKED text and a color indicator. Each row expands to discovered/missing materials and its crafting station. Unlock state comes from the current player's native learned-recipe set, not inventory stock or an invented unlock action. Requirements still use known-material discovery. The interface preserves expansion state, scroll offset and row focus while refreshing; text wraps within the panel. This does not introduce new progression or unlock rules.
+
+EquipmentUiValidation checks the actual summary, current range tuning, bracer blocker override, equipped-only Eitr, learned-recipe states, expand/collapse, state refresh, bounded text and the bundled 15m default. UI/player/font bootstrap is isolated; complete live game input/navigation remains an in-game check.
+
+## Boss-revealed biome catalog (2026-11-19)
+
+The biome header now collapses its entire category. Revealed categories start expanded; individual gear rows are static, with requirements shown directly for locked recipes. Compendium headings and numbers use Valheim orange with white body text. The native unarmed fallback is omitted from weapon damage and blocking; an equipped fist weapon is still a weapon.
+
+Catalog visibility is authored on MageEquipmentDefinition: CatalogRequiresBiomeDiscovery and CatalogBossDefeatKey. Registration carries these fields onto runtime item prefabs. Meadows requires discovery (or current arrival), without a boss key. Later tiers use shared world boss flags and do not require visiting the next biome first:
+
+| Gear biome | Required world key |
+| --- | --- |
+| Black Forest | defeated_eikthyr |
+| Swamp | defeated_gdking |
+| Mountains | defeated_bonemass |
+| Plains | defeated_dragon |
+| Mistlands | defeated_goblinking |
+| Ashlands | defeated_queen |
+| Deep North | defeated_fader |
+
+MageCatalogAssetPreparation seeds these defaults for new metadata fields; subsequent builds preserve authored edits. When cloning a Meadows item into a later tier, explicitly update both visibility fields to that tier's rule. These conditions control catalog visibility, not crafting eligibility. Individual lock labels still use native learned recipes, and existing resource/station crafting rules remain unchanged. There are no authored later-tier items yet, so defeating a boss will not create an empty or invented gear section.
+
+EquipmentUiValidation verifies first Meadows arrival and retained discovery, actual native world-key queries for Eikthyr/Elder, removal of world keys, knowledge not bypassing catalog visibility, whole-biome collapse/expand, unarmed filtering, orange values and existing equipped-only Eitr/blocker checks. Biome-discovery and world bootstrap are isolated fixtures; boss-key dictionary lookup uses the installed native implementation.
+
+## Starter balance (2026-11-19)
+
+Stone of Reprisal now costs 1 TrophyBoar, 10 Stone, 5 BoneFragments and 2 LeatherScraps. Resources and managed baked recipe data are updated on the prefab.
+
+The first wand has four qualities (three upgrades): blunt/pierce/fire damage is 5/5/15, 6/6/17, 7/7/19 and 8/8/21. Physical per-quality increments are authored on HexBattleMageWandProfile and exposed alongside base physical damage in development tuning. The fire profile authors direct damage 15 and per-quality damage 2. Element changes preserve tuned physical increments. Existing other elemental effects, damage falloff and upgrade costs/station requirements are unchanged.
+
+HexBattleMageVitalityProfile stores flat MaximumHealth and MaximumStamina bonuses, without any quality multiplier. Meadows helmet/chest/legs each author +2 health (all three equipped total +6); cloaks author +5 stamina. Existing Eitr bonuses remain. Registration copies the profile to the real item. Native food totals add bonuses only for equipped inventory items. Owner-only equip/unequip refresh updates caps immediately, preserves existing resources during replacement, and clamps on removal without refilling on re-equip. Native food updates continue to handle food changes. Tooltips list the perks before durability; the compendium includes the equipped totals.
+
+StarterBalanceValidation uses actual native damage calculation, food totals and equip/unequip paths. It checks all qualities, baked recipe recovery with inline resources removed, flat quality behavior, food stacking, retained Eitr, ownership, replacement preservation, cap removal and no refill exploit, plus tooltip ordering and compendium totals. Network/visual bootstrap and fixture base capacities are isolated. The balance import command is an explicit migration; normal preparation preserves authored values.
+
+
+## Meadows qualities and extension costs (2026-11-19)
+
+Hood, tunic and trousers now permit quality 1 through 4 (base plus three upgrades). Armor is 2/4/6/8. Native station requirements are Mage Table 1/2/3/4, starting from authored minimum level 1. The two existing distinct extensions reach table level 3, so quality 4 remains unavailable until a future level-4 extension exists. No third extension or boss progression is invented here. Cloak, bracer and wand quality rules are unchanged.
+
+Base armor recipes remain 6 DeerHide and 2 Resin. Leather-armor upgrade resource increments are 6 DeerHide and 5 BoneFragments, with no upgrade Resin. Installed native Piece.Requirement.GetAmount yields 6/5 at Q2, 12/10 at Q3 and 24/20 at Q4; its current Q4 multiplier is four, not three. No custom material-scaling patch is used. Armor health remains flat +2 and Eitr remains flat +5 per item at all qualities. Other custom bonuses remain unchanged.
+
+Rune Stone uses chopping block costs: 10 Wood + 10 Flint. Reagent Stand uses tanning rack costs: 10 Wood + 15 Flint + 20 LeatherScraps + 5 DeerHide. These match the read-only native piece_workbench_ext1/ext2 assets. Their existing extension radius/non-stacking/connection behavior is preserved.
+
+Code overrides live in Core/Tuning/ArmorTuning.cs and CraftingTuning.cs. Config sections Crafting / Mage Table / HexMageRuneStone and HexMageReagentStand expose each material count (0-1000). Zero removes the material cost. Config respects Tuning / UseConfigOverrides; construction costs are applied at startup and require restarting after edits. Names/material lists can be changed in code or prefab authoring. Config does not alter already placed extensions or refund past construction costs retroactively.
+
+MeadowsQualityAssetBuilder.Build is the explicit one-time authoring migration, mirrored into Unity. Normal builders preserve existing values and seed these defaults only for new assets. Updated native registration tests verify all qualities, station levels and material costs, and unchanged Eitr/health. Tuning validation verifies the extension costs and config/code precedence.
+
+
+## Fixed cheaper Meadows upgrades (2026-11-19; supersedes native leather material costs above)
+
+| Item | Initial craft | Each upgrade |
+| --- | --- | --- |
+| Hood, tunic, trousers (each) | 6 DeerHide, 2 Resin | 3 DeerHide, 1 Resin |
+| Wand | 20 Wood, 2 Resin | 10 Wood, 1 Resin |
+| Bracer | 10 Wood, 4 Resin, 2 LeatherScraps | 5 Wood, 2 Resin, 1 LeatherScraps |
+| Cloak (unchanged) | 6 LeatherScraps, 4 DeerHide, 5 Resin | 3 LeatherScraps, 2 DeerHide, 2 Resin |
+| Stone of Reprisal | 1 TrophyBoar, 10 Stone, 5 BoneFragments, 2 LeatherScraps | None; maximum quality 1 |
+
+Each upgrade uses the same fixed cheaper material count, independent of quality. BoneFragments are exclusive to the Meadows trinket recipe. MageUpgradeProfile separates FixedResourceCosts from UseFixedStationLevel; material overrides retain native station-level progression for armor, wand and bracer. Existing cloak table-level-3 upgrade rules remain intact. Registration copies the policy onto cloned gear and tracks recipe requirements for the scoped cost patch; vanilla recipes are unaffected.
+
+Edit counts in the existing category tuning files; defaults and policy are also baked in Unity. Apply Meadows Craft and Upgrade Costs is the explicit one-time migration. Ordinary preparation preserves authored settings. Native registration checks cover armor Q2-Q4 costs, copied wand/bracer policy, vanilla pass-through and trinket quality cap. Baked-policy validation runs before code tuning.
+
+A dedicated wand/staff crafting and attunement station is planned. No new build piece is created here; the current wand remains at the Mage Table until that station is designed.
+
+
+Unlocks navigation: a permanent 18px gold scrollbar sits beside a separately clipped list, with wheel sensitivity 140 (previously 30). A fixed native-styled Collapse All button toggles to Expand All when all visible biome sections are collapsed; it affects revealed categories only and returns the list to the top. Individual biome controls and unlock state remain independent. EquipmentUiValidation checks wheel movement, scrollbar bounds/bottom access, all-section collapse/expand and existing unlock refresh/layout behavior. Runtime UI only; no bundle rebuild.

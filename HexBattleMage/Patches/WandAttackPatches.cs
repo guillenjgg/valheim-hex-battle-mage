@@ -1,3 +1,4 @@
+using HexBattleMage.Core.Tuning;
 using HarmonyLib;
 using HexBattleMage.Core;
 using HexBattleMage.Core.Managers;
@@ -59,7 +60,7 @@ namespace HexBattleMage.Patches
 
             var animator = animEvent.GetComponent<Animator>();
 
-            animator.speed = DevConfig.AnimationSpeedMultiplier.Value;
+            animator.speed = DevConfig.AnimationSpeedMultiplier.EffectiveValue();
         }
     }
 
@@ -85,7 +86,7 @@ namespace HexBattleMage.Patches
                 return;
             }
 
-            speedScale *= DevConfig.AnimationSpeedMultiplier.Value;
+            speedScale *= DevConfig.AnimationSpeedMultiplier.EffectiveValue();
         }
     }
 }

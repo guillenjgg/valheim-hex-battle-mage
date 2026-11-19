@@ -1,3 +1,4 @@
+using HexBattleMage.Core.Tuning;
 using System;
 using System.Collections.Generic;
 using System.Reflection.Emit;
@@ -132,7 +133,7 @@ namespace HexBattleMage.Patches
     {
         private static bool Prefix(Humanoid __instance, ref bool __result)
         {
-            if (WandElementManager.Enabled == null || !WandElementManager.Enabled.Value)
+            if (WandElementManager.Enabled == null || !WandElementManager.Enabled.EffectiveValue())
             {
                 return true;
             }

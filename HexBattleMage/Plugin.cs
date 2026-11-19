@@ -6,6 +6,7 @@ using HexBattleMage.Core;
 using HexBattleMage.Core.Managers;
 using HexBattleMage.Core.Elements;
 using Jotunn.Utils;
+using HexBattleMage.Core.Tuning;
 using System.Reflection;
 
 namespace HexBattleMage
@@ -35,6 +36,9 @@ namespace HexBattleMage
                 return;
             }
 
+            PrefabTuning.Apply(AssetBundleHelper.Bundle);
+            TuningConfiguration.Initialize(Config);
+            CraftingTuning.Configure(Config, AssetBundleHelper.Bundle);
             _devConfig = new DevConfig(Config);
             WandElementManager.Initialize(Config);
 

@@ -1,3 +1,4 @@
+using HexBattleMage.Core.Tuning;
 using System;
 using System.Collections.Generic;
 using BepInEx.Configuration;
@@ -144,15 +145,19 @@ namespace HexBattleMage.Core.Elements
             var shared = item.m_shared;
             float blunt = shared.m_damages.m_blunt;
             float pierce = shared.m_damages.m_pierce;
+            float bluntPerQuality = shared.m_damagesPerLevel.m_blunt;
+            float piercePerQuality = shared.m_damagesPerLevel.m_pierce;
 
             shared.m_damages = _originalDamage;
             shared.m_damages.m_blunt = blunt;
             shared.m_damages.m_pierce = pierce;
             shared.m_damagesPerLevel = _originalPerQuality;
+            shared.m_damagesPerLevel.m_blunt = bluntPerQuality;
+            shared.m_damagesPerLevel.m_pierce = piercePerQuality;
             shared.m_attackStatusEffect = _originalEffect;
             shared.m_attackStatusEffectChance = _originalEffectChance;
 
-            if (!Enabled.Value)
+            if (!Enabled.EffectiveValue())
             {
                 return;
             }
@@ -162,8 +167,8 @@ namespace HexBattleMage.Core.Elements
 
             ClearElements(ref shared.m_damages);
             ClearElements(ref shared.m_damagesPerLevel);
-            SetDamage(ref shared.m_damages, element, settings.DirectDamage.Value);
-            SetDamage(ref shared.m_damagesPerLevel, element, settings.DamagePerQuality.Value);
+            SetDamage(ref shared.m_damages, element, settings.DirectDamage.EffectiveValue());
+            SetDamage(ref shared.m_damagesPerLevel, element, settings.DamagePerQuality.EffectiveValue());
             shared.m_attackStatusEffect = Effects[element];
             shared.m_attackStatusEffectChance = 1f;
         }

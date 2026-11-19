@@ -1,3 +1,4 @@
+using HexBattleMage.Core.Tuning;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -195,6 +196,8 @@ namespace HexBattleMage.Core.Managers
             authoredDefinition.Slot = definition.Slot;
             authoredDefinition.ProgressionTier = definition.ProgressionTier;
             authoredDefinition.CatalogBiome = definition.CatalogBiome;
+            authoredDefinition.CatalogRequiresBiomeDiscovery = definition.CatalogRequiresBiomeDiscovery;
+            authoredDefinition.CatalogBossDefeatKey = definition.CatalogBossDefeatKey;
             authoredDefinition.DropCollisionDetection = definition.DropCollisionDetection;
 
             var model = Object.Instantiate(visual, prefab.transform, false);
@@ -251,7 +254,7 @@ namespace HexBattleMage.Core.Managers
                 effect.m_name = profile.BuffDisplayName;
                 effect.m_tooltip = profile.BuffDescription;
                 effect.m_icon = profile.Icon;
-                effect.m_ttl = Mathf.Max(TrinketSettings.MinimumRewardDuration, settings.Duration.Value);
+                effect.m_ttl = Mathf.Max(TrinketSettings.MinimumRewardDuration, settings.Duration.EffectiveValue());
 
                 if (!ItemManager.Instance.AddStatusEffect(new CustomStatusEffect(effect, false)))
                 {

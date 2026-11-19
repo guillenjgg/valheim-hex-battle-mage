@@ -49,6 +49,8 @@ namespace HexBattleMage.Core
         internal static ConfigEntry<bool> OnlyStopOnTerrain { get; private set; }
         internal static ConfigEntry<float> WandBluntDamage { get; private set; }
         internal static ConfigEntry<float> WandPierceDamage { get; private set; }
+        internal static ConfigEntry<float> WandBluntDamagePerQuality { get; private set; }
+        internal static ConfigEntry<float> WandPierceDamagePerQuality { get; private set; }
         internal static ConfigEntry<float> FullDamageRange { get; private set; }
         internal static ConfigEntry<float> DamageFalloffDistance { get; private set; }
         internal static ConfigEntry<float> MinimumDamageMultiplier { get; private set; }
@@ -89,8 +91,10 @@ namespace HexBattleMage.Core
                 OnlyStopOnTerrain = BindSetting(ProjectileSection, nameof(OnlyStopOnTerrain), PrefabSettings.Projectile.OnlyStopOnTerrain, "Only terrain stops the projectile.");
                 WandBluntDamage = BindFloat(WandDamageSection, nameof(WandBluntDamage), PrefabSettings.Wand.WandBluntDamage, "Base blunt damage on every wand shot, in addition to pierce and elemental damage. Applies to the next shot.", 0.1f, 1000f);
                 WandPierceDamage = BindFloat(WandDamageSection, nameof(WandPierceDamage), PrefabSettings.Wand.WandPierceDamage, "Base pierce damage on every wand shot, in addition to blunt and elemental damage. Applies to the next shot.", 0.1f, 1000f);
+                WandBluntDamagePerQuality = BindFloat(WandDamageSection, nameof(WandBluntDamagePerQuality), PrefabSettings.Wand.WandBluntDamagePerQuality, "Additional blunt damage per item quality above one.", 0f, 1000f);
+                WandPierceDamagePerQuality = BindFloat(WandDamageSection, nameof(WandPierceDamagePerQuality), PrefabSettings.Wand.WandPierceDamagePerQuality, "Additional pierce damage per item quality above one.", 0f, 1000f);
                 FullDamageRange = BindFloat(DamageSection, nameof(FullDamageRange), PrefabSettings.Wand.FullDamageRange, "Full wand projectile damage up to this distance from launch, in metres. Falloff is evaluated at impact for both direct and area damage.", 0f, 100f);
-                DamageFalloffDistance = BindFloat(DamageSection, nameof(DamageFalloffDistance), PrefabSettings.Wand.DamageFalloffDistance, "Distance beyond FullDamageRange over which damage gradually falls to its minimum. For example, 10 + 20 reaches minimum damage at 30 metres.", 0.1f, 200f);
+                DamageFalloffDistance = BindFloat(DamageSection, nameof(DamageFalloffDistance), PrefabSettings.Wand.DamageFalloffDistance, "Distance beyond FullDamageRange over which damage gradually falls to its minimum. For example, 15 + 20 reaches minimum damage at 35 metres.", 0.1f, 200f);
                 MinimumDamageMultiplier = BindFloat(DamageSection, nameof(MinimumDamageMultiplier), PrefabSettings.Wand.MinimumDamageMultiplier, "Minimum fraction of wand projectile damage at long range. 0.2 retains 20%. Cannot be set to zero.", 0.01f, 1f);
             }
             finally
