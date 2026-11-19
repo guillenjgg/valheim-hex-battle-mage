@@ -9,7 +9,7 @@ using Object = UnityEngine.Object;
 [InitializeOnLoad]
 public static class WandRuneAssetBuilder
 {
-    private const string WandPath = "Assets/_CustomItems/HexBattleMage/Wands/HexBattleMageWand/HexBattleMageWand.prefab";
+    private const string WandPath = "Assets/_CustomItems/HexBattleMage/Wands/Meadows/Wand_Meadows_01/HexBattleMage_Wand_Meadows_01.prefab";
     private const string RuneDirectory = "Assets/_CustomItems/HexBattleMage/Progression/Wands/Apprentice";
     private const string RequestPath = "Temp/HexBattleMageWandRunes.request";
     private const string ResultPath = "C:/Users/Jonathan/Documents/ChatGPT/HexBattleMage/wand-runes-result.txt";

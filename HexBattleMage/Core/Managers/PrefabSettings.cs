@@ -7,7 +7,7 @@ namespace HexBattleMage.Core.Managers
 {
     internal static class PrefabSettings
     {
-        internal static WandProfile Wand => Require<WandProfile>(AssetBundleHelper.HexBattleMageWand);
+        internal static HexBattleMageWandProfile Wand => Require<HexBattleMageWandProfile>(AssetBundleHelper.HexBattleMageWand);
         internal static WandProjectileProfile Projectile => Require<WandProjectileProfile>(AssetBundleHelper.HexMagicBolt);
 
         internal static T Require<T>(GameObject prefab) where T : Component
@@ -26,9 +26,7 @@ namespace HexBattleMage.Core.Managers
         {
             if (profile.BakedRecipe == null)
             {
-                string sourceName = profile.gameObject == AssetBundleHelper.HexBattleMageWand ? "HexBattleMageWand" : profile.gameObject.name;
-
-                profile.BakedRecipe = AssetBundleHelper.Bundle.LoadAsset<TextAsset>("Recipe_" + sourceName);
+                profile.BakedRecipe = AssetBundleHelper.Bundle.LoadAsset<TextAsset>("Recipe_" + profile.gameObject.name);
             }
 
             var resources = profile.GetResources();

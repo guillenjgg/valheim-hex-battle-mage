@@ -54,6 +54,10 @@
       <HintPath>..\..\..\bepinex_mod_libs\Jotunn.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="MagicaClothV2">
+      <HintPath>G:\SteamLibrary\steamapps\common\Valheim\Valheim_Data\Managed\MagicaClothV2.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -143,21 +147,50 @@
     <Compile Include="Core\Managers\MagicBracerProfile.cs" />
     <Compile Include="Core\Managers\MageEquipmentDefinition.cs" />
     <Compile Include="Core\Managers\MageRecipeProfile.cs" />
-    <Compile Include="Core\Managers\WandProfile.cs" />
+    <Compile Include="Core\Managers\HexBattleMageWandProfile.cs" />
     <Compile Include="Core\Managers\WandProjectileProfile.cs" />
     <Compile Include="Core\Managers\PrefabSettings.cs" />
     <Compile Include="Core\Managers\MageTableProfile.cs" />
+    <Compile Include="Core\Managers\MageEitrProfile.cs" />
+    <Compile Include="Core\Managers\TrinketManager.cs" />
+    <Compile Include="Core\Trinkets\HexBattleMageTrinketProfile.cs" />
+    <Compile Include="Core\Trinkets\TrinketSettings.cs" />
+    <Compile Include="Core\Trinkets\TrinketEffects.cs" />
+    <Compile Include="Core\Trinkets\TrinketRewardStatus.cs" />
+    <Compile Include="Patches\TrinketPatches.cs" />
+    <Compile Include="Core\Visuals\TrinketWornVisual.cs" />
     <Compile Include="Core\Visuals\MagicShieldVisual.cs" />
     <Compile Include="Core\Visuals\MagicBracerVisualController.cs" />
     <Compile Include="Patches\MagicBracerEquipmentPatches.cs" />
     <Compile Include="Patches\MagicShieldPatches.cs" />
     <Compile Include="Core\Managers\ProjectileManager.cs" />
+    <Compile Include="Core\Managers\HexBattleMageCloakProfile.cs" />
+    <Compile Include="Core\Managers\CloakManager.cs" />
+    <Compile Include="Core\Managers\ArmorManager.cs" />
+    <Compile Include="Core\Managers\HexBattleMageArmorProfile.cs" />
+    <Compile Include="Core\Managers\MageArmorStyleProfile.cs" />
+    <Compile Include="Core\Visuals\MageArmorStyleVisual.cs" />
+    <Compile Include="Core\GearTooltip.cs" />
+    <Compile Include="Core\WorldDropPhysics.cs" />
+    <Compile Include="Core\Managers\MageUpgradeProfile.cs" />
+    <Compile Include="Core\GearUpgradeRules.cs" />
+    <Compile Include="Patches\MageUpgradePatches.cs" />
+    <Compile Include="Patches\ArmorStylePatches.cs" />
+    <Compile Include="Patches\CloakAttachmentPatch.cs" />
+    <Compile Include="Patches\ArmorAttachmentPatch.cs" />
+    <Compile Include="Patches\HelmetStylePatches.cs" />
+    <Compile Include="Core\Managers\HexBattleMageCloakCollisionProfile.cs" />
+    <Compile Include="Core\Visuals\CloakCollisionGeometry.cs" />
+    <Compile Include="Core\Visuals\CloakCollisionController.cs" />
+    <Compile Include="Patches\CloakCollisionPatch.cs" />
+    <Compile Include="Patches\CloakEitrPatches.cs" />
+    <Compile Include="Core\Managers\CloakMotionSettings.cs" />
     <Compile Include="Plugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Assets\AssetBundles\hexbattlemage" />
-    <EmbeddedResource Include="Assets\Translations\English.json" />
+    <EmbeddedResource Include="Assets\Translations\*.json" />
     <None Include="CHANGELOG.md">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

@@ -6,14 +6,24 @@ namespace HexBattleMage.Core.Managers
     {
         None,
         Bracer,
-        Wand
+        Wand,
+        Trinket,
+        Cloak,
+        Helmet,
+        Chest,
+        Legs
     }
 
     public enum MageEquipmentSlot
     {
         None,
         Bracer,
-        MainHand
+        MainHand,
+        Trinket,
+        Cloak,
+        Helmet,
+        Chest,
+        Legs
     }
 
     public sealed class MageEquipmentDefinition : MonoBehaviour
@@ -23,5 +33,7 @@ namespace HexBattleMage.Core.Managers
         public bool SupportsBlocking;
         public string ProgressionTier = "Apprentice";
         public string CatalogBiome = "Meadows";
+        [Header("Dropped-item physics")]
+        public CollisionDetectionMode DropCollisionDetection = CollisionDetectionMode.ContinuousDynamic;
     }
 }

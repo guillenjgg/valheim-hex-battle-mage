@@ -8,3 +8,16 @@
 - Publicized build references do not change runtime member visibility. Use public APIs or Harmony access mechanisms for private members.
 - Consult the Valheim Modding Wiki when applicable, including its animation replacement guide, and Jotunn documentation for Jotunn APIs.
 - The local Jotunn reference is the compiled DLL at `C:\Users\Jonathan\Documents\valheim_mods\Jotunn-2.30.0\plugins\Jotunn.dll`. Inspect its compiled code when validating Jotunn behavior.
+
+## Back attachment baseline
+
+Fit new BattleMage armor as matching sets around the male/female player bodies and this mod's own authored garment prefabs. The user explicitly superseded cross-fitting to vanilla/high-tier armor on 2026-11-18. Do not inflate starter gear to accommodate unrelated armor. Preserve native skin mapping, body/world collision and working motion behavior while applying the matching-set fit settings documented in docs/MatchingSetFit.md.
+
+Before changing or creating cloak/back attachments, read `docs/Cloaks.md`, especially **Accepted baseline for future back attachments**. The user accepted the current in-game cloak on 2026-11-17. Preserve that baseline unless the requested work requires a change. Reuse its single-surface authoring, native skin/bone mapping, prefab-authored defaults, managed baked-data loading, standalone-player validation and non-blocking collision fallback as appropriate. Do not repeat the superseded motion tuning or let optional protection abort native equipment attachment.
+
+## Gear presentation
+
+- List gear perks near the top of tooltips, alongside armor/resistance, before durability, repair level, weight and crafted-by details.
+- New armor should expose cosmetic choices through the shared prefab-authored MageArmorStyleProfile. Verify native variant propagation for each equipment slot when introducing it.
+- BattleMage texture imports use maximum size 256, Read/Write enabled, Normal Quality compression, Crunch enabled and quality 100. Keep the scoped import policy and bundle validation synchronized with Unity.
+- Appearance catalogs accumulate per equipment category: later tiers retain earlier looks and add options. Keep saved variant ordering stable; cosmetic unlock tier is separate from item upgrade quality.

@@ -7,6 +7,7 @@ namespace HexBattleMage.Core.Managers
         public string BaseShieldPrefab = "ShieldWood";
         public string DisplayName = "$item_hexbattlemage_magicbracer";
         public string Description = "$item_hexbattlemage_magicbracer_description";
+        public Sprite Icon;
         public float BlockPower = 6f;
         public float BlockPowerPerQuality = 6f;
         public float BlockForce = 20f;

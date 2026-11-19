@@ -48,6 +48,7 @@ namespace HexBattleMage.Core.Managers
             }
 
             ApplyDamageSettings(itemDrop.m_itemData);
+            WorldDropPhysics.Configure(wandPrefab, PrefabSettings.Require<MageEquipmentDefinition>(wandPrefab).DropCollisionDetection);
             ApplySettings(itemDrop.m_itemData.m_shared.m_attack);
             WandTipLight.Configure(wandPrefab);
             wandPrefab.transform.Find("attach").gameObject.AddComponent<WandStyle>();
@@ -74,7 +75,7 @@ namespace HexBattleMage.Core.Managers
 
             var prefab = AssetBundleHelper.HexBattleMageWand;
             var style = prefab.GetComponentInChildren<WandStyle>();
-            var materials = PrefabSettings.Require<WandProfile>(prefab).StyleMaterials;
+            var materials = PrefabSettings.Require<HexBattleMageWandProfile>(prefab).StyleMaterials;
 
             style.ConfigureMaterials(materials);
             DebugLog.LogInfo("Apprentice wand styles configured: warm bark, dark weathered bark, and pale birch.");

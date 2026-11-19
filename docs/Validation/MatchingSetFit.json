@@ -1,0 +1,16 @@
+{
+  "Male": {
+    "upper_cloak_vertices_fitted": 3113,
+    "maximum_upper_cloak_move_m": 0.06656173273863576,
+    "sleeve_clearance_m": 0.018,
+    "hood_width_scale": 0.87,
+    "hood_depth_scale": 0.83
+  },
+  "Female": {
+    "upper_cloak_vertices_fitted": 3102,
+    "maximum_upper_cloak_move_m": 0.058278314201749636,
+    "sleeve_clearance_m": 0.018,
+    "hood_width_scale": 0.87,
+    "hood_depth_scale": 0.83
+  }
+}

@@ -9,7 +9,7 @@ using Object = UnityEngine.Object;
 [InitializeOnLoad]
 public static class WandAssetTools
 {
-    private const string PrefabPath = "Assets/_CustomItems/HexBattleMage/Wands/HexBattleMageWand/HexBattleMageWand.prefab";
+    private const string PrefabPath = "Assets/_CustomItems/HexBattleMage/Wands/Meadows/Wand_Meadows_01/HexBattleMage_Wand_Meadows_01.prefab";
     private const string MaterialDirectory = "Assets/_CustomItems/HexBattleMage/Transmogs/Wands/Apprentice/Materials";
     private const string SharedTextureDirectory = "Assets/_CustomItems/HexBattleMage/Transmogs/Wands/Shared/Textures";
     private const string RequestPath = "Temp/HexBattleMageWandValidate.request";
@@ -156,7 +156,9 @@ public static class WandAssetTools
 
         importer.sRGBTexture = false;
         importer.wrapMode = TextureWrapMode.Clamp;
-        importer.textureCompression = TextureImporterCompression.Uncompressed;
+        importer.textureCompression = TextureImporterCompression.Compressed;
+        importer.crunchedCompression = true;
+        importer.compressionQuality = 100;
         importer.SaveAndReimport();
         return AssetDatabase.LoadAssetAtPath<Texture2D>(texturePath);
     }
