@@ -1,4 +1,15 @@
 {
+  "hexbattlemage_hood_style_light_brown": "Light brown",
+  "hexbattlemage_hood_style_black_grey": "Charcoal",
+  "hexbattlemage_hood_style_grey": "Grey",
+  "hexbattlemage_hood_style_brown": "Brown",
+  "item_hexbattlemage_helmet_meadows_01": "Wayfarer Hood",
+  "item_hexbattlemage_helmet_meadows_01_description": "A plain hood for a wandering apprentice.",
+  "item_hexbattlemage_chest_meadows_01": "Wayfarer Tunic",
+  "item_hexbattlemage_chest_meadows_01_description": "A simple grey-white tunic for the road ahead.",
+  "item_hexbattlemage_legs_meadows_01": "Wayfarer Trousers",
+  "item_hexbattlemage_legs_meadows_01_description": "Plain leather trousers, worn soft by travel.",
+  "hexbattlemage_armor_style_default": "Original",
   "hexbattlemage_gear_maximum_eitr": "Maximum Eitr: <color=orange>+{0:0.#}</color>",
   "item_hexbattlemage_cloak_meadows_01": "Wayfarer Cloak",
   "item_hexbattlemage_cloak_meadows_01_description": "A plain, patched cloak wrapped close against the wind.",
@@ -62,5 +73,14 @@
   "se_hexbattlemage_wand_frost": "Frost Ward Mark",
   "se_hexbattlemage_wand_spirit": "Spirit Ward Mark",
   "se_hexbattlemage_wand_lightning": "Lightning Ward Mark",
-  "se_hexbattlemage_wand_poison": "Poison Ward Mark"
+  "se_hexbattlemage_wand_poison": "Poison Ward Mark",
+  "item_hexbattlemage_cloak_meadows_01_test01": "Wayfarer Cloak (Cloth Test)",
+  "item_hexbattlemage_cloak_meadows_01_test02": "Wayfarer Cloak (Hide Test)",
+  "item_hexbattlemage_cloak_meadows_01_texturetest_description": "A worn cloak of coarse cloth and deer hide. Texture comparison prototype.",
+  "hexbattlemage_armor_style_brown": "Brown",
+  "hexbattlemage_armor_style_white": "White",
+  "hexbattlemage_armor_style_black": "Black",
+  "hexbattlemage_style_equip_armor": "Equip or select the armor piece you want to restyle.",
+  "hexbattlemage_armor_style_applied": "Armor style: {0}",
+  "hexbattlemage_armor_style_next_craft": "Appearance selected for your next armor craft."
 }

@@ -48,6 +48,7 @@ namespace HexBattleMage.Core.Managers
             }
 
             ApplyDamageSettings(itemDrop.m_itemData);
+            WorldDropPhysics.Configure(wandPrefab, PrefabSettings.Require<MageEquipmentDefinition>(wandPrefab).DropCollisionDetection);
             ApplySettings(itemDrop.m_itemData.m_shared.m_attack);
             WandTipLight.Configure(wandPrefab);
             wandPrefab.transform.Find("attach").gameObject.AddComponent<WandStyle>();

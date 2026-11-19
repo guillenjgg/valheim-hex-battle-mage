@@ -1,0 +1,24 @@
+{
+  "Male": {
+    "pinned_collar_armor_intersections_before": 74,
+    "pinned_collar_armor_intersections_after": 0,
+    "body_intersections_before": 0,
+    "body_intersections_after": 0,
+    "self_before": 35,
+    "self_after": 35,
+    "smoothing_passes": 1,
+    "maximum_vertex_offset_m": 0.038819384425465134,
+    "lower_drape_offset_m": 0.0
+  },
+  "Female": {
+    "pinned_collar_armor_intersections_before": 8,
+    "pinned_collar_armor_intersections_after": 0,
+    "body_intersections_before": 0,
+    "body_intersections_after": 0,
+    "self_before": 14,
+    "self_after": 14,
+    "smoothing_passes": 1,
+    "maximum_vertex_offset_m": 0.05233754439177162,
+    "lower_drape_offset_m": 0.0
+  }
+}

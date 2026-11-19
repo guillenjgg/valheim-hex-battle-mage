@@ -23,13 +23,14 @@ namespace HexBattleMage.Core.Managers
         public bool ProtectBody = true;
         public CloakBodyCapsule[] BodyCapsules = new CloakBodyCapsule[0];
         public TextAsset BakedBodyCapsules;
-        public bool FitEquippedChestArmor = true;
-        [Min(0f)] public float ArmorPadding = 0.025f;
-        [Min(0f)] public float MaximumArmorExpansion = 0.12f;
+        public bool FitEquippedChestArmor = false;
+        [Min(0.02f)] public float ArmorFitInterval = 0.1f;
+        [Min(0f)] public float ArmorPadding = 0.012f;
+        [Min(0f)] public float MaximumArmorExpansion = 0.025f;
         [Header("Cloth anchors; other fabric responds to collision")]
         public int AnchorLayoutVersion;
         public float NeckAnchorHeight = 1.59f;
-        public float NeckAnchorRadius = 0.21f;
+        public float NeckAnchorRadius = 0.16f;
         public float ClaspAnchorRadius = 0.045f;
         [Header("Follow the animated player")]
         [Range(0f, 1f)] public float AnimationPoseRatio = 0.1f;
@@ -57,7 +58,7 @@ namespace HexBattleMage.Core.Managers
         [Range(0f, 1f)] public float BackstopDistance;
         [Range(0.01f, 5f)] public float MaximumTravel = 0.18f;
         [Header("Native cloth collision")]
-        [Min(0.001f)] public float ClothThickness = 0.035f;
+        [Min(0.001f)] public float ClothThickness = 0.012f;
         [Range(0f, 1f)] public float Friction = 0.2f;
 
         [DataContract]

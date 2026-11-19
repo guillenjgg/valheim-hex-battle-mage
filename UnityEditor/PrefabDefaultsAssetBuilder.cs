@@ -188,7 +188,10 @@ public static class PrefabDefaultsAssetBuilder
             piece.m_description = profile.Description;
         });
 
+        MeadowsArmorAssetBuilder.Prepare();
         TrinketAssetPreparation.PrepareAll();
+        WorldDropAssetPreparation.PrepareAll();
+        ArmorStyleAssetPreparation.PrepareAll();
         AssetDatabase.SaveAssets();
     }
 

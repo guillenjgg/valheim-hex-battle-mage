@@ -195,6 +195,7 @@ namespace HexBattleMage.Core.Managers
             authoredDefinition.Slot = definition.Slot;
             authoredDefinition.ProgressionTier = definition.ProgressionTier;
             authoredDefinition.CatalogBiome = definition.CatalogBiome;
+            authoredDefinition.DropCollisionDetection = definition.DropCollisionDetection;
 
             var model = Object.Instantiate(visual, prefab.transform, false);
 
@@ -218,6 +219,7 @@ namespace HexBattleMage.Core.Managers
 
             dropCollider.size = profile.DropColliderSize;
             dropCollider.center = profile.DropColliderCenter;
+            WorldDropPhysics.Configure(prefab, definition.DropCollisionDetection);
 
             var drop = prefab.GetComponent<ItemDrop>();
             var shared = drop.m_itemData.m_shared;

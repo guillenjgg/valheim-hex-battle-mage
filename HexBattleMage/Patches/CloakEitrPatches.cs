@@ -28,7 +28,7 @@ namespace HexBattleMage.Patches
                 return;
             }
 
-            if (item.m_dropPrefab.GetComponent<HexBattleMageCloakProfile>() == null)
+            if (item.m_dropPrefab.GetComponent<HexBattleMageCloakProfile>() == null && item.m_dropPrefab.GetComponent<HexBattleMageArmorProfile>() == null)
             {
                 return;
             }
@@ -47,7 +47,7 @@ namespace HexBattleMage.Patches
                 return;
             }
 
-            if (item.m_dropPrefab.GetComponent<HexBattleMageCloakProfile>() == null)
+            if (item.m_dropPrefab.GetComponent<HexBattleMageCloakProfile>() == null && item.m_dropPrefab.GetComponent<HexBattleMageArmorProfile>() == null)
             {
                 return;
             }
@@ -57,16 +57,16 @@ namespace HexBattleMage.Patches
     }
 
     [HarmonyPatch(typeof(ItemDrop.ItemData), nameof(ItemDrop.ItemData.GetTooltip), new[] { typeof(ItemDrop.ItemData), typeof(int), typeof(bool), typeof(float), typeof(int), typeof(bool) })]
-    internal static class CloakEitrTooltipPatch
+    internal static class MageGearTooltipPatch
     {
-        private static void Postfix(ItemDrop.ItemData item, ref string __result)
+        private static void Postfix(ItemDrop.ItemData item, int qualityLevel, ref string __result)
         {
             if (item?.m_dropPrefab == null)
             {
                 return;
             }
 
-            if (item.m_dropPrefab.GetComponent<HexBattleMageCloakProfile>() == null)
+            if (item.m_dropPrefab.GetComponent<HexBattleMageTrinketProfile>() != null)
             {
                 return;
             }
@@ -78,7 +78,7 @@ namespace HexBattleMage.Patches
                 return;
             }
 
-            __result += "\n" + ModLocalization.Format("$hexbattlemage_gear_maximum_eitr", Mathf.Max(0f, eitr.MaximumEitr));
+            __result = GearTooltip.InsertPerks(item, __result, ModLocalization.Format("$hexbattlemage_gear_maximum_eitr", eitr.GetMaximumEitr(qualityLevel)));
         }
     }
 }

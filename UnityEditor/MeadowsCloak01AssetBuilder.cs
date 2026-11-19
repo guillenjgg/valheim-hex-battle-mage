@@ -101,7 +101,7 @@ public static class MeadowsCloak01AssetBuilder
 
             importer.textureType = path.Contains("Normal") ? TextureImporterType.NormalMap : TextureImporterType.Default;
             importer.sRGBTexture = path.Contains("BaseColor");
-            importer.maxTextureSize = 1024;
+            importer.maxTextureSize = 256;
             importer.SaveAndReimport();
         }
     }
@@ -121,13 +121,19 @@ public static class MeadowsCloak01AssetBuilder
         material = new Material(shader) { name = name };
         material.color = metal ? new Color(0.13f, 0.14f, 0.14f) : Color.white;
         material.SetFloat("_Metallic", metal ? 0.7f : 0f);
-        material.SetFloat("_Glossiness", metal ? 0.25f : 0.08f);
+        material.SetFloat("_Glossiness", metal ? 0.25f : 0f);
 
         if (!metal)
         {
             material.mainTexture = AssetDatabase.LoadAssetAtPath<Texture2D>(Root + "/Textures/Cloak_Meadows_01_BaseColor.png");
             material.SetTexture("_BumpMap", AssetDatabase.LoadAssetAtPath<Texture2D>(Root + "/Textures/Cloak_Meadows_01_Normal.png"));
-            material.SetFloat("_BumpScale", 0.35f);
+            material.SetFloat("_BumpScale", 0.1f);
+            material.SetFloat("_AddRain", 0f);
+            material.SetFloat("_ValueNoise", 0f);
+            material.SetFloat("_ValueNoiseVertex", 0f);
+            material.SetFloat("_MetallicAlphaGloss", 0f);
+            material.SetColor("_MetalColor", Color.black);
+            material.DisableKeyword("_ADDRAIN_ON");
         }
 
         AssetDatabase.CreateAsset(material, path);

@@ -1,5 +1,7 @@
 # Asset bundle workflow
 
+The Meadows hood/chest/legs definitions and their preserving builder are documented in [MeadowsArmor.md](MeadowsArmor.md). They are included in the hexbattlemage bundle; native item hierarchies are cloned through Jotunn at runtime.
+
 See [PrefabSettings.md](PrefabSettings.md) for the current component map, override precedence and preservation-safe build command. Wand, projectile, bracer, elemental and Mage Table defaults have been migrated to inspectable authored profiles.
 
 ## Prefab authoring policy
@@ -76,3 +78,15 @@ MagicBracerProfile on HexMagicBracerVisual stores the editable ShieldWood baseli
 ## Equipment definitions
 
 MageEquipmentDefinition is a separate data component on HexMagicBracerVisual. Category = Bracer and Slot = Bracer identify wearable bracers; SupportsBlocking enables the shield role. Registration copies the definition onto the registered ItemDrop root so saved inventory items resolve it through their drop prefab. Equipment checks use these fields instead of an exact prefab name. Names and existing saved equipment flags remain unchanged. An item without this definition is not treated as a custom bracer. Disabling SupportsBlocking removes its shield stance, blocker and shield tooltip while retaining its wearable slot and visible cuff. MagicBracerProfile remains the separate source of shield numbers. The asset builder preserves both components' authored values. Both scripts must be mirrored into the Unity HexBattleMage runtime assembly.
+
+## Texture import policy
+
+HexBattleMageTexturePolicy applies automatically to new, changed and duplicated TextureImporter assets beneath `Assets/_CustomItems/HexBattleMage/`. It uses Automatic format, Normal Quality compression, Crunch enabled and compression quality 100, including active Standalone overrides. Maximum texture size is 256 and texture Read/Write is enabled, as requested. Texture types, color-space settings, alpha settings, mipmaps and wrap/filter settings are preserved. This policy does not affect readable cloak meshes, which the skinning/cloth workflow still needs.
+
+Use **HexBattleMage > Compress Authored Textures** to apply it to existing textures. The standard bundle dependency validation rejects noncompliant authored texture settings. The wand emission builder no longer explicitly requests Uncompressed. Keep the policy, bundle validator and builders mirrored under Assets/Editor in HexModsUnityProject.
+
+The 2026-11-18 audit covered 38 imports. Production-sized textures imported as DXT1Crunched/DXT5Crunched, including transparent icons. Unity retains RGB24 for the unused archived 2x2 TipGlowWhite constant despite compressed import settings; it is below the normal block-compression dimensions. Its pixels were not enlarged or altered. Source image files were preserved; compression applies to imported assets and bundle output. The subsequent user-requested update sets every texture maximum to 256 and enables Read/Write, including both test albedos. Bundle and Dev DLL were rebuilt and installed. Imported format/size/readability results are recorded in the shared workspace's texture-compression-audit.tsv.
+
+Gear drop physics: MageEquipmentDefinition authors continuous collision detection. Custom armor profiles author fitted world-drop collider dimensions; registration adds solid colliders after replacing native visuals. Worn visual meshes do not receive drop colliders. Nine gear drops passed an isolated Unity physics test onto solid ground at 12 m/s. This does not establish that every world geometry edge case is impossible.
+
+GearIconAssetBuilder renders transparent 256px inventory icons from authored world models, preserving existing icon files on rebuild. Bracer/trinket renders face their rune engraving. Imports retain Read/Write and Crunch compression. Approved wand and native leg icons remain unchanged.

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection.Emit;
 using HarmonyLib;
+using HexBattleMage.Core;
 using HexBattleMage.Core.Managers;
 using HexBattleMage.Core.Trinkets;
 
@@ -147,7 +148,7 @@ namespace HexBattleMage.Patches
 
             if (profile != null)
             {
-                __result += TrinketEffects.Tooltip(profile);
+                __result = GearTooltip.InsertPerks(item, __result, TrinketEffects.Tooltip(profile));
             }
         }
     }

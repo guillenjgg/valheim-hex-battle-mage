@@ -156,7 +156,9 @@ public static class WandAssetTools
 
         importer.sRGBTexture = false;
         importer.wrapMode = TextureWrapMode.Clamp;
-        importer.textureCompression = TextureImporterCompression.Uncompressed;
+        importer.textureCompression = TextureImporterCompression.Compressed;
+        importer.crunchedCompression = true;
+        importer.compressionQuality = 100;
         importer.SaveAndReimport();
         return AssetDatabase.LoadAssetAtPath<Texture2D>(texturePath);
     }

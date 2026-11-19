@@ -39,7 +39,7 @@ namespace HexBattleMage.Core.Trinkets
 
                 if (trinket == null)
                 {
-                    total += Mathf.Max(0f, regeneration ? profile.RegenerationModifier : profile.MaximumEitr);
+                    total += Mathf.Max(0f, regeneration ? profile.RegenerationModifier : profile.GetMaximumEitr(item.m_quality));
                     continue;
                 }
 

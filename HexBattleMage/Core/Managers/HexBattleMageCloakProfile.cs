@@ -18,12 +18,13 @@ namespace HexBattleMage.Core.Managers
         public Vector3 DropColliderSize = new Vector3(0.25f, 0.4f, 0.18f);
         [Header("Item stats")]
         public float Weight = 4f;
-        public int MaximumQuality = 1;
+        public int MaximumQuality = 3;
         public float Armor = 2f;
-        public float ArmorPerQuality;
+        public float ArmorPerQuality = 1f;
         public bool UseDurability = true;
         public float Durability = 400f;
         public float DurabilityPerQuality;
         public float MovementModifier;
+        public bool FrostResistance;
     }
 }

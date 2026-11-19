@@ -209,6 +209,7 @@ namespace HexBattleMage.Core.Managers
             definition.Category = sourceDefinition.Category;
             definition.Slot = sourceDefinition.Slot;
             definition.SupportsBlocking = sourceDefinition.SupportsBlocking;
+            definition.DropCollisionDetection = sourceDefinition.DropCollisionDetection;
             definition.ProgressionTier = sourceDefinition.ProgressionTier;
             definition.CatalogBiome = sourceDefinition.CatalogBiome;
 
@@ -220,6 +221,7 @@ namespace HexBattleMage.Core.Managers
             var collider = prefab.AddComponent<BoxCollider>();
 
             collider.size = profile.DropColliderSize;
+            WorldDropPhysics.Configure(prefab, sourceDefinition.DropCollisionDetection);
 
             var itemDrop = prefab.GetComponent<ItemDrop>();
             var shared = itemDrop.m_itemData.m_shared;
@@ -250,7 +252,7 @@ namespace HexBattleMage.Core.Managers
             }
             itemDrop.m_itemData.m_variant = 0;
 
-            var icon = AssetBundleHelper.Bundle.LoadAsset<Sprite>("MagicBracerIcon");
+            var icon = profile.Icon;
 
             if (icon != null)
             {

@@ -211,6 +211,8 @@ public static class HexBattleMageBundlePolicy
     {
         string[] roots = AssetDatabase.GetAssetPathsFromAssetBundle(BundleName);
         string[] dependencies = AssetDatabase.GetDependencies(roots, true);
+
+        HexBattleMageTexturePolicy.Validate(dependencies);
         var forbidden = dependencies.Where(IsCopiedGameAsset).ToArray();
 
         if (forbidden.Length > 0)

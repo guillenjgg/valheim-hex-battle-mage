@@ -67,10 +67,46 @@ public sealed class CloakLoadPlayer : MonoBehaviour
                     expanded++;
                 }
             }
-            if (expanded == 0)
+            if (expanded != 0)
             {
-                throw new InvalidOperationException("Equipped Ashlands armor did not contribute to collision volumes.");
+                throw new InvalidOperationException("Own-set fitting must not inflate colliders for unrelated armor.");
             }
+            var poseRadii = new float[capsules.Count];
+
+            for (int index = 0; index < capsules.Count; index++)
+            {
+                poseRadii[index] = (float)capsules[index].GetType().GetField("Radius", flags).GetValue(capsules[index]);
+            }
+
+            armor.transform.position += new Vector3(0f, 0f, -0.04f);
+            controllerType.GetMethod("FitChestArmorPose", flags).Invoke(controller, new object[] { false });
+
+            for (int index = 0; index < capsules.Count; index++)
+            {
+                float radius = (float)capsules[index].GetType().GetField("Radius", flags).GetValue(capsules[index]);
+
+                if (radius + 0.001f < poseRadii[index])
+                {
+                    throw new InvalidOperationException("Pose refresh shrank the armor envelope while equipment was unchanged.");
+                }
+            }
+
+            var first = capsules[0];
+            var bodyType = first.GetType();
+            var collider = (MagicaCapsuleCollider)bodyType.GetField("Collider", flags).GetValue(first);
+            float newRadius = (float)bodyType.GetField("Radius", flags).GetValue(first) + 0.01f;
+            var startBone = (Transform)bodyType.GetField("Start", flags).GetValue(first);
+            var endBone = (Transform)bodyType.GetField("End", flags).GetValue(first);
+
+            bodyType.GetField("Radius", flags).SetValue(first, newRadius);
+            bodyType.GetField("Length", flags).SetValue(first, Vector3.Distance(startBone.position, endBone.position) + newRadius * 2f);
+            controllerType.GetMethod("UpdateBody", flags).Invoke(controller, null);
+
+            if (Mathf.Abs(collider.GetSize().x - newRadius) > 0.001f)
+            {
+                throw new InvalidOperationException("Changing radius with constant cached length did not update native collider parameters.");
+            }
+
             typeof(VisEquipment).GetField("m_chestItemInstances", flags).SetValue(equipment, null);
             controllerType.GetMethod("FitChestArmor", flags).Invoke(controller, null);
             foreach (var capsule in capsules)
@@ -97,6 +133,11 @@ public sealed class CloakLoadPlayer : MonoBehaviour
                     movableBack++;
                 }
             }
+            if (profile.AnchorLayoutVersion != 2 || profile.NeckAnchorRadius > 0.161f || profile.FitEquippedChestArmor || profile.ArmorPadding > 0.013f || profile.ClothThickness > 0.013f || profile.ArmorFitInterval > 0.101f)
+            {
+                throw new InvalidOperationException("Updated movement/shoulder-clearance defaults were not baked.");
+            }
+
             if (fixedCount == 0 || movableBack == 0)
             {
                 throw new InvalidOperationException("Neck anchors and collision-responsive upper fabric are both required.");
@@ -125,7 +166,7 @@ public sealed class CloakLoadPlayer : MonoBehaviour
                     throw new InvalidOperationException("Body data recovery failed in the actual player runtime.");
                 }
             }
-            File.WriteAllText(report, "PASS: standalone Unity player, actual compiled mod and production bundle, both body profiles restored 14 authored capsules with inline data removed. Managed serializer succeeds outside the Editor. Ashlands chest geometry fits protection volumes from an unreadable source mesh; removal restores body radii; shoulder vertices are movable while anchors remain fixed. Native damping curve conversion verified (0.16 at anchors and 0.02 at the hem); reduced depth-weighted wind is baked.");
+            File.WriteAllText(report, "PASS: standalone Unity player, actual compiled mod and production bundle, both body profiles restored 14 authored capsules with inline data removed. Managed serializer succeeds outside the Editor. Own-set protection volumes remain unchanged by unrelated unreadable chest geometry; removal restores body radii; shoulder vertices are movable while anchors remain fixed. Native damping curve conversion verified (0.16 at anchors and 0.02 at the hem); reduced depth-weighted wind is baked.");
             Application.Quit(0);
         }
         catch (Exception exception)

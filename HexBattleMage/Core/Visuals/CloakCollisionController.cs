@@ -17,6 +17,11 @@ namespace HexBattleMage.Core.Visuals
             internal MagicaCapsuleCollider Collider;
             internal float Length;
             internal float Radius;
+            internal float AppliedRadius;
+            internal Vector3 FitStart;
+            internal Vector3 FitSegment;
+            internal float FitInverseSquaredLength;
+            internal float FitLimit;
 
         }
 
@@ -48,6 +53,7 @@ namespace HexBattleMage.Core.Visuals
         private Collider[] _nearby;
         private Vector3Int _grid;
         private float _nextProbe;
+        private float _nextArmorFit;
 
         internal void Configure(VisEquipment equipment, HexBattleMageCloakCollisionProfile profile)
         {
@@ -163,7 +169,7 @@ namespace HexBattleMage.Core.Visuals
             FitChestArmor();
             UpdateBody();
             RefreshSurfaces();
-            Plugin.Log?.LogInfo($"Cloak protection configured: body shapes={_body.Count}; surface probes={_surfaces.Count}; animation follow={profile.AnimationPoseRatio}.");
+            Plugin.Log?.LogInfo($"Cloak protection configured: body shapes={_body.Count}; surface probes={_surfaces.Count}; animation follow={profile.AnimationPoseRatio}; armor padding={profile.ArmorPadding}m; armor fit interval={profile.ArmorFitInterval}s; neck anchor radius={profile.NeckAnchorRadius}m.");
         }
 
         private GameObject CreateHelper(string name)
@@ -190,6 +196,7 @@ namespace HexBattleMage.Core.Visuals
             }
 
             NormalizeScale();
+
             if (_equipment != null && !ReferenceEquals(_chestInstances, ReadChestInstances(_equipment)))
             {
                 FitChestArmor();
@@ -206,6 +213,13 @@ namespace HexBattleMage.Core.Visuals
 
                 _nextProbe = 0f;
                 return;
+            }
+
+            if (Time.unscaledTime >= _nextArmorFit)
+            {
+                FitChestArmorPose(false);
+                UpdateBody();
+                _nextArmorFit = Time.unscaledTime + Mathf.Max(0.02f, _profile.ArmorFitInterval);
             }
 
             if (Time.unscaledTime >= _nextProbe)
@@ -240,10 +254,19 @@ namespace HexBattleMage.Core.Visuals
         private void FitChestArmor()
         {
             _chestInstances = ReadChestInstances(_equipment);
+            FitChestArmorPose(true);
+            _nextArmorFit = Time.unscaledTime + Mathf.Max(0.02f, _profile.ArmorFitInterval);
+        }
 
-            foreach (var body in _body)
+        private void FitChestArmorPose(bool reset)
+        {
+            // Retain the largest pose envelope until armor changes, avoiding pulsing cloth.
+            if (reset || !_profile.FitEquippedChestArmor || _chestInstances == null)
             {
-                body.Radius = body.Definition.Radius;
+                foreach (var body in _body)
+                {
+                    body.Radius = body.Definition.Radius;
+                }
             }
 
             if (!_profile.FitEquippedChestArmor)
@@ -255,6 +278,16 @@ namespace HexBattleMage.Core.Visuals
             {
                 return;
             }
+
+            foreach (var body in _body)
+            {
+                body.FitStart = body.Start.position + CharacterOffset(body.Definition.StartOffset);
+                body.FitSegment = body.End.position + CharacterOffset(body.Definition.EndOffset) - body.FitStart;
+                body.FitInverseSquaredLength = 1f / Mathf.Max(body.FitSegment.sqrMagnitude, MinimumLength);
+                body.FitLimit = body.Definition.Radius + Mathf.Max(0f, _profile.MaximumArmorExpansion);
+            }
+
+            float padding = Mathf.Max(0f, _profile.ArmorPadding);
 
             foreach (var instance in _chestInstances)
             {
@@ -272,29 +305,23 @@ namespace HexBattleMage.Core.Visuals
 
                     armor.BakeMesh(_armorMesh);
                     _armorMesh.GetVertices(_armorVertices);
-
-
+                    var matrix = armor.localToWorldMatrix;
 
                     for (int index = 0; index < _armorVertices.Count; index++)
                     {
-                        Vector3 position = armor.transform.TransformPoint(_armorVertices[index]);
-
+                        Vector3 position = matrix.MultiplyPoint3x4(_armorVertices[index]);
 
                         foreach (var body in _body)
                         {
-                            Vector3 start = body.Start.position + CharacterOffset(body.Definition.StartOffset);
-                            Vector3 end = body.End.position + CharacterOffset(body.Definition.EndOffset);
-                            Vector3 segment = end - start;
-                            float along = Mathf.Clamp01(Vector3.Dot(position - start, segment) / Mathf.Max(segment.sqrMagnitude, MinimumLength));
-                            float distance = Vector3.Distance(position, start + segment * along);
-                            float limit = body.Definition.Radius + Mathf.Max(0f, _profile.MaximumArmorExpansion);
+                            float along = Mathf.Clamp01(Vector3.Dot(position - body.FitStart, body.FitSegment) * body.FitInverseSquaredLength);
+                            float distance = Vector3.Distance(position, body.FitStart + body.FitSegment * along);
 
-                            if (distance > limit)
+                            if (distance > body.FitLimit)
                             {
                                 continue;
                             }
 
-                            body.Radius = Mathf.Max(body.Radius, Mathf.Min(limit, distance + Mathf.Max(0f, _profile.ArmorPadding)));
+                            body.Radius = Mathf.Max(body.Radius, Mathf.Min(body.FitLimit, distance + padding));
                         }
                     }
                 }
@@ -320,11 +347,12 @@ namespace HexBattleMage.Core.Visuals
 
                 body.Collider.transform.SetPositionAndRotation((start + end) * 0.5f, direction.sqrMagnitude > MinimumLength * MinimumLength ? Quaternion.FromToRotation(Vector3.up, direction) : Quaternion.identity);
 
-                if (Mathf.Abs(length - body.Length) > MinimumLength)
+                if (Mathf.Abs(length - body.Length) > MinimumLength || Mathf.Abs(radius - body.AppliedRadius) > MinimumLength)
                 {
                     body.Collider.SetSize(radius, radius, length);
                     body.Collider.UpdateParameters();
                     body.Length = length;
+                    body.AppliedRadius = radius;
                 }
             }
         }

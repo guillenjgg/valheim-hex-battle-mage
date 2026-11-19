@@ -1,6 +1,9 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using HarmonyLib;
 using HexBattleMage.Assets;
+using HexBattleMage.Core.Visuals;
 using Jotunn.Configs;
 using Jotunn.Entities;
 using Jotunn.Managers;
@@ -23,20 +26,23 @@ namespace HexBattleMage.Core.Managers
         internal static void Shutdown()
         {
             PrefabManager.OnVanillaPrefabsAvailable -= Register;
+            GearUpgradeRules.Clear();
         }
 
         private static void Register()
         {
             PrefabManager.OnVanillaPrefabsAvailable -= Register;
 
-            var visual = AssetBundleHelper.Bundle.LoadAsset<GameObject>("HexBattleMage_Cloak_Meadows_01");
+            var visuals = AssetBundleHelper.Bundle.LoadAllAssets<GameObject>().Where(prefab => prefab.GetComponent<HexBattleMageCloakProfile>() != null).OrderBy(prefab => prefab.name).ToArray();
 
-            if (visual == null)
+            foreach (var visual in visuals)
             {
-                DebugLog.LogError("Cloak visual is missing from the hexbattlemage bundle.");
-                return;
+                RegisterCloak(visual);
             }
+        }
 
+        private static void RegisterCloak(GameObject visual)
+        {
             var profile = PrefabSettings.Require<HexBattleMageCloakProfile>(visual);
             var recipe = PrefabSettings.Require<MageRecipeProfile>(visual);
             var eitr = PrefabSettings.Require<MageEitrProfile>(visual);
@@ -80,7 +86,18 @@ namespace HexBattleMage.Core.Managers
             var authoredEitr = prefab.AddComponent<MageEitrProfile>();
 
             authoredEitr.MaximumEitr = eitr.MaximumEitr;
+            authoredEitr.MaximumEitrPerQuality = eitr.MaximumEitrPerQuality;
             authoredEitr.RegenerationModifier = eitr.RegenerationModifier;
+
+            var upgrades = visual.GetComponent<MageUpgradeProfile>();
+
+            if (upgrades != null)
+            {
+                var registeredUpgrades = prefab.AddComponent<MageUpgradeProfile>();
+
+                registeredUpgrades.RequiredStationLevel = upgrades.RequiredStationLevel;
+                registeredUpgrades.FixedResourceCosts = upgrades.FixedResourceCosts;
+            }
 
             var equipmentDefinition = prefab.AddComponent<MageEquipmentDefinition>();
 
@@ -88,6 +105,7 @@ namespace HexBattleMage.Core.Managers
             equipmentDefinition.Slot = definition.Slot;
             equipmentDefinition.ProgressionTier = definition.ProgressionTier;
             equipmentDefinition.CatalogBiome = definition.CatalogBiome;
+            equipmentDefinition.DropCollisionDetection = definition.DropCollisionDetection;
 
             // Keep both fits inside the registered prefab so Jotunn resolves all material mocks.
             var sources = new GameObject("BodyFits");
@@ -104,10 +122,34 @@ namespace HexBattleMage.Core.Managers
             model.name = "model";
             model.SetActive(true);
 
+            var styleSource = visual.GetComponent<MageArmorStyleProfile>();
+            var bakedStyles = AssetBundleHelper.Bundle.LoadAsset<TextAsset>("Styles_" + profile.ItemPrefabName);
+            MageArmorStyleProfile styles = null;
+
+            if (styleSource != null || bakedStyles != null)
+            {
+                styles = prefab.AddComponent<MageArmorStyleProfile>();
+                styles.RendererName = styleSource != null ? styleSource.RendererName : string.Empty;
+                styles.Styles = styleSource != null ? styleSource.Styles : new MageArmorStyle[0];
+                styles.BakedStyles = styleSource != null && styleSource.BakedStyles != null ? styleSource.BakedStyles : bakedStyles;
+                styles.ApplyBakedDefaults(AssetBundleHelper.Bundle);
+
+                if (styles.Styles.Length > 0)
+                {
+                    foreach (var fit in new[] { authored.MaleVisual, authored.FemaleVisual })
+                    {
+                        fit.transform.Find("attach_skin").gameObject.AddComponent<MageArmorStyleVisual>().Configure(styles);
+                    }
+
+                    model.AddComponent<MageArmorStyleVisual>().Configure(styles);
+                }
+            }
+
             var dropCollider = prefab.AddComponent<BoxCollider>();
 
             dropCollider.center = profile.DropColliderCenter;
             dropCollider.size = profile.DropColliderSize;
+            WorldDropPhysics.Configure(prefab, definition.DropCollisionDetection);
 
             var drop = prefab.GetComponent<ItemDrop>();
             var shared = drop.m_itemData.m_shared;
@@ -116,7 +158,8 @@ namespace HexBattleMage.Core.Managers
             shared.m_name = profile.DisplayName;
             shared.m_description = profile.Description;
             shared.m_itemType = ItemDrop.ItemData.ItemType.Shoulder;
-            shared.m_icons = new[] { profile.Icon };
+            shared.m_variants = styles != null && styles.Styles.Length > 0 ? styles.Styles.Length : 1;
+            shared.m_icons = styles != null && styles.Styles.Length > 0 ? styles.Styles.Select(style => style.Icon != null ? style.Icon : profile.Icon).ToArray() : new[] { profile.Icon };
             shared.m_weight = profile.Weight;
             shared.m_maxQuality = profile.MaximumQuality;
             shared.m_maxStackSize = 1;
@@ -126,27 +169,44 @@ namespace HexBattleMage.Core.Managers
             shared.m_maxDurability = profile.Durability;
             shared.m_durabilityPerLevel = profile.DurabilityPerQuality;
             shared.m_movementModifier = profile.MovementModifier;
+            shared.m_damageModifiers = new List<HitData.DamageModPair>();
+
+            if (profile.FrostResistance)
+            {
+                shared.m_damageModifiers.Add(new HitData.DamageModPair { m_type = HitData.DamageType.Frost, m_modifier = HitData.DamageModifier.Resistant });
+            }
+
             shared.m_equipStatusEffect = null;
             shared.m_setStatusEffect = null;
             drop.m_itemData.m_durability = profile.Durability;
 
+            var requirements = PrefabSettings.GetRequirements(recipe);
             var config = new ItemConfig
             {
                 CraftingStation = recipe.CraftingStation,
                 RepairStation = recipe.RepairStation,
                 MinStationLevel = recipe.MinimumStationLevel,
                 Amount = recipe.Amount,
-                Requirements = PrefabSettings.GetRequirements(recipe)
+                Requirements = requirements
             };
-            var item = new CustomItem(prefab, true, config);
+            var item = requirements.Length > 0 ? new CustomItem(prefab, true, config) : new CustomItem(prefab, true);
 
             if (!ItemManager.Instance.AddItem(item))
             {
                 throw new InvalidOperationException("Could not register cloak: " + profile.ItemPrefabName);
             }
 
-            MageEquipmentCatalog.Register(item.ItemDrop, item.Recipe.Recipe, (Heightmap.Biome)Enum.Parse(typeof(Heightmap.Biome), definition.CatalogBiome));
-            DebugLog.LogInfo("Cloak registered: " + profile.ItemPrefabName + "; native cape slot; male/female fits; authored Mage Table recipe.");
+            if (item.Recipe != null)
+            {
+                if (upgrades != null)
+                {
+                    GearUpgradeRules.Register(item.Recipe.Recipe, prefab.GetComponent<MageUpgradeProfile>());
+                }
+
+                MageEquipmentCatalog.Register(item.ItemDrop, item.Recipe.Recipe, (Heightmap.Biome)Enum.Parse(typeof(Heightmap.Biome), definition.CatalogBiome));
+            }
+
+            DebugLog.LogInfo("Cloak registered: " + profile.ItemPrefabName + "; native cape slot; male/female fits; styles=" + shared.m_variants + "; max quality=" + shared.m_maxQuality + "; authored recipe resources: " + requirements.Length + ".");
         }
 
         internal static GameObject ResolveArmorPrefab(GameObject prefab, VisEquipment equipment)

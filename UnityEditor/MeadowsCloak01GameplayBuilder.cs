@@ -49,6 +49,7 @@ public static class MeadowsCloak01GameplayBuilder
             if (profile == null)
             {
                 profile = prefab.AddComponent<HexBattleMageCloakProfile>();
+                profile.FrostResistance = true;
             }
 
             if (prefab.GetComponent<MageEitrProfile>() == null)
@@ -56,6 +57,7 @@ public static class MeadowsCloak01GameplayBuilder
                 var eitr = prefab.AddComponent<MageEitrProfile>();
 
                 eitr.MaximumEitr = 5f;
+                eitr.MaximumEitrPerQuality = 1f;
                 eitr.RegenerationModifier = 0f;
             }
 
@@ -79,6 +81,14 @@ public static class MeadowsCloak01GameplayBuilder
                 profile.Icon = PrepareIcon(profile.WorldModel);
             }
 
+            if (prefab.GetComponent<MageUpgradeProfile>() == null)
+            {
+                var upgrades = prefab.AddComponent<MageUpgradeProfile>();
+
+                upgrades.RequiredStationLevel = 3;
+                upgrades.FixedResourceCosts = true;
+            }
+
             if (prefab.GetComponent<MageEquipmentDefinition>() == null)
             {
                 var definition = prefab.AddComponent<MageEquipmentDefinition>();
@@ -94,8 +104,9 @@ public static class MeadowsCloak01GameplayBuilder
                 recipe = prefab.AddComponent<MageRecipeProfile>();
                 recipe.Resources = new[]
                 {
-                    new MageRecipeResource { ItemPrefab = "LeatherScraps", Amount = 6 },
-                    new MageRecipeResource { ItemPrefab = "DeerHide", Amount = 4 }
+                    new MageRecipeResource { ItemPrefab = "LeatherScraps", Amount = 6, AmountPerQuality = 3 },
+                    new MageRecipeResource { ItemPrefab = "DeerHide", Amount = 4, AmountPerQuality = 2 },
+                    new MageRecipeResource { ItemPrefab = "Resin", Amount = 5, AmountPerQuality = 2 }
                 };
             }
 
