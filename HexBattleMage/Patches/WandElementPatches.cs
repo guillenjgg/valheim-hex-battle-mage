@@ -27,7 +27,7 @@ namespace HexBattleMage.Patches
 
         private static void Prefix(HitData hit)
         {
-            if (!WandElementManager.TryGetElement(hit.m_statusEffectHash, out var element))
+            if (!WandElementManager.IsWandElementHash(hit.m_statusEffectHash))
             {
                 return;
             }
@@ -77,7 +77,7 @@ namespace HexBattleMage.Patches
 
         internal static void ApplyElement(Character character, float damage, short variant, HitData originalHit, WandElement element)
         {
-            if (!WandElementManager.TryGetElement(originalHit.m_statusEffectHash, out var selected))
+            if (!WandElementManager.IsWandElementHash(originalHit.m_statusEffectHash))
             {
                 NativeEffects[element](character, damage, variant);
                 return;

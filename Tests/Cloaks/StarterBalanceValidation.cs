@@ -32,7 +32,7 @@ public static class StarterBalanceValidation
         try
         {
             PlayerTextLocalizationValidation.InitializeForTests(harmony);
-            ValidateWand(bundle);
+            ValidateWand(bundle, root);
             ValidateRecipe(bundle);
             ValidateVitals(bundle, root, harmony);
             File.WriteAllText(Path.Combine(Path.GetDirectoryName(Application.dataPath), "starter-balance-report.txt"), "PASS: baked four-resource trinket recipe; native wand damage at qualities 1-4 is 5/5/15, 6/6/17, 7/7/19, 8/8/21; physical quality tuning survives element changes; native food totals, equip/unequip, replacement and clamping verify +6 flat armor health and +5 cloak stamina, no quality scaling, no refill exploit, food stacking and retained Eitr. World/network/visual bootstrap are fixtures.");
@@ -46,7 +46,7 @@ public static class StarterBalanceValidation
         }
     }
 
-    private static void ValidateWand(AssetBundle bundle)
+    private static void ValidateWand(AssetBundle bundle, GameObject root)
     {
         var wand = bundle.LoadAsset<GameObject>("HexBattleMage_Wand_Meadows_01");
         var helper = Mod.GetType("HexBattleMage.Assets.AssetBundleHelper");
@@ -70,6 +70,19 @@ public static class StarterBalanceValidation
         var apply = Mod.GetType("HexBattleMage.Core.Managers.ItemRegistrationManager").GetMethod("ApplyDamageSettings", Members);
         var item = wand.GetComponent<ItemDrop>().m_itemData;
 
+        item.m_dropPrefab = wand;
+        var playerObject = new GameObject("Wand balance player");
+
+        playerObject.SetActive(false);
+        playerObject.transform.SetParent(root.transform, false);
+        var player = playerObject.AddComponent<TrinketValidationPlayer>();
+
+        player.m_customData = new Dictionary<string, string>
+        {
+            { "HexBattleMage.Attunements.Learned.Fire", "1" },
+            { "HexBattleMage.Attunements.Active", "1" }
+        };
+        Player.m_localPlayer = player;
         Check(item.m_shared.m_maxQuality == 4, "The first wand permits three upgrades.");
         apply.Invoke(null, new object[] { item });
 
@@ -84,6 +97,7 @@ public static class StarterBalanceValidation
         bluntQuality.Value = 2f;
         pierceQuality.Value = 3f;
         apply.Invoke(null, new object[] { item });
+        ((ConfigEntry<bool>)elements.GetProperty("BypassAttunements", Members).GetValue(null)).Value = true;
         ((ConfigEntry<WandElement>)elements.GetProperty("ActiveElement", Members).GetValue(null)).Value = WandElement.Frost;
         elements.GetMethod("ApplyToItem", Members).Invoke(null, new object[] { item });
         Check(item.m_shared.m_damagesPerLevel.m_blunt == 2f && item.m_shared.m_damagesPerLevel.m_pierce == 3f, "Attunement preserves tuned physical upgrades.");

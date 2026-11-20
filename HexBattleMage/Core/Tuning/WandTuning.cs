@@ -22,6 +22,8 @@ namespace HexBattleMage.Core.Tuning
         {
             var wand = PrefabSettings.Require<HexBattleMageWandProfile>(prefab);
 
+            wand.WeaponSkill = Skills.SkillType.Clubs;
+            wand.SkillGain = 1f;
             wand.WandBluntDamage = 5f;
             wand.WandPierceDamage = 5f;
             wand.WandBluntDamagePerQuality = 1f;
@@ -30,26 +32,45 @@ namespace HexBattleMage.Core.Tuning
             var item = PrefabSettings.Require<ItemDrop>(prefab).m_itemData.m_shared;
 
             item.m_maxQuality = 4;
+            item.m_skillType = wand.WeaponSkill;
 
             var upgrades = PrefabSettings.Require<MageUpgradeProfile>(prefab);
             var recipe = PrefabSettings.Require<MageRecipeProfile>(prefab);
 
             upgrades.FixedResourceCosts = true;
             upgrades.UseFixedStationLevel = false;
+            recipe.CraftingStation = string.Empty;
+            recipe.RepairStation = RuneBlockManager.PrefabName;
             recipe.Resources = new[]
             {
-                new MageRecipeResource { ItemPrefab = "Wood", Amount = 20, AmountPerQuality = 10 },
-                new MageRecipeResource { ItemPrefab = "Resin", Amount = 2, AmountPerQuality = 1 }
+                new MageRecipeResource { ItemPrefab = "Wood", Amount = 10, AmountPerQuality = 5 },
+                new MageRecipeResource { ItemPrefab = "Stone", Amount = 2, AmountPerQuality = 1 }
             };
+
+            recipe.MinimumStationLevel = 1;
+            ConfigureUpgrades(wand);
 
             foreach (var element in wand.Elements)
             {
-                if (element.Element == WandElement.Fire)
-                {
-                    element.DirectDamage = 15f;
-                    element.DamagePerQuality = 2f;
-                }
+                WandElementTuning.Apply(element);
             }
         }
+
+        private static void ConfigureUpgrades(HexBattleMageWandProfile wand)
+        {
+            wand.CanCraftAtStation = true;
+            var upgradeRecipe = PrefabSettings.Require<MageRecipeProfile>(wand.UpgradeRecipe);
+
+            upgradeRecipe.ApplyBakedDefaults();
+            upgradeRecipe.CraftingStation = RuneBlockManager.PrefabName;
+            upgradeRecipe.RepairStation = RuneBlockManager.PrefabName;
+            upgradeRecipe.MinimumStationLevel = 1;
+            upgradeRecipe.Resources = new[]
+            {
+                new MageRecipeResource { ItemPrefab = "Wood", Amount = 10, AmountPerQuality = 5 },
+                new MageRecipeResource { ItemPrefab = "Stone", Amount = 2, AmountPerQuality = 1 }
+            };
+        }
+
     }
 }

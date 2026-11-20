@@ -115,7 +115,7 @@ public static class PrefabDefaultsAssetBuilder
             }
 
             SeedFixedUpgradeCosts(prefab);
-            AddRecipe(prefab, new[] { Resource("Wood", 20, 10), Resource("Resin", 2, 1) });
+            AddRecipe(prefab, new[] { Resource("Wood", 10, 5), Resource("Stone", 2, 1) });
 
             var shared = prefab.GetComponent<ItemDrop>().m_itemData.m_shared;
 
@@ -126,6 +126,9 @@ public static class PrefabDefaultsAssetBuilder
                 shared.m_animationState = ItemDrop.ItemData.AnimationState.OneHanded;
             }
 
+            shared.m_skillType = profile.WeaponSkill;
+            shared.m_attack.m_raiseSkillAmount = profile.SkillGain;
+            shared.m_attack.m_skillHitType = DestructibleType.Character;
             shared.m_damages.m_blunt = profile.WandBluntDamage;
             shared.m_damages.m_pierce = profile.WandPierceDamage;
             shared.m_damagesPerLevel.m_blunt = profile.WandBluntDamagePerQuality;
@@ -272,6 +275,12 @@ public static class PrefabDefaultsAssetBuilder
         {
             profile = prefab.AddComponent<MageRecipeProfile>();
             profile.Resources = resources;
+
+            if (prefab.GetComponent<HexBattleMageWandProfile>() != null)
+            {
+                profile.CraftingStation = string.Empty;
+                profile.RepairStation = HexBattleMageRuneBlockProfile.PrefabName;
+            }
         }
 
         const string recipeDirectory = Root + "Settings/Recipes";

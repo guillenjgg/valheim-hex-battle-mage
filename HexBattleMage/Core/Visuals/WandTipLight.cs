@@ -7,6 +7,7 @@ namespace HexBattleMage.Core.Visuals
 {
     internal sealed class WandTipLight : MonoBehaviour
     {
+        private const string NetworkElementKey = "HexBattleMage.WandElementMask";
         private static readonly int EmissionProperty = Shader.PropertyToID("_EmissionColor");
         private Renderer _tipRenderer;
         private MaterialPropertyBlock _tipProperties;
@@ -78,16 +79,57 @@ namespace HexBattleMage.Core.Visuals
         {
             var wielder = GetComponentInParent<Humanoid>();
 
+            var item = wielder != null ? wielder.GetCurrentWeapon() : GetComponentInParent<ItemDrop>()?.m_itemData;
+            var active = WandAttunements.GetCombatElements(item);
+            int mask = 0;
+
+            foreach (var element in active)
+            {
+                mask |= 1 << (int)element;
+            }
+            var view = wielder != null ? wielder.GetComponent<ZNetView>() : null;
+            var data = view != null ? view.GetZDO() : null;
+
+            if (data != null)
+            {
+                if (view.IsOwner())
+                {
+                    int encoded = mask;
+
+                    if (data.GetInt(NetworkElementKey) != encoded)
+                    {
+                        data.Set(NetworkElementKey, encoded);
+                    }
+                }
+                else
+                {
+                    int encoded = data.GetInt(NetworkElementKey);
+
+                    mask = encoded;
+                }
+            }
+
             if (_tipRenderer != null)
             {
                 var emission = PrefabSettings.Wand.UnattunedTipEmission;
 
-                if (WandElementManager.Enabled != null && WandElementManager.Enabled.EffectiveValue())
+                if (mask != 0 && WandElementManager.Enabled != null && WandElementManager.Enabled.EffectiveValue())
                 {
-                    var element = WandElementManager.ActiveElement.Value;
-                    var profile = WandElementManager.GetSettings(element).Profile;
+                    emission = Color.black;
+                    int count = 0;
 
-                    emission = profile.TipColor * profile.TipEmissionStrength;
+                    foreach (WandElement element in System.Enum.GetValues(typeof(WandElement)))
+                    {
+                        if ((mask & (1 << (int)element)) != 0)
+                        {
+                            var profile = WandElementManager.GetSettings(element).Profile;
+
+                            emission += profile.TipColor * profile.TipEmissionStrength;
+                            count++;
+                        }
+                    }
+
+                    emission /= Mathf.Max(1, count);
                 }
 
                 _tipRenderer.GetPropertyBlock(_tipProperties);

@@ -15,19 +15,21 @@ namespace HexBattleMage.Core.Elements
         private const string Section = "Development / Elements";
         private static readonly Dictionary<WandElement, WandElementSettings> Settings = new Dictionary<WandElement, WandElementSettings>();
         private static readonly Dictionary<WandElement, WandElementStatus> Effects = new Dictionary<WandElement, WandElementStatus>();
+        private static readonly Dictionary<int, WandElementGroupStatus> GroupEffects = new Dictionary<int, WandElementGroupStatus>();
         private static HitData.DamageTypes _originalDamage;
         private static HitData.DamageTypes _originalPerQuality;
         private static StatusEffect _originalEffect;
         private static float _originalEffectChance;
 
         internal static ConfigEntry<bool> Enabled { get; private set; }
+        internal static ConfigEntry<bool> BypassAttunements { get; private set; }
         internal static ConfigEntry<WandElement> ActiveElement { get; private set; }
 
         internal static void Initialize(ConfigFile config)
         {
             Configure(config);
 
-            foreach (var effect in Effects.Values)
+            foreach (StatusEffect effect in System.Linq.Enumerable.Concat<StatusEffect>(Effects.Values, GroupEffects.Values))
             {
                 if (!ItemManager.Instance.AddStatusEffect(new CustomStatusEffect(effect, false)))
                 {
@@ -44,8 +46,9 @@ namespace HexBattleMage.Core.Elements
 
             try
             {
-                Enabled = config.Bind(Section, nameof(Enabled), PrefabSettings.Wand.EnableElements, "Enable the custom wand elements. Disable to restore the original wand damage/effects. Active custom effects expire immediately when disabled.");
-                ActiveElement = config.Bind(Section, nameof(ActiveElement), PrefabSettings.Wand.DefaultElement, "Testing selector: Fire, Frost, Spirit, Lightning or Poison. Applies on the next shot. Mage Table selection and tier unlocks are not implemented yet.");
+                Enabled = config.Bind(Section, nameof(Enabled), PrefabSettings.Wand.EnableElements, "Enable the custom wand elements. Disable to use physical wand damage only. Active custom effects expire immediately when disabled.");
+                BypassAttunements = config.Bind(Section, nameof(BypassAttunements), PrefabSettings.Wand.DevelopmentBypassAttunements, "Development only: bypass character attunements and use ActiveElement. Leave false for progression testing.");
+                ActiveElement = config.Bind(Section, nameof(ActiveElement), PrefabSettings.Wand.DefaultElement, "Development element selector; used only when BypassAttunements is enabled. Normal play uses the character's saved active attunements.");
 
                 var configuredElements = new HashSet<WandElement>();
 
@@ -88,6 +91,24 @@ namespace HexBattleMage.Core.Elements
                     effect.m_ttl = profile.Duration;
 
                     Effects[element] = effect;
+                }
+
+                GroupEffects.Clear();
+                int combinations = 1 << Enum.GetValues(typeof(WandElement)).Length;
+
+                for (int mask = 1; mask < combinations; mask++)
+                {
+                    if ((mask & (mask - 1)) == 0)
+                    {
+                        continue;
+                    }
+
+                    var effect = ScriptableObject.CreateInstance<WandElementGroupStatus>();
+
+                    effect.name = "HexWandElements_" + mask;
+                    effect.ElementMask = mask;
+                    effect.m_name = "$hexbattlemage_attunements_title";
+                    GroupEffects[mask] = effect;
                 }
 
                 if (configuredElements.Count != Enum.GetValues(typeof(WandElement)).Length)
@@ -135,6 +156,24 @@ namespace HexBattleMage.Core.Elements
             return false;
         }
 
+        internal static bool IsWandElementHash(int hash)
+        {
+            if (TryGetElement(hash, out _))
+            {
+                return true;
+            }
+
+            foreach (var effect in GroupEffects.Values)
+            {
+                if (effect.NameHash() == hash)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         internal static void ApplyToItem(ItemDrop.ItemData item)
         {
             if (Enabled == null)
@@ -157,19 +196,34 @@ namespace HexBattleMage.Core.Elements
             shared.m_attackStatusEffect = _originalEffect;
             shared.m_attackStatusEffectChance = _originalEffectChance;
 
+            ClearElements(ref shared.m_damages);
+            ClearElements(ref shared.m_damagesPerLevel);
+            shared.m_attackStatusEffect = null;
+            shared.m_attackStatusEffectChance = 0f;
+
             if (!Enabled.EffectiveValue())
             {
                 return;
             }
 
-            var element = ActiveElement.Value;
-            var settings = GetSettings(element);
+            var active = WandAttunements.GetCombatElements(item);
+            int mask = 0;
 
-            ClearElements(ref shared.m_damages);
-            ClearElements(ref shared.m_damagesPerLevel);
-            SetDamage(ref shared.m_damages, element, settings.DirectDamage.EffectiveValue());
-            SetDamage(ref shared.m_damagesPerLevel, element, settings.DamagePerQuality.EffectiveValue());
-            shared.m_attackStatusEffect = Effects[element];
+            foreach (var element in active)
+            {
+                var settings = GetSettings(element);
+
+                SetDamage(ref shared.m_damages, element, settings.DirectDamage.EffectiveValue());
+                SetDamage(ref shared.m_damagesPerLevel, element, settings.DamagePerQuality.EffectiveValue());
+                mask |= 1 << (int)element;
+            }
+
+            if (active.Count == 0)
+            {
+                return;
+            }
+
+            shared.m_attackStatusEffect = active.Count == 1 ? (StatusEffect)Effects[active[0]] : GroupEffects[mask];
             shared.m_attackStatusEffectChance = 1f;
         }
 

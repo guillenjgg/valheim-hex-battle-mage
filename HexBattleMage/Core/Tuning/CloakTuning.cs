@@ -29,6 +29,27 @@ namespace HexBattleMage.Core.Tuning
             cloak.MaximumQuality = 3;
             cloak.FrostResistance = true;
             PrefabSettings.Require<HexBattleMageVitalityProfile>(prefab).MaximumStamina = 5f;
+
+            var eitr = PrefabSettings.Require<MageEitrProfile>(prefab);
+
+            eitr.MaximumEitr = 5f;
+            eitr.MaximumEitrPerQuality = 1f;
+
+            var upgrades = PrefabSettings.Require<MageUpgradeProfile>(prefab);
+
+            upgrades.FixedResourceCosts = true;
+            upgrades.UseFixedStationLevel = true;
+            upgrades.RequiredStationLevel = 3;
+
+            var recipe = PrefabSettings.Require<MageRecipeProfile>(prefab);
+
+            recipe.MinimumStationLevel = 1;
+            recipe.Resources = new[]
+            {
+                new MageRecipeResource { ItemPrefab = "LeatherScraps", Amount = 6, AmountPerQuality = 3 },
+                new MageRecipeResource { ItemPrefab = "DeerHide", Amount = 4, AmountPerQuality = 2 },
+                new MageRecipeResource { ItemPrefab = "Resin", Amount = 5, AmountPerQuality = 2 }
+            };
         }
     }
 }

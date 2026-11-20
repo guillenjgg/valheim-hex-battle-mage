@@ -22,6 +22,7 @@ namespace HexBattleMage
 
         private Harmony _harmonyInstance;
         private DevConfig _devConfig;
+        private RuneBlockNotifications _runeBlockNotifications;
         private bool _initialized;
 
         internal static ManualLogSource Log;
@@ -49,6 +50,7 @@ namespace HexBattleMage
 
             ItemRegistrationManager.Initialize();
             CraftingStationManager.Initialize();
+            RuneBlockManager.Initialize();
             MagicShieldManager.Initialize();
             TrinketManager.Initialize(Config);
             CloakManager.Initialize();
@@ -56,6 +58,7 @@ namespace HexBattleMage
 
             _harmonyInstance = new Harmony(PluginGuid);
             _harmonyInstance.PatchAll(Assembly.GetExecutingAssembly());
+            _runeBlockNotifications = gameObject.AddComponent<RuneBlockNotifications>();
             _initialized = true;
 
             Log.LogInfo($"{PluginName} v{PluginVersion} loaded.");
@@ -89,7 +92,7 @@ namespace HexBattleMage
                 }
             }
             ProjectileManager.ApplySettings();
-            Log.LogInfo($"Development settings applied. Wand element: {WandElementManager.ActiveElement.Value}. Initial damage and projectile settings apply to the next shot; active elemental effects read live balance settings.");
+            Log.LogInfo($"Development settings applied. Character attunements control wand elements. Testing selector: {WandElementManager.ActiveElement.Value}; bypass: {WandElementManager.BypassAttunements.Value}. Initial damage and projectile settings apply to the next shot; active elemental effects read live balance settings.");
         }
 
         private void OnDestroy()
@@ -97,11 +100,13 @@ namespace HexBattleMage
             _initialized = false;
             ItemRegistrationManager.Shutdown();
             CraftingStationManager.Shutdown();
+            RuneBlockManager.Shutdown();
             MagicShieldManager.Shutdown();
             TrinketManager.Shutdown();
             CloakManager.Shutdown();
             ArmorManager.Shutdown();
             _devConfig?.Dispose();
+            UnityEngine.Object.Destroy(_runeBlockNotifications);
             Log.LogInfo($"{PluginName} v{PluginVersion} unloaded.");
 
             _harmonyInstance?.UnpatchSelf();

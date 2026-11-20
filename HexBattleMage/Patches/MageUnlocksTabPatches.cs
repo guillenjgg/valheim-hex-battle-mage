@@ -9,6 +9,7 @@ namespace HexBattleMage.Patches
         private static void Postfix(InventoryGui __instance)
         {
             __instance.gameObject.AddComponent<MageUnlocksTab>().Initialize(__instance);
+            __instance.gameObject.AddComponent<WandAttunementTab>().Initialize(__instance);
         }
     }
 
@@ -18,6 +19,7 @@ namespace HexBattleMage.Patches
         private static void Prefix(InventoryGui __instance)
         {
             __instance.GetComponent<MageUnlocksTab>()?.Close();
+            __instance.GetComponent<WandAttunementTab>()?.Close();
         }
     }
 
@@ -27,6 +29,7 @@ namespace HexBattleMage.Patches
         private static void Prefix(InventoryGui __instance)
         {
             __instance.GetComponent<MageUnlocksTab>()?.Close();
+            __instance.GetComponent<WandAttunementTab>()?.Close();
         }
     }
 
@@ -37,7 +40,9 @@ namespace HexBattleMage.Patches
         {
             var tab = __instance.GetComponent<MageUnlocksTab>();
 
-            return tab == null || !tab.IsOpen;
+            var attunements = __instance.GetComponent<WandAttunementTab>();
+
+            return (tab == null || !tab.IsOpen) && (attunements == null || !attunements.IsOpen);
         }
     }
 
@@ -48,7 +53,9 @@ namespace HexBattleMage.Patches
         {
             var tab = __instance.GetComponent<MageUnlocksTab>();
 
-            return tab == null || !tab.IsOpen;
+            var attunements = __instance.GetComponent<WandAttunementTab>();
+
+            return (tab == null || !tab.IsOpen) && (attunements == null || !attunements.IsOpen);
         }
     }
 
@@ -58,6 +65,7 @@ namespace HexBattleMage.Patches
         private static void Prefix(InventoryGui __instance)
         {
             __instance.GetComponent<MageUnlocksTab>()?.Close();
+            __instance.GetComponent<WandAttunementTab>()?.Close();
         }
     }
 }

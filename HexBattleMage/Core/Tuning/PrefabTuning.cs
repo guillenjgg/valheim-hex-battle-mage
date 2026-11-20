@@ -22,6 +22,7 @@ namespace HexBattleMage.Core.Tuning
                 }
 
                 CraftingTuning.Apply(prefab);
+                AttunementTuning.Apply(prefab);
                 WandTuning.Apply(prefab);
                 ArmorTuning.Apply(prefab);
                 CloakTuning.Apply(prefab);

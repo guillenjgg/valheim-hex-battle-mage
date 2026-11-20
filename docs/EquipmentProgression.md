@@ -142,3 +142,26 @@ A dedicated wand/staff crafting and attunement station is planned. No new build 
 
 
 Unlocks navigation: a permanent 18px gold scrollbar sits beside a separately clipped list, with wheel sensitivity 140 (previously 30). A fixed native-styled Collapse All button toggles to Expand All when all visible biome sections are collapsed; it affects revealed categories only and returns the list to the top. Individual biome controls and unlock state remain independent. EquipmentUiValidation checks wheel movement, scrollbar bounds/bottom access, all-section collapse/expand and existing unlock refresh/layout behavior. Runtime UI only; no bundle rebuild.
+
+
+## Rune-Whittler's Block implemented (2026-11-19)
+
+See [RuneBlock.md](RuneBlock.md). The mod wand and trinket now craft/repair at one 10-Wood stump station. Boss flags automatically control its level and cumulative visual children, with saved per-world notifications. No Rune Block extension pieces are introduced. Mage Table armor/bracer rules are preserved. Material attunements and element unlock/selection gameplay remain a separate next phase.
+
+
+## Inventory starter wand and first attunement (2026-11-19)
+
+Supersedes the earlier default-fire/station crafting entries. Discover Wood and Stone to reveal the inventory-crafted wand: 10 Wood + 2 Stone, physical damage 5/5 only. At the Rune Block, discovering DeerHide and Resin reveals paid Fire attunement: 2 DeerHide + 2 Resin per wand. Fire adds 15 (+2 per quality); physical quality increments stay +1/+1. Saved per-wand attunement replaces the global development selector in normal play. The wand also crafts at the Rune Block for 10 Wood + 2 Stone. Block upgrades cost 5 Wood + 1 Stone each; qualities 2/3/4 require station levels 2/3/4. See RuneBlock.md for authored profiles, tuning and validation. Other gear progression is unchanged.
+
+
+## Character-bound attunements (2026-11-20)
+
+Supersedes per-wand learned/selected element state. The Rune Block teaches the character Fire for 2 DeerHide + 2 Resin; a separate free Activate Fire action applies it to every wand that character wields. The active-slot limit is 1, authored on HexBattleMageRuneBlockProfile and adjustable in AttunementTuning.cs. Learned elements persist in character custom data across spare/replacement wands. At full capacity the station requires an explicit replacement. Spirit/Frost remain design-preview examples, not newly available gameplay recipes. Existing item quality and gear balance remain unchanged.
+
+
+## Wand skill and Fire learning cost (2026-11-20)
+
+Fire now requires 2 Resin + 3 Feathers + 10 Wood, replacing the earlier DeerHide recipe. The wand uses Clubs for native hit XP and initial attack damage scaling across blunt, pierce and active elemental channels. Bow XP is not enabled. Custom DoT tick values remain independently configured. WandSkillValidation invokes actual native Projectile.OnHit and verifies one Clubs award on a qualifying creature hit, none for misses/world colliders, and all-channel native damage multiplication. Skill storage, target validity, network damage and adrenaline bootstrap are fixtures.
+
+
+2026-11-20 update: Stone of Reprisal passive defaults are +10% Eitr regeneration and +10% stamina regeneration, without flat Eitr. Gear supplies flat pools. Existing parry damage rewards remain unchanged. Rune Block authored version 5 replaces the below-origin capsule with a fitted box (bottom at ground origin); rebuild previously placed blocks to correct their saved height.

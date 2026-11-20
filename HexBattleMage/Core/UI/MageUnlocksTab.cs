@@ -72,11 +72,11 @@ namespace HexBattleMage.Core.UI
 
             var player = Player.m_localPlayer;
             var station = player != null ? player.GetCurrentCraftingStation() : null;
-            bool atMageTable = HexBattleMage.Core.Managers.CraftingStationManager.IsMageTable(station);
+            bool atMageStation = CraftingStationManager.IsMageTable(station) || RuneBlockManager.IsRuneBlock(station);
 
-            _tab.gameObject.SetActive(atMageTable);
+            _tab.gameObject.SetActive(atMageStation);
 
-            if (!atMageTable)
+            if (!atMageStation)
             {
                 Close();
                 return;
@@ -115,6 +115,7 @@ namespace HexBattleMage.Core.UI
                 return;
             }
 
+            GetComponent<WandAttunementTab>()?.Close();
             var corners = new Vector3[4];
 
             ((RectTransform)_tab.transform).GetWorldCorners(corners);
@@ -265,9 +266,25 @@ namespace HexBattleMage.Core.UI
             _scroll.verticalNormalizedPosition = 1f;
         }
 
+        private static bool IsForStation(MageEquipmentCatalog.Entry entry, CraftingStation station)
+        {
+            if (station == null)
+            {
+                return true;
+            }
+
+            if (entry.Recipe.m_craftingStation == null)
+            {
+                return false;
+            }
+
+            return entry.Recipe.m_craftingStation.m_name == station.m_name;
+        }
+
         private void RefreshText(Player player)
         {
-            var entries = MageEquipmentCatalog.GetEntries().Where(entry => MageEquipmentCatalog.IsVisible(entry, player)).ToArray();
+            var station = player.GetCurrentCraftingStation();
+            var entries = MageEquipmentCatalog.GetEntries().Where(entry => MageEquipmentCatalog.IsVisible(entry, player)).Where(entry => IsForStation(entry, station)).ToArray();
             _collapseAllButton.interactable = entries.Length > 0;
             bool allCollapsed = entries.Length > 0 && entries.All(entry => _collapsedBiomes.Contains(entry.Biome));
 

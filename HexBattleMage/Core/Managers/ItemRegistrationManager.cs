@@ -189,7 +189,27 @@ namespace HexBattleMage.Core.Managers
             }
 
             GearUpgradeRules.Register(item.Recipe.Recipe, prefab.GetComponent<MageUpgradeProfile>());
-            MageEquipmentCatalog.Register(item.ItemDrop, item.Recipe.Recipe, biome);
+            var upgradeProfile = PrefabSettings.Require<HexBattleMageWandProfile>(prefab).UpgradeRecipe.GetComponent<MageRecipeProfile>();
+            var upgrade = new CustomRecipe(new RecipeConfig
+            {
+                Name = "Recipe_" + prefab.name + "_Upgrade",
+                Item = prefab.name,
+                CraftingStation = upgradeProfile.CraftingStation,
+                RepairStation = upgradeProfile.RepairStation,
+                MinStationLevel = upgradeProfile.MinimumStationLevel,
+                Requirements = PrefabSettings.GetRequirements(upgradeProfile)
+            });
+
+            upgrade.Recipe.m_noCraftOnlyUpgrade = !PrefabSettings.Require<HexBattleMageWandProfile>(prefab).CanCraftAtStation;
+
+            if (!ItemManager.Instance.AddRecipe(upgrade))
+            {
+                return false;
+            }
+
+            StarterWandRecipeRules.Register(item.Recipe.Recipe, upgrade.Recipe);
+            GearUpgradeRules.Register(upgrade.Recipe, prefab.GetComponent<MageUpgradeProfile>());
+            MageEquipmentCatalog.Register(item.ItemDrop, upgrade.Recipe, biome);
             Plugin.Log.LogInfo($"Wand registered after prefab loading with {requirements.Length} authored recipe resources.");
             return true;
         }
@@ -211,6 +231,8 @@ namespace HexBattleMage.Core.Managers
 
         internal static void ApplyDamageSettings(ItemDrop.ItemData item)
         {
+            Elements.WandAttunements.EnsurePrivateStats(item);
+            item.m_shared.m_skillType = PrefabSettings.Wand.WeaponSkill;
             item.m_shared.m_damages.m_blunt = DevConfig.WandBluntDamage.EffectiveValue();
             item.m_shared.m_damages.m_pierce = DevConfig.WandPierceDamage.EffectiveValue();
             item.m_shared.m_damagesPerLevel.m_blunt = DevConfig.WandBluntDamagePerQuality.EffectiveValue();
@@ -220,6 +242,8 @@ namespace HexBattleMage.Core.Managers
 
         internal static void ApplySettings(Attack attack)
         {
+            attack.m_raiseSkillAmount = PrefabSettings.Wand.SkillGain;
+            attack.m_skillHitType = DestructibleType.Character;
             attack.m_attackAnimation = DevConfig.AttackAnimation.EffectiveValue();
             attack.m_attackChainLevels = DevConfig.AttackChainLevels.EffectiveValue();
             attack.m_attackRandomAnimations = DevConfig.RandomAttackAnimations.EffectiveValue();

@@ -26,6 +26,22 @@ namespace HexBattleMage.Patches
         }
     }
 
+    [HarmonyPatch(typeof(SEMan), nameof(SEMan.ModifyStaminaRegen))]
+    internal static class TrinketStaminaRegenerationPatch
+    {
+        private static void Postfix(Character ___m_character, ref float __0)
+        {
+            var player = ___m_character as Player;
+
+            if (player == null)
+            {
+                return;
+            }
+
+            __0 += TrinketEffects.StaminaRegenerationBonus(player);
+        }
+    }
+
     [HarmonyPatch(typeof(Humanoid), nameof(Humanoid.EquipItem))]
     internal static class TrinketEquipPatch
     {

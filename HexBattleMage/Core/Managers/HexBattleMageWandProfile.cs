@@ -6,6 +6,8 @@ namespace HexBattleMage.Core.Managers
     public sealed class HexBattleMageWandProfile : MonoBehaviour
     {
         [Header("Combat defaults; development configuration overrides these values")]
+        public Skills.SkillType WeaponSkill = Skills.SkillType.Clubs;
+        [Min(0f)] public float SkillGain = 1f;
         public float WandBluntDamage = 5f;
         public float WandPierceDamage = 5f;
         public float WandBluntDamagePerQuality = 1f;
@@ -25,6 +27,12 @@ namespace HexBattleMage.Core.Managers
         public WandElement DefaultElement = WandElement.Fire;
         public WandElementProfile[] Elements = new WandElementProfile[0];
         public GameObject ProjectilePrefab;
+
+        [Header("Crafting and development testing")]
+        [HideInInspector] public int StarterProgressionVersion;
+        public GameObject UpgradeRecipe;
+        public bool CanCraftAtStation = true;
+        public bool DevelopmentBypassAttunements;
 
         [Header("Lighting and constant rune glow")]
         public float WandLightRange = 5f;

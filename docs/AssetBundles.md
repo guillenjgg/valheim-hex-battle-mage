@@ -99,3 +99,18 @@ Meadows quality migration: HexBattleMage > Apply Meadows Quality and Table Costs
 The user selected the knots-cracks-v6 previews: KnottedSplitOak_BaseColor and CrackedFieldstone_BaseColor, chipped RoughV5 wood meshes and the original cracked-stone support/standing-stone silhouettes. River-rock supports and denser-knot revisions were rejected. Textures retain max size 256, Read/Write, Normal compression, Crunch 100 and Point filtering. Their UVs follow board direction. Source images are preserved alongside imported textures. Materials are matte with rain gloss disabled; the table profile authors reduced violet glow/crystal size. Runtime floating effects are not depicted in material-only previews.
 
 MageTableWeatheringAssetBuilder is an explicit appearance migration; Build authors/validates/previews, BuildBundle also rebuilds production assets. Normal prefab preparation preserves the authored appearance. Unused draft mesh bundle assignments are cleared so only referenced meshes enter the bundle. Station identities, recipes and collider counts are checked for preservation. No crafting-role split is implemented: Rune-Whittler's Block remains planned.
+
+
+## Rune-Whittler's Block implemented (2026-11-19)
+
+See [RuneBlock.md](RuneBlock.md). The mod wand and trinket now craft/repair at one 10-Wood stump station. Boss flags automatically control its level and cumulative visual children, with saved per-world notifications. No Rune Block extension pieces are introduced. Mage Table armor/bracer rules are preserved. Material attunements and element unlock/selection gameplay remain a separate next phase.
+
+
+StarterWandAssetBuilder prepares inspectable UpgradeRecipe/Attunements references on HexBattleMageWandProfile and two settings prefabs beside the wand, with baked managed recipe JSON. The base ItemDrop is physical-only. The first Fire attunement authors 2 DeerHide + 2 Resin. The starter recipe authors inventory crafting (10 Wood + 2 Stone) with Rune Block repair; quality upgrades use the referenced block-only recipe. Rune Block authored version 4 clears stale fragment roots. These changes require the rebuilt bundle and DLL; both are installed in Dev by this change. New profile scripts and their Unity meta GUIDs must be kept synchronized. No new bundle name is introduced.
+
+Starter progression version 2 bakes CanCraftAtStation=true and matching 10 Wood + 2 Stone craft amounts into the referenced station recipe. AmountPerQuality stays 5 Wood + 1 Stone for upgrades. The native recipe can now appear on both station Craft and Upgrade tabs. Existing inventory crafting and separate Fire attunement are retained.
+
+
+Character-attunement authoring: StarterWandAssetBuilder adds versioned character defaults to HexBattleMageRuneBlockProfile: MaximumActiveAttunements=1 and the existing Fire definition reference. The wand no longer owns the attunement catalog. The new data is inspectable on the Rune Block prefab and preserved on subsequent rebuilds. Existing Fire recipe JSON, meshes, materials, icons, combat animation and bundle identity are preserved. Updated profile scripts, prefab and hexbattlemage bundle must move together; the mod embeds the rebuilt bundle. No additional external library or mod is required; the existing Valheim Unity UI module is referenced for layout measurement.
+
+StarterWandAssetBuilder version 3 authors WeaponSkill=Clubs and SkillGain=1 and projects native skill/XP fields. Rune Block attunement version 2 updates the Fire recipe and managed JSON to 2 Resin, 3 Feathers and 10 Wood. Normal builders preserve later edits. No mesh/material/icon/animation changes are included. The bundle and DLL must be rebuilt together for these authored defaults.

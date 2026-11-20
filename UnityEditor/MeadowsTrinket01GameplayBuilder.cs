@@ -13,6 +13,12 @@ public static class MeadowsTrinket01GameplayBuilder
     [MenuItem("HexBattleMage/Prepare Meadows Trinket 01 Gameplay and Build Bundle")]
     public static void Build()
     {
+        Prepare();
+        PrefabDefaultsAssetBuilder.PrepareAndBuild();
+    }
+
+    public static void Prepare()
+    {
         var stage = UnityEditor.SceneManagement.PrefabStageUtility.GetCurrentPrefabStage();
 
         if (stage != null && stage.scene.isDirty)
@@ -50,6 +56,17 @@ public static class MeadowsTrinket01GameplayBuilder
                 prefab.AddComponent<MageEitrProfile>();
             }
 
+            if (profile.PassiveVersion < 1)
+            {
+                var eitr = prefab.GetComponent<MageEitrProfile>();
+
+                eitr.MaximumEitr = 0f;
+                eitr.MaximumEitrPerQuality = 0f;
+                eitr.RegenerationModifier = 0.10f;
+                profile.StaminaRegenerationModifier = 0.10f;
+                profile.PassiveVersion = 1;
+            }
+
             if (prefab.GetComponent<MageEquipmentDefinition>() == null)
             {
                 var definition = prefab.AddComponent<MageEquipmentDefinition>();
@@ -63,10 +80,13 @@ public static class MeadowsTrinket01GameplayBuilder
             if (recipe == null)
             {
                 recipe = prefab.AddComponent<MageRecipeProfile>();
+                recipe.CraftingStation = HexBattleMageRuneBlockProfile.PrefabName;
+                recipe.RepairStation = HexBattleMageRuneBlockProfile.PrefabName;
                 recipe.Resources = new[]
                 {
                     new MageRecipeResource { ItemPrefab = "Stone", Amount = 10 },
-                    new MageRecipeResource { ItemPrefab = "Resin", Amount = 4 },
+                    new MageRecipeResource { ItemPrefab = "TrophyBoar", Amount = 1 },
+                    new MageRecipeResource { ItemPrefab = "BoneFragments", Amount = 5 },
                     new MageRecipeResource { ItemPrefab = "LeatherScraps", Amount = 2 }
                 };
             }
@@ -113,16 +133,5 @@ public static class MeadowsTrinket01GameplayBuilder
 
         TrinketAssetPreparation.PrepareAll();
         AssetDatabase.SaveAssets();
-        HexBattleMageBundlePolicy.ValidateDependencies();
-
-        var manifest = BuildPipeline.BuildAssetBundles("Assets/AssetBundles", BuildAssetBundleOptions.None, BuildTarget.StandaloneWindows64);
-
-        if (manifest == null)
-        {
-            throw new InvalidOperationException("Stone trinket gameplay bundle build failed.");
-        }
-
-        File.Copy("Assets/AssetBundles/hexbattlemage", "C:/Users/Jonathan/Documents/valheim_mods/repos/valheim-hex-battle-mage/HexBattleMage/Assets/AssetBundles/hexbattlemage", true);
-        File.WriteAllText("C:/Users/Jonathan/Documents/ChatGPT/HexBattleMage/trinket-meadows-01-gameplay-result.txt", "PASS: trinket role, Eitr profile, parry reward settings, attachment settings, transparent icon and full recipe baked into the existing visual prefab; meshes/materials preserved.");
     }
 }

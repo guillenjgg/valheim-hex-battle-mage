@@ -1,6 +1,7 @@
 ﻿using Jotunn.Utils;
 using UnityEngine;
 using HexBattleMage.Core;
+using HexBattleMage.Core.Managers;
 
 namespace HexBattleMage.Assets
 {
@@ -47,6 +48,12 @@ namespace HexBattleMage.Assets
             if (HexArcaneWorkbench == null)
             {
                 DebugLog.LogError($"Failed to load prefab '{WorkbenchPrefabName}'.");
+                return false;
+            }
+
+            if (Bundle.LoadAsset<GameObject>(HexBattleMageRuneBlockProfile.PrefabName) == null)
+            {
+                DebugLog.LogError("Rune-Whittler's Block is missing. Rebuild the hexbattlemage bundle and mod DLL.");
                 return false;
             }
 

@@ -21,6 +21,7 @@ namespace HexBattleMage.Core.Tuning
 
             upgrades.FixedResourceCosts = true;
             upgrades.UseFixedStationLevel = false;
+            recipe.MinimumStationLevel = 1;
             recipe.Resources = new[]
             {
                 new MageRecipeResource { ItemPrefab = "Wood", Amount = 10, AmountPerQuality = 5 },
@@ -31,6 +32,7 @@ namespace HexBattleMage.Core.Tuning
 
         private static void Meadows01(MagicBracerProfile bracer)
         {
+            bracer.MaximumQuality = 3;
             bracer.BlockPower = 6f;
             bracer.BlockPowerPerQuality = 6f;
             bracer.BlockForce = 20f;

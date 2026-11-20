@@ -13,6 +13,9 @@ namespace HexBattleMage.Core.Tuning
         {
             switch (prefab.name)
             {
+                case RuneBlockManager.PrefabName:
+                    RuneBlock(prefab);
+                    break;
                 case RuneStone:
                     PrefabSettings.Require<MageRecipeProfile>(prefab).Resources = new[]
                     {
@@ -32,13 +35,37 @@ namespace HexBattleMage.Core.Tuning
             }
         }
 
+        private static void RuneBlock(GameObject prefab)
+        {
+            var profile = PrefabSettings.Require<HexBattleMageRuneBlockProfile>(prefab);
+
+            profile.BodyColliderCenter = new Vector3(0f, 0.39f, 0f);
+            profile.BodyColliderSize = new Vector3(1.34f, 0.78f, 1.34f);
+            var body = PrefabSettings.Require<BoxCollider>(prefab);
+
+            body.center = profile.BodyColliderCenter;
+            body.size = profile.BodyColliderSize;
+            profile.BaseLevel = 1;
+            profile.RefreshInterval = 1f;
+            profile.BossDefeatKeys = new[]
+            {
+                "defeated_eikthyr", "defeated_gdking", "defeated_bonemass", "defeated_dragon",
+                "defeated_goblinking", "defeated_queen", "defeated_fader"
+            };
+
+            var recipe = PrefabSettings.Require<MageRecipeProfile>(prefab);
+
+            recipe.CraftingStation = string.Empty;
+            recipe.Resources = new[] { new MageRecipeResource { ItemPrefab = "Wood", Amount = 10 } };
+        }
+
         internal static void Configure(ConfigFile config, AssetBundle bundle)
         {
-            foreach (string identity in new[] { RuneStone, ReagentStand })
+            foreach (string identity in new[] { RuneStone, ReagentStand, RuneBlockManager.PrefabName })
             {
                 var prefab = bundle.LoadAsset<GameObject>(identity);
                 var recipe = PrefabSettings.Require<MageRecipeProfile>(prefab);
-                string section = "Crafting / Mage Table / " + identity;
+                string section = identity == RuneBlockManager.PrefabName ? "Crafting / Rune Block" : "Crafting / Mage Table / " + identity;
 
                 foreach (var resource in recipe.GetResources())
                 {

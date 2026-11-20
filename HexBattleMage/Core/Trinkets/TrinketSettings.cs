@@ -14,6 +14,7 @@ namespace HexBattleMage.Core.Trinkets
         internal int RewardHash { get; }
         internal ConfigEntry<float> MaximumEitr { get; }
         internal ConfigEntry<float> Regeneration { get; }
+        internal ConfigEntry<float> StaminaRegeneration { get; }
         internal ConfigEntry<float> DamageBonus { get; }
         internal ConfigEntry<float> BossDamageBonus { get; }
         internal ConfigEntry<float> Duration { get; }
@@ -37,7 +38,8 @@ namespace HexBattleMage.Core.Trinkets
             var eitr = PrefabSettings.Require<MageEitrProfile>(visualPrefab);
 
             MaximumEitr = config.Bind(ConfigSection, "MaximumEitr", eitr.MaximumEitr, "Flat maximum Eitr while equipped. Regenerates without Eitr food.");
-            Regeneration = config.Bind(ConfigSection, "RegenerationModifier", eitr.RegenerationModifier, "Extra Eitr regeneration; 0.15 means +15%.");
+            Regeneration = config.Bind(ConfigSection, "RegenerationModifier", eitr.RegenerationModifier, "Extra Eitr regeneration; 0.10 means +10%.");
+            StaminaRegeneration = config.Bind(ConfigSection, "StaminaRegenerationModifier", Profile.StaminaRegenerationModifier, "Extra stamina regeneration; 0.10 means +10%.");
 
             if (Profile.RewardTrigger == TrinketRewardTrigger.None)
             {

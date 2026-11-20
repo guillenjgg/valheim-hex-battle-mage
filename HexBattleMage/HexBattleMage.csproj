@@ -70,6 +70,10 @@
       <HintPath>..\..\..\valheim_mod_libraries\UnityEngine.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="UnityEngine.UIModule">
+      <HintPath>G:\SteamLibrary\steamapps\common\Valheim\Valheim_Data\Managed\UnityEngine.UIModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="UnityEngine.UI">
       <HintPath>..\..\..\valheim_mod_libraries\UnityEngine.UI.dll</HintPath>
       <Private>False</Private>
@@ -114,9 +118,25 @@
   <ItemGroup>
     <Compile Include="Assets\AssetBundleHelper.cs" />
     <Compile Include="Core\DevConfig.cs" />
+    <Compile Include="Core\Managers\HexBattleMageWandAttunementProfile.cs" />
+    <Compile Include="Core\Elements\WandAttunements.cs" />
+    <Compile Include="Core\StarterWandRecipeRules.cs" />
+    <Compile Include="Patches\WandAttunementPatches.cs" />
+    <Compile Include="Core\UI\WandAttunementTab.cs" />
+
+    <Compile Include="Core\Managers\HexBattleMageRuneBlockProfile.cs" />
+    <Compile Include="Core\Managers\RuneBlockManager.cs" />
+    <Compile Include="Core\RuneBlockProgression.cs" />
+    <Compile Include="Core\Managers\RuneBlockVisuals.cs" />
+    <Compile Include="Core\RuneBlockNotifications.cs" />
+    <Compile Include="Patches\RuneBlockLevelPatch.cs" />
+
     <Compile Include="Core\Tuning\PrefabTuning.cs" />
     <Compile Include="Core\Tuning\CraftingTuning.cs" />
     <Compile Include="Core\Tuning\WandTuning.cs" />
+    <Compile Include="Core\Tuning\AttunementTuning.cs" />
+    <Compile Include="Core\Elements\WandElementGroupStatus.cs" />
+    <Compile Include="Core\Tuning\WandElementTuning.cs" />
     <Compile Include="Core\Tuning\ArmorTuning.cs" />
     <Compile Include="Core\Tuning\CloakTuning.cs" />
     <Compile Include="Core\Tuning\BracerTuning.cs" />

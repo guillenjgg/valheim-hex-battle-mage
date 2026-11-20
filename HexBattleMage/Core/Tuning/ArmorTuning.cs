@@ -34,8 +34,14 @@ namespace HexBattleMage.Core.Tuning
 
         private static void ApplyMeadowsQuality(GameObject prefab, HexBattleMageArmorProfile armor)
         {
+            armor.Armor = 2f;
             armor.MaximumQuality = 4;
             armor.ArmorPerQuality = 2f;
+
+            var eitr = PrefabSettings.Require<MageEitrProfile>(prefab);
+
+            eitr.MaximumEitr = 5f;
+            eitr.MaximumEitrPerQuality = 0f;
 
             var recipe = PrefabSettings.Require<MageRecipeProfile>(prefab);
 

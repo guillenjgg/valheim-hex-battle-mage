@@ -60,6 +60,14 @@ namespace HexBattleMage.Core.Trinkets
             return total;
         }
 
+        internal static float StaminaRegenerationBonus(Humanoid humanoid)
+        {
+            var item = TrinketManager.GetEquipped(humanoid);
+            var settings = TrinketManager.GetSettings(TrinketManager.GetProfile(item));
+
+            return settings == null ? 0f : Mathf.Max(0f, settings.StaminaRegeneration.EffectiveValue());
+        }
+
         internal static void RefreshEitr(Humanoid humanoid, float previousEitr = 0f)
         {
             RefreshGearEitr(humanoid, previousEitr);
@@ -202,8 +210,15 @@ namespace HexBattleMage.Core.Trinkets
             var text = new StringBuilder();
 
             AppendHeading(text, profile.PassiveHeading);
-            text.AppendLine(ModLocalization.Format("$hexbattlemage_trinket_maximum_eitr", Mathf.Max(0f, settings.MaximumEitr.EffectiveValue())));
-            text.Append(ModLocalization.Format("$hexbattlemage_trinket_eitr_regeneration", Mathf.Max(0f, settings.Regeneration.EffectiveValue()) * 100f));
+            float maximumEitr = Mathf.Max(0f, settings.MaximumEitr.EffectiveValue());
+
+            if (maximumEitr > 0f)
+            {
+                text.AppendLine(ModLocalization.Format("$hexbattlemage_trinket_maximum_eitr", maximumEitr));
+            }
+
+            text.AppendLine(ModLocalization.Format("$hexbattlemage_trinket_eitr_regeneration", Mathf.Max(0f, settings.Regeneration.EffectiveValue()) * 100f));
+            text.Append(ModLocalization.Format("$hexbattlemage_trinket_stamina_regeneration", Mathf.Max(0f, settings.StaminaRegeneration.EffectiveValue()) * 100f));
 
             if (profile.RewardTrigger == TrinketRewardTrigger.None)
             {

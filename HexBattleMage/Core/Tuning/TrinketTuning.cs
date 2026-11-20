@@ -27,8 +27,10 @@ namespace HexBattleMage.Core.Tuning
         {
             var eitr = PrefabSettings.Require<MageEitrProfile>(prefab);
 
-            eitr.MaximumEitr = 25f;
-            eitr.RegenerationModifier = 0.15f;
+            eitr.MaximumEitr = 0f;
+            eitr.MaximumEitrPerQuality = 0f;
+            eitr.RegenerationModifier = 0.10f;
+            trinket.StaminaRegenerationModifier = 0.10f;
             trinket.WandDamageBonus = 0.25f;
             trinket.BossParryDamageBonus = 0.10f;
             trinket.ParryDuration = 2f;
@@ -36,6 +38,8 @@ namespace HexBattleMage.Core.Tuning
 
             var recipe = PrefabSettings.Require<MageRecipeProfile>(prefab);
 
+            recipe.CraftingStation = RuneBlockManager.PrefabName;
+            recipe.RepairStation = RuneBlockManager.PrefabName;
             recipe.Resources = new[]
             {
                 new MageRecipeResource { ItemPrefab = "TrophyBoar", Amount = 1 },

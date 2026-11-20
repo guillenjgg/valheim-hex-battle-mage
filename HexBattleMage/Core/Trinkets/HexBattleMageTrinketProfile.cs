@@ -26,6 +26,9 @@ namespace HexBattleMage.Core.Trinkets
         public string BossHeading = "$hexbattlemage_boss_effect";
         public string BossCondition = "$hexbattlemage_on_successful_boss_parry";
         public Sprite Icon;
+        [Header("Passive regeneration")]
+        [HideInInspector] public int PassiveVersion;
+        [Min(0f)] public float StaminaRegenerationModifier;
         [Header("Item stats")]
         public float Weight = 0.5f;
         public int MaximumQuality = 1;

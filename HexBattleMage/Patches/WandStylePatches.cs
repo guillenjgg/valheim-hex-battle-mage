@@ -58,6 +58,11 @@ namespace HexBattleMage.Patches
             return CraftingStationManager.IsMageTable(station);
         }
 
+        internal static bool IsAtRuneBlock(Player player)
+        {
+            return player != null && RuneBlockManager.IsRuneBlock(player.GetCurrentCraftingStation());
+        }
+
         internal static ItemDrop.ItemData FindOwnedWand(InventoryGui gui, Player player, out bool ambiguous)
         {
             ambiguous = false;
@@ -109,7 +114,7 @@ namespace HexBattleMage.Patches
     {
         private static void Postfix(InventoryGui __instance, Player player)
         {
-            if (!WandStyleSelection.IsAtMageTable(player))
+            if (!WandStyleSelection.IsAtRuneBlock(player))
             {
                 return;
             }
@@ -130,7 +135,7 @@ namespace HexBattleMage.Patches
         {
             var player = Player.m_localPlayer;
 
-            if (!WandStyleSelection.IsAtMageTable(player))
+            if (!WandStyleSelection.IsAtRuneBlock(player))
             {
                 return;
             }
