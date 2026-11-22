@@ -234,6 +234,8 @@ namespace HexBattleMage.Core.Managers
             shared.m_itemType = ItemDrop.ItemData.ItemType.Hands;
             shared.m_movementModifier = profile.MovementModifier;
             shared.m_variants = 1;
+            shared.m_armor = profile.Armor;
+            shared.m_armorPerLevel = 0f;
             shared.m_blockPower = profile.BlockPower;
             shared.m_blockPowerPerLevel = profile.BlockPowerPerQuality;
             shared.m_deflectionForce = profile.BlockForce;

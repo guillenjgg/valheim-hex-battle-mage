@@ -152,6 +152,7 @@ public static class PrefabDefaultsAssetBuilder
                 shared.m_icons = icons;
             }
 
+            shared.m_attack.m_attackStamina = Mathf.Max(0f, profile.AttackStamina);
             shared.m_attack.m_attackAnimation = profile.AttackAnimation;
             shared.m_attack.m_attackChainLevels = profile.AttackChainLevels;
             shared.m_attack.m_attackRandomAnimations = profile.RandomAttackAnimations;
@@ -180,7 +181,14 @@ public static class PrefabDefaultsAssetBuilder
 
         Edit(BracerPath, prefab =>
         {
-            GetOrAdd<MagicBracerProfile>(prefab);
+            var profile = GetOrAdd<MagicBracerProfile>(prefab);
+
+            if (profile.PassiveArmorVersion < 1)
+            {
+                profile.Armor = 5f;
+                profile.PassiveArmorVersion = 1;
+            }
+
             SeedFixedUpgradeCosts(prefab);
             AddRecipe(prefab, new[] { Resource("Wood", 10, 5), Resource("Resin", 4, 2), Resource("LeatherScraps", 2, 1) });
         });

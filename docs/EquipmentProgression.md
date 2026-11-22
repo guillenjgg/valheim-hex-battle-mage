@@ -165,3 +165,9 @@ Fire now requires 2 Resin + 3 Feathers + 10 Wood, replacing the earlier DeerHide
 
 
 2026-11-20 update: Stone of Reprisal passive defaults are +10% Eitr regeneration and +10% stamina regeneration, without flat Eitr. Gear supplies flat pools. Existing parry damage rewards remain unchanged. Rune Block authored version 5 replaces the below-origin capsule with a fitted box (bottom at ground origin); rebuild previously placed blocks to correct their saved height.
+
+
+2026-11-20: Apprentice Wand uses 5 base stamina per shot. Edit `WandTuning.Meadows01` / `wand.AttackStamina` for source tuning. `HexBattleMageWandProfile.AttackStamina` and native Attack.m_attackStamina are baked by starter progression migration 4; normal rebuilds preserve authored values. Runtime ApplySettings transfers the tuned value to each attack. Native Attack performs the stamina check/spending and applies normal skill/equipment/status cost modifiers. Eitr settings are unchanged. Rebuild the embedded bundle and DLL together.
+
+
+Apprentice bracer: fixed +5 passive armor while worn, independent of quality and blocking. MagicBracerProfile.Armor is baked by passive armor migration 1; BracerTuning.Meadows01 supplies the source override. Registration sets native armor=5 and armor-per-level=0; Player.GetBodyArmor adds the separately equipped bracer once. Qualities 1–3 retain ShieldWood block 6/12/18, block force 20/25/30, parry 1.5x, durability 200/250/300. Armor never increases on upgrade. Normal rebuilds preserve authored values; rebuild bundle and DLL together.

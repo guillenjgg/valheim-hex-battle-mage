@@ -242,6 +242,7 @@ namespace HexBattleMage.Core.Managers
 
         internal static void ApplySettings(Attack attack)
         {
+            attack.m_attackStamina = Mathf.Max(0f, PrefabSettings.Wand.AttackStamina);
             attack.m_raiseSkillAmount = PrefabSettings.Wand.SkillGain;
             attack.m_skillHitType = DestructibleType.Character;
             attack.m_attackAnimation = DevConfig.AttackAnimation.EffectiveValue();

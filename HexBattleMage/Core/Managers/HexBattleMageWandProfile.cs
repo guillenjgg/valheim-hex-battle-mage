@@ -8,6 +8,7 @@ namespace HexBattleMage.Core.Managers
         [Header("Combat defaults; development configuration overrides these values")]
         public Skills.SkillType WeaponSkill = Skills.SkillType.Clubs;
         [Min(0f)] public float SkillGain = 1f;
+        [Min(0f)] public float AttackStamina;
         public float WandBluntDamage = 5f;
         public float WandPierceDamage = 5f;
         public float WandBluntDamagePerQuality = 1f;

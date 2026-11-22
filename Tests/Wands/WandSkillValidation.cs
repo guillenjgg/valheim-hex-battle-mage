@@ -47,6 +47,17 @@ public static class WandSkillValidation
 
             Check(profile.WeaponSkill == Skills.SkillType.Clubs && shared.m_skillType == Skills.SkillType.Clubs && shared.m_attack.m_raiseSkillAmount == 1f, "Clubs and its native XP amount are baked on the wand.");
             var owner = root.AddComponent<TrinketValidationPlayer>();
+            Check(profile.AttackStamina == 5f && shared.m_attack.m_attackStamina == 5f, "Five base stamina per shot is baked in both inspectable settings and native attack.");
+            var effects = new SEMan(owner, root.AddComponent<ZNetView>());
+
+            AccessTools.Field(typeof(Character), "m_seman").SetValue(owner, effects);
+            var attack = shared.m_attack.Clone();
+
+            AccessTools.Field(typeof(Attack), "m_character").SetValue(attack, owner);
+            AccessTools.Field(typeof(Attack), "m_weapon").SetValue(attack, wand.GetComponent<ItemDrop>().m_itemData);
+            float nativeCost = (float)AccessTools.Method(typeof(Attack), "GetAttackStamina").Invoke(attack, null);
+
+            Check(Mathf.Abs(nativeCost - 5f) < 0.001f, "Native attack stamina calculation returns five at zero skill with no modifiers.");
             var enemyObject = new GameObject("Valid creature");
 
             enemyObject.transform.SetParent(root.transform, false);
@@ -78,7 +89,7 @@ public static class WandSkillValidation
 
             damage.Modify(0.5f);
             Check(damage.m_blunt == 2.5f && damage.m_pierce == 2.5f && damage.m_fire == 7.5f, "Native damage multiplication affects every wand damage channel.");
-            File.WriteAllText(Path.Combine(Path.GetDirectoryName(Application.dataPath), "wand-skill-report.txt"), "PASS: baked Clubs skill and 1 XP factor; actual native Projectile.OnHit awards one Clubs call on a valid creature hit and none for misses/plain world colliders; native damage scaling affects blunt, pierce and fire together. Target validity, damage transport, adrenaline and skill-storage bootstrap are isolated fixtures. No custom XP hook is introduced.");
+            File.WriteAllText(Path.Combine(Path.GetDirectoryName(Application.dataPath), "wand-skill-report.txt"), "PASS: baked 5 base stamina and native stamina calculation; baked Clubs skill and 1 XP factor; actual native Projectile.OnHit awards one Clubs call on a valid creature hit and none for misses/plain world colliders; native damage scaling affects blunt, pierce and fire together. Target validity, damage transport, adrenaline and skill-storage bootstrap are isolated fixtures. No custom XP hook is introduced.");
         }
         finally
         {

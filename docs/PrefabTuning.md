@@ -54,3 +54,9 @@ WandTuning.Meadows01 owns WeaponSkill (Clubs) and SkillGain (native raise factor
 
 
 2026-11-20: `TrinketTuning.Meadows01` sets Stone of Reprisal to zero flat Eitr, +10% Eitr regeneration and +10% stamina regeneration. Passive defaults are baked in MageEitrProfile and HexBattleMageTrinketProfile; per-item configuration can override both rates. Parry bonuses remain +25% for two seconds, plus 10 percentage points for bosses. `CraftingTuning.RuneBlock` overrides the inspectable BodyColliderCenter/BodyColliderSize fields and updates the solid BoxCollider; its bottom is the mesh ground origin. Existing placed blocks need rebuilding to correct their saved height.
+
+
+2026-11-20: Apprentice Wand uses 5 base stamina per shot. Edit `WandTuning.Meadows01` / `wand.AttackStamina` for source tuning. `HexBattleMageWandProfile.AttackStamina` and native Attack.m_attackStamina are baked by starter progression migration 4; normal rebuilds preserve authored values. Runtime ApplySettings transfers the tuned value to each attack. Native Attack performs the stamina check/spending and applies normal skill/equipment/status cost modifiers. Eitr settings are unchanged. Rebuild the embedded bundle and DLL together.
+
+
+Apprentice bracer: fixed +5 passive armor while worn, independent of quality and blocking. MagicBracerProfile.Armor is baked by passive armor migration 1; BracerTuning.Meadows01 supplies the source override. Registration sets native armor=5 and armor-per-level=0; Player.GetBodyArmor adds the separately equipped bracer once. Qualities 1–3 retain ShieldWood block 6/12/18, block force 20/25/30, parry 1.5x, durability 200/250/300. Armor never increases on upgrade. Normal rebuilds preserve authored values; rebuild bundle and DLL together.

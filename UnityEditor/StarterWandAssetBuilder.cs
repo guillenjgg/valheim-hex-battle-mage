@@ -30,6 +30,7 @@ public static class StarterWandAssetBuilder
             {
                 PrepareStationCrafting(prefab, profile);
                 PrepareClubsSkill(prefab, profile);
+                PrepareStaminaCost(prefab, profile);
                 return;
             }
 
@@ -67,6 +68,7 @@ public static class StarterWandAssetBuilder
             PrefabUtility.SaveAsPrefabAsset(prefab, WandPath);
             PrepareStationCrafting(prefab, profile);
             PrepareClubsSkill(prefab, profile);
+            PrepareStaminaCost(prefab, profile);
         }
         finally
         {
@@ -74,6 +76,19 @@ public static class StarterWandAssetBuilder
         }
 
         AssetDatabase.SaveAssets();
+    }
+
+    private static void PrepareStaminaCost(GameObject prefab, HexBattleMageWandProfile profile)
+    {
+        if (profile.StarterProgressionVersion >= 4)
+        {
+            return;
+        }
+
+        profile.AttackStamina = 5f;
+        prefab.GetComponent<ItemDrop>().m_itemData.m_shared.m_attack.m_attackStamina = profile.AttackStamina;
+        profile.StarterProgressionVersion = 4;
+        PrefabUtility.SaveAsPrefabAsset(prefab, WandPath);
     }
 
     private static void PrepareClubsSkill(GameObject prefab, HexBattleMageWandProfile profile)

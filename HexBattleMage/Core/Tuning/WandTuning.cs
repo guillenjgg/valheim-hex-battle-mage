@@ -24,6 +24,7 @@ namespace HexBattleMage.Core.Tuning
 
             wand.WeaponSkill = Skills.SkillType.Clubs;
             wand.SkillGain = 1f;
+            wand.AttackStamina = 5f;
             wand.WandBluntDamage = 5f;
             wand.WandPierceDamage = 5f;
             wand.WandBluntDamagePerQuality = 1f;

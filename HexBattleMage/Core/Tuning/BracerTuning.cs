@@ -32,6 +32,9 @@ namespace HexBattleMage.Core.Tuning
 
         private static void Meadows01(MagicBracerProfile bracer)
         {
+            bracer.Armor = 5f;
+            bracer.Durability = 200f;
+            bracer.DurabilityPerQuality = 50f;
             bracer.MaximumQuality = 3;
             bracer.BlockPower = 6f;
             bracer.BlockPowerPerQuality = 6f;

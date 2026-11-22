@@ -92,6 +92,7 @@
     </Reference>
     <Reference Include="UnityEngine.AudioModule">
       <HintPath>..\..\..\valheim_mod_libraries\UnityEngine.AudioModule.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="UnityEngine.JSONSerializeModule">
@@ -123,14 +124,12 @@
     <Compile Include="Core\StarterWandRecipeRules.cs" />
     <Compile Include="Patches\WandAttunementPatches.cs" />
     <Compile Include="Core\UI\WandAttunementTab.cs" />
-
     <Compile Include="Core\Managers\HexBattleMageRuneBlockProfile.cs" />
     <Compile Include="Core\Managers\RuneBlockManager.cs" />
     <Compile Include="Core\RuneBlockProgression.cs" />
     <Compile Include="Core\Managers\RuneBlockVisuals.cs" />
     <Compile Include="Core\RuneBlockNotifications.cs" />
     <Compile Include="Patches\RuneBlockLevelPatch.cs" />
-
     <Compile Include="Core\Tuning\PrefabTuning.cs" />
     <Compile Include="Core\Tuning\CraftingTuning.cs" />
     <Compile Include="Core\Tuning\WandTuning.cs" />
@@ -142,7 +141,6 @@
     <Compile Include="Core\Tuning\BracerTuning.cs" />
     <Compile Include="Core\Tuning\TrinketTuning.cs" />
     <Compile Include="Core\Tuning\TuningConfiguration.cs" />
-
     <Compile Include="Core\Elements\WandElementProfile.cs" />
     <Compile Include="Core\Elements\WandElementSettings.cs" />
     <Compile Include="Core\Elements\WandElementManager.cs" />
@@ -234,8 +232,6 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Patches\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

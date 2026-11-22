@@ -5,6 +5,8 @@ namespace HexBattleMage.Core.Managers
     public sealed class MagicBracerProfile : MonoBehaviour
     {
         public string BaseShieldPrefab = "ShieldWood";
+        [HideInInspector] public int PassiveArmorVersion;
+        [Min(0f)] public float Armor;
         public string DisplayName = "$item_hexbattlemage_magicbracer";
         public string Description = "$item_hexbattlemage_magicbracer_description";
         public Sprite Icon;

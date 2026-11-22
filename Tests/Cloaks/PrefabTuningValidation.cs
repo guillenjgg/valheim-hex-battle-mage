@@ -56,6 +56,7 @@ public static class PrefabTuningValidation
             profile.Elements.Single(element => element.Element == WandElement.Frost).MovementSlow = 0.91f;
             profile.Elements.Single(element => element.Element == WandElement.Poison).MaximumStacks = 91;
             profile.WandBluntDamage = 91f;
+            profile.AttackStamina = 91f;
             profile.Elements.Single(element => element.Element == WandElement.Fire).DirectDamage = 92f;
             var armor = bundle.LoadAllAssets<GameObject>().Single(prefab => prefab.GetComponent<HexBattleMageArmorProfile>()?.ItemPrefabName == "HexBattleMage_Chest_Meadows_01");
             float armorValue = armor.GetComponent<HexBattleMageArmorProfile>().Armor;
@@ -72,6 +73,7 @@ public static class PrefabTuningValidation
             Mod.GetType("HexBattleMage.Core.Tuning.PrefabTuning").GetMethod("Apply", Members).Invoke(null, new object[] { bundle });
             Check(trinket.GetComponent<MageEitrProfile>().MaximumEitr == 0f && trinket.GetComponent<MageEitrProfile>().RegenerationModifier == 0.10f, "Trinket passive tuning overrides flat Eitr and regeneration.");
             Check(trinket.GetComponent<HexBattleMage.Core.Trinkets.HexBattleMageTrinketProfile>().StaminaRegenerationModifier == 0.10f, "Stamina regeneration has a source tuning entry point.");
+            Check(profile.AttackStamina == 5f, "Wand stamina cost has a source tuning override.");
             Check(profile.WandBluntDamage == 5f, "Specific wand overrides apply before configuration binds.");
             Check(profile.Elements.Single(element => element.Element == WandElement.Fire).DirectDamage == 15f, "Referenced elemental settings are tuned.");
             Check(runeBlock.MaximumActiveAttunements == 1, "The character active limit has an explicit source tuning entry point.");

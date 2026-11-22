@@ -1,5 +1,6 @@
 using HarmonyLib;
 using HexBattleMage.Core.Managers;
+using HexBattleMage.Core;
 using HexBattleMage.Core.Visuals;
 using System;
 using System.Text;
@@ -13,7 +14,7 @@ namespace HexBattleMage.Patches
 
         private static void Postfix(ItemDrop.ItemData item, int qualityLevel, ref string __result)
         {
-            if (!MagicShieldManager.SupportsBlocking(item))
+            if (!MagicShieldManager.IsBracer(item))
             {
                 return;
             }
@@ -23,10 +24,35 @@ namespace HexBattleMage.Patches
                 return;
             }
 
+            string armor = "$item_armor: <color=orange>" + item.GetArmor(qualityLevel, 0f).ToString("0.#") + "</color>\n";
+
+            __result = GearTooltip.InsertPerks(item, __result, armor);
+
+            if (!MagicShieldManager.SupportsBlocking(item))
+            {
+                return;
+            }
+
             var text = new StringBuilder(__result);
 
             AddBlockTooltip(item, qualityLevel, text);
             __result = text.ToString();
+        }
+    }
+
+    [HarmonyPatch(typeof(Player), nameof(Player.GetBodyArmor))]
+    internal static class MagicBracerArmorPatch
+    {
+        private static void Postfix(Player __instance, ref float __result)
+        {
+            var bracer = MagicShieldManager.GetEquippedBracer(__instance);
+
+            if (bracer == null)
+            {
+                return;
+            }
+
+            __result += bracer.GetArmor();
         }
     }
 
