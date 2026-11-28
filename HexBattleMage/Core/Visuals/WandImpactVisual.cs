@@ -17,7 +17,8 @@ namespace HexBattleMage.Core.Visuals
         Frost = 2,
         Spirit = 4,
         Lightning = 8,
-        Poison = 16
+        Poison = 16,
+        Blight = 32
     }
 
     internal sealed class WandImpactVisual : MonoBehaviour
@@ -207,6 +208,11 @@ namespace HexBattleMage.Core.Visuals
             if ((elements & WandImpactElement.Lightning) != 0)
             {
                 colors.Add(WandElementManager.GetSettings(WandElement.Lightning).Profile.ImpactColor);
+            }
+
+            if ((elements & WandImpactElement.Blight) != 0)
+            {
+                colors.Add(WandElementManager.GetSettings(WandElement.Blight).Profile.ImpactColor);
             }
 
             if ((elements & WandImpactElement.Poison) != 0)

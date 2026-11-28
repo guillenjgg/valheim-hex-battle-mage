@@ -1,4 +1,6 @@
 using HexBattleMage.Core.Tuning;
+using HexBattleMage.Core.Elements;
+using HarmonyLib;
 using UnityEngine;
 using HexBattleMage.Core.Managers;
 using UnityEngine.Rendering;
@@ -7,6 +9,8 @@ namespace HexBattleMage.Core.Visuals
 {
     internal sealed class LightningBoltVisual : MonoBehaviour
     {
+        private static readonly AccessTools.FieldRef<Projectile, int> StatusHash = AccessTools.FieldRefAccess<Projectile, int>("m_statusEffectHash");
+        private ZNetView _view;
         private const string GlowShaderName = "Sprites/Default";
         private const int TextureHeight = 32;
         private static Material _material;
@@ -68,6 +72,7 @@ namespace HexBattleMage.Core.Visuals
         {
             _points = new Vector3[PrefabSettings.Projectile.BoltPointCount];
             _projectile = GetComponentInParent<Projectile>();
+            _view = _projectile != null ? _projectile.GetComponent<ZNetView>() : null;
             _spawnPosition = transform.position;
             _previousPosition = _spawnPosition;
 
@@ -87,6 +92,19 @@ namespace HexBattleMage.Core.Visuals
                 {
                     return;
                 }
+            }
+
+            if (_view == null)
+            {
+                _view = _projectile.GetComponent<ZNetView>();
+            }
+
+            var data = _view != null ? _view.GetZDO() : null;
+            int mask = data != null ? data.GetInt(WandElementManager.ProjectileElementsKey, -1) : WandElementManager.GetElementMask(StatusHash(_projectile));
+
+            if (mask < 0)
+            {
+                return;
             }
 
             PrepareMaterial();
@@ -148,10 +166,15 @@ namespace HexBattleMage.Core.Visuals
             }
 
             float brightness = DevConfig.BoltBrightness.EffectiveValue();
-            var haloColor = DevConfig.BoltColor.EffectiveValue();
-            var coreColor = new Color(brightness, brightness, brightness, 1f);
 
-            haloColor = new Color(haloColor.r * brightness, haloColor.g * brightness, haloColor.b * brightness, PrefabSettings.Projectile.HaloOpacity);
+            if (!WandElementManager.TryGetFlightColors(mask, out var coreColor, out var haloColor))
+            {
+                coreColor = Color.white;
+                haloColor = DevConfig.BoltColor.EffectiveValue();
+            }
+
+            coreColor = new Color(coreColor.r * brightness, coreColor.g * brightness, coreColor.b * brightness, coreColor.a);
+            haloColor = new Color(haloColor.r * brightness, haloColor.g * brightness, haloColor.b * brightness, haloColor.a * PrefabSettings.Projectile.HaloOpacity);
             _core.widthMultiplier = DevConfig.BoltWidth.EffectiveValue();
             _halo.widthMultiplier = DevConfig.BoltWidth.EffectiveValue() * PrefabSettings.Projectile.GlowWidthMultiplier;
             _core.startColor = coreColor;

@@ -1,10 +1,13 @@
 using UnityEngine;
+using HarmonyLib;
+using HexBattleMage.Core.Elements;
 using HexBattleMage.Core.Managers;
 
 namespace HexBattleMage.Core.Visuals
 {
     internal sealed class WandProjectileImpact : MonoBehaviour
     {
+        private static readonly AccessTools.FieldRef<Projectile, int> StatusHash = AccessTools.FieldRefAccess<Projectile, int>("m_statusEffectHash");
         private const string ImpactRpcName = "HexBattleMage_WandImpact";
         private Projectile _projectile;
         private ZNetView _view;
@@ -75,6 +78,11 @@ namespace HexBattleMage.Core.Visuals
             }
 
             var elements = GetElements(_projectile.m_damage);
+
+            if (WandElementManager.HasElement(StatusHash(_projectile), WandElement.Blight))
+            {
+                elements |= WandImpactElement.Blight;
+            }
 
             RegisterRpc();
 

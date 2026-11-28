@@ -12,11 +12,11 @@ namespace HexBattleMage.Core.UI
     internal sealed class WandAttunementTab : MonoBehaviour
     {
         private const float Padding = 12f;
-        private const float HeaderHeight = 130f;
-        private const float FooterHeight = 68f;
+        private const float HeaderHeight = 118f;
+        private const float FooterHeight = 156f;
         private const float RefreshInterval = 0.5f;
         private const string Orange = "#FFA500";
-        private const string Blue = "#82D7FF";
+        private const string Blue = "#B7ED8D";
         private const string Green = "#A8CD79";
         private const string Muted = "#BBBBBB";
         private InventoryGui _gui;
@@ -24,6 +24,11 @@ namespace HexBattleMage.Core.UI
         private Button _action;
         private TMP_Text _actionLabel;
         private TMP_Text _summary;
+        private TMP_Text _validation;
+        private TMP_Text _actionNote;
+        private string _previewInspected;
+        private static readonly Color ActiveBorder = new Color(0.57f, 0.83f, 0.36f);
+        private static readonly Color SelectedBorder = new Color(1f, 0.75f, 0.32f);
         private GameObject _panel;
         private RectTransform _list;
         private RectTransform _details;
@@ -53,11 +58,29 @@ namespace HexBattleMage.Core.UI
             panel.anchorMin = Vector2.zero;
             panel.anchorMax = Vector2.one;
             panel.offsetMin = new Vector2(Padding, Padding);
-            _panel.GetComponent<Image>().color = new Color(0.14f, 0.095f, 0.055f, 0.98f);
-            _summary = Text(panel, "CharacterSummary", 20f);
-            Place(_summary.rectTransform, Padding, Padding, Padding, HeaderHeight - Padding);
+            _panel.GetComponent<Image>().color = new Color(0.14f, 0.095f, 0.055f, 1f);
+            var summaryBackground = new GameObject("ActiveAttunementFrame", typeof(RectTransform), typeof(Image));
+
+            summaryBackground.transform.SetParent(panel, false);
+            var summaryRect = (RectTransform)summaryBackground.transform;
+
+            Place(summaryRect, Padding, Padding, Padding, HeaderHeight - Padding * 2f);
+            summaryBackground.GetComponent<Image>().color = new Color(0.11f, 0.17f, 0.10f);
+            Border(summaryRect, ActiveBorder, 5f, 0f, "ActiveBorder");
+            _summary = Text(summaryRect, "CharacterSummary", 18f);
+            _summary.rectTransform.anchorMin = Vector2.zero;
+            _summary.rectTransform.anchorMax = Vector2.one;
+            _summary.rectTransform.offsetMin = new Vector2(12f, 6f);
+            _summary.rectTransform.offsetMax = new Vector2(-12f, -6f);
             _list = ScrollColumn(panel, "Elements", 0f, 0.39f, 0f);
             _details = ScrollColumn(panel, "ElementDetails", 0.39f, 1f, FooterHeight);
+            _validation = Text(panel, "ActionValidation", 15f);
+            _actionNote = Text(panel, "ActionNote", 14f);
+            _actionNote.enableAutoSizing = true;
+            _actionNote.fontSizeMin = 12f;
+            _actionNote.fontSizeMax = 14f;
+            FooterText(_validation.rectTransform, 114f, 36f);
+            FooterText(_actionNote.rectTransform, 2f, 58f);
             _action = Instantiate(gui.m_tabCraft, panel);
             _action.name = "AttunementAction";
             _action.onClick = new Button.ButtonClickedEvent();
@@ -70,8 +93,9 @@ namespace HexBattleMage.Core.UI
             actionRect.anchorMin = new Vector2(0.39f, 0f);
             actionRect.anchorMax = new Vector2(1f, 0f);
             actionRect.pivot = Vector2.zero;
-            actionRect.offsetMin = new Vector2(Padding, Padding);
-            actionRect.offsetMax = new Vector2(-Padding, FooterHeight - Padding);
+            actionRect.offsetMin = new Vector2(Padding, 64f);
+            actionRect.offsetMax = new Vector2(-Padding, 108f);
+            StyleButton(_action, new Color(0.32f, 0.24f, 0.13f), new Color(0.23f, 0.14f, 0.12f));
             _action.gameObject.SetActive(true);
             _panel.SetActive(false);
         }
@@ -165,20 +189,30 @@ namespace HexBattleMage.Core.UI
             var key = new StringBuilder();
 
             key.Append(player.GetInstanceID()).Append(((RectTransform)_panel.transform).rect.width).Append(_inspected).Append(_replacement).Append(WandAttunements.MaximumActive).Append(player.GetCurrentCraftingStation().GetLevel());
-            key.Append(string.Join(",", active));
+            key.Append(string.Join(",", active)).Append(_previewInspected);
             key.Append(ModLocalization.Format("$hexbattlemage_attunements_title"));
 
             foreach (var definition in definitions)
             {
                 var recipe = definition.GetComponent<MageRecipeProfile>();
 
-                key.Append(WandAttunements.HasLearned(player, definition.Element)).Append(WandAttunements.IsDiscovered(player, recipe));
+                key.Append(WandAttunements.HasLearned(player, definition.Element)).Append(WandAttunements.IsDiscovered(player, recipe)).Append(WandElementText.Damage(definition.Element, 1, true));
 
                 foreach (var resource in recipe.GetResources())
                 {
                     var item = ObjectDB.instance.GetItemPrefab(resource.ItemPrefab).GetComponent<ItemDrop>().m_itemData;
 
                     key.Append(player.GetInventory().CountItems(item.m_shared.m_name));
+                }
+            }
+
+            foreach (var preview in WandAttunements.Profile.AttunementPreviews)
+            {
+                key.Append(preview.Id).Append(preview.DisplayName).Append(preview.Description);
+
+                if (Enum.TryParse(preview.Id, out WandElement previewElement))
+                {
+                    key.Append(WandElementText.Damage(previewElement, 1, true));
                 }
             }
 
@@ -194,34 +228,61 @@ namespace HexBattleMage.Core.UI
 
             _summary.text = ModLocalization.Format("$hexbattlemage_attunements_summary", active.Count, WandAttunements.MaximumActive, activeNames);
             float top = 8f;
-            var learned = definitions.Where(definition => WandAttunements.HasLearned(player, definition.Element)).ToArray();
-            var unknown = definitions.Except(learned).ToArray();
 
-            if (learned.Length > 0)
+            Label(_list, ModLocalization.Format("$hexbattlemage_attunements_list_heading"), ref top, 18f);
+
+            foreach (var definition in definitions)
             {
-                Label(_list, ModLocalization.Format("$hexbattlemage_attunements_learned_heading"), ref top, _list.rect.width < 180f ? 16f : 20f);
-
-                foreach (var definition in learned)
-                {
-                    ElementRow(definition, player, active.Contains(definition.Element), ref top);
-                }
+                ElementRow(definition, player, active.Contains(definition.Element), ref top);
             }
 
-            if (unknown.Length > 0)
-            {
-                Label(_list, ModLocalization.Format("$hexbattlemage_attunements_unknown_heading"), ref top, _list.rect.width < 180f ? 16f : 20f);
+            var previews = WandAttunements.Profile.AttunementPreviews.Where(preview => !definitions.Any(definition => definition.Element.ToString() == preview.Id)).ToArray();
 
-                foreach (var definition in unknown)
-                {
-                    ElementRow(definition, player, false, ref top);
-                }
+            foreach (var preview in previews)
+            {
+                PreviewRow(preview, player, ref top);
             }
 
             _list.sizeDelta = new Vector2(0f, top + Padding);
             var selected = definitions.FirstOrDefault(definition => definition.Element == _inspected);
 
+            var validationBorder = _action.transform.Find("ValidationBorder");
+
+            if (validationBorder != null)
+            {
+                validationBorder.gameObject.SetActive(false);
+                Destroy(validationBorder.gameObject);
+            }
+
             _action.onClick = new Button.ButtonClickedEvent();
             _action.interactable = false;
+            _validation.text = string.Empty;
+            _actionNote.text = string.Empty;
+            StyleButton(_action, new Color(0.45f, 0.31f, 0.13f), new Color(0.18f, 0.16f, 0.12f));
+
+            var selectedPreview = previews.FirstOrDefault(preview => preview.Id == _previewInspected);
+
+            if (selectedPreview != null)
+            {
+                float previewTop = 8f;
+
+                Label(_details, "<color=" + Orange + ">" + ModLocalization.Format(selectedPreview.DisplayName) + "</color>", ref previewTop, 25f);
+                Label(_details, ModLocalization.Format(selectedPreview.Description), ref previewTop, 19f);
+
+                if (Enum.TryParse(selectedPreview.Id, out WandElement previewElement))
+                {
+                    Label(_details, ModLocalization.Format("$hexbattlemage_element_preview_values"), ref previewTop, 17f);
+                    DamageDetails(previewElement, ref previewTop);
+                }
+                else
+                {
+                    Label(_details, ModLocalization.Format("$hexbattlemage_element_damage_unconfigured"), ref previewTop, 18f);
+                }
+                Label(_details, ModLocalization.Format("$hexbattlemage_attunements_preview_requirements"), ref previewTop, 18f);
+                _details.sizeDelta = new Vector2(0f, previewTop + Padding);
+                _actionLabel.text = ModLocalization.Format("$hexbattlemage_attunements_preview");
+                return;
+            }
 
             if (selected == null)
             {
@@ -235,14 +296,16 @@ namespace HexBattleMage.Core.UI
         private void ElementRow(HexBattleMageWandAttunementProfile definition, Player player, bool active, ref float top)
         {
             bool learned = WandAttunements.HasLearned(player, definition.Element);
-            bool discovered = WandAttunements.IsDiscovered(player, definition.GetComponent<MageRecipeProfile>());
+            var recipe = definition.GetComponent<MageRecipeProfile>();
+            bool discovered = WandAttunements.IsDiscovered(player, recipe) && player.GetCurrentCraftingStation().GetLevel() >= recipe.MinimumStationLevel;
             string status = active ? "$hexbattlemage_attunements_active" : learned ? "$hexbattlemage_attunements_learned" : discovered ? "$hexbattlemage_attunements_unlearned" : "$hexbattlemage_attunements_locked";
             string color = active ? Blue : learned ? Green : Muted;
             var button = Instantiate(_gui.m_tabCraft, _list);
 
             button.name = "Element_" + definition.Element;
+            button.interactable = true;
             button.onClick = new Button.ButtonClickedEvent();
-            button.onClick.AddListener(() => { _inspected = definition.Element; Refresh(player); });
+            button.onClick.AddListener(() => { _previewInspected = null; _inspected = definition.Element; Refresh(player); });
             var label = button.GetComponentInChildren<TMP_Text>(true);
 
             label.text = ModLocalization.Format(definition.DisplayName) + "\n<color=" + color + ">" + ModLocalization.Format(status) + "</color>";
@@ -252,13 +315,9 @@ namespace HexBattleMage.Core.UI
             label.textWrappingMode = TextWrappingModes.Normal;
             Position((RectTransform)button.transform, top, 70f);
 
-            if (_inspected == definition.Element)
-            {
-                var outline = button.gameObject.AddComponent<Outline>();
+            bool inspecting = _previewInspected == null && _inspected == definition.Element;
 
-                outline.effectColor = new Color(1f, 0.65f, 0f);
-                outline.effectDistance = new Vector2(1.5f, -1.5f);
-            }
+            StyleElementButton(button, active, inspecting);
 
             button.gameObject.SetActive(true);
             top += 78f;
@@ -270,30 +329,66 @@ namespace HexBattleMage.Core.UI
             string name = ModLocalization.Format(definition.DisplayName);
             bool learned = WandAttunements.HasLearned(player, definition.Element);
             bool selected = active.Contains(definition.Element);
+            var recipe = definition.GetComponent<MageRecipeProfile>();
+            bool requirementsDiscovered = WandAttunements.IsDiscovered(player, recipe);
+            bool stationReady = player.GetCurrentCraftingStation().GetLevel() >= recipe.MinimumStationLevel;
 
             Label(_details, "<color=" + Orange + "><b>" + name + "</b></color>", ref top, 25f);
-            string state = selected ? "$hexbattlemage_attunements_active" : learned ? "$hexbattlemage_attunements_learned" : "$hexbattlemage_attunements_unlearned";
+            string state = selected ? "$hexbattlemage_attunements_active" : learned ? "$hexbattlemage_attunements_learned" : requirementsDiscovered && stationReady ? "$hexbattlemage_attunements_unlearned" : "$hexbattlemage_attunements_locked";
 
             Label(_details, "<color=" + (selected ? Blue : learned ? Green : Muted) + ">" + ModLocalization.Format(state) + "</color>", ref top, 18f);
             Label(_details, ModLocalization.Format(definition.Description), ref top, 19f);
+            DamageDetails(definition.Element, ref top);
 
             if (!learned)
             {
-                var recipe = definition.GetComponent<MageRecipeProfile>();
+                Label(_details, ModLocalization.Format("$hexbattlemage_attunements_requirements"), ref top, 19f);
+                int currentLevel = player.GetCurrentCraftingStation().GetLevel();
+                string levelColor = currentLevel >= recipe.MinimumStationLevel ? Green : Orange;
 
-                Label(_details, ModLocalization.Format("$hexbattlemage_attune_learning_cost"), ref top, 19f);
+                Label(_details, "<color=" + levelColor + ">" + ModLocalization.Format("$hexbattlemage_attunements_station_level", recipe.MinimumStationLevel) + "</color>", ref top, 17f);
+                int bossIndex = recipe.MinimumStationLevel - WandAttunements.Profile.BaseLevel - 1;
+                var bossNames = WandAttunements.Profile.BossDisplayNames;
+
+                if (bossIndex >= 0 && bossIndex < bossNames.Length)
+                {
+                    Label(_details, ModLocalization.Format("$hexbattlemage_attunements_boss_requirement", ModLocalization.Format(bossNames[bossIndex])), ref top, 17f);
+                }
 
                 foreach (var resource in recipe.GetResources())
                 {
-                    var item = ObjectDB.instance.GetItemPrefab(resource.ItemPrefab).GetComponent<ItemDrop>().m_itemData;
+                    var resourcePrefab = ObjectDB.instance.GetItemPrefab(resource.ItemPrefab);
+
+                    if (resourcePrefab == null)
+                    {
+                        continue;
+                    }
+
+                    var item = resourcePrefab.GetComponent<ItemDrop>().m_itemData;
                     int count = player.GetInventory().CountItems(item.m_shared.m_name);
+                    string line = ModLocalization.Format("$hexbattlemage_attune_cost", ModLocalization.Format(item.m_shared.m_name), count, resource.Amount);
+                    string color = count >= resource.Amount ? Green : Orange;
 
-                    Label(_details, ModLocalization.Format("$hexbattlemage_attune_cost", ModLocalization.Format(item.m_shared.m_name), count, resource.Amount), ref top, 18f);
+                    Label(_details, "<color=" + color + ">" + line + "</color>", ref top, 18f);
                 }
+            }
 
-                Label(_details, ModLocalization.Format("$hexbattlemage_attunements_station_level", recipe.MinimumStationLevel), ref top, 17f);
-                _actionLabel.text = ModLocalization.Format("$hexbattlemage_attune_learn_named", name);
-                _action.interactable = WandAttunements.CanLearn(player, definition);
+            if (learned)
+            {
+                Label(_details, ModLocalization.Format("$hexbattlemage_attunements_requirements_paid"), ref top, 17f);
+            }
+
+            if (!learned)
+            {
+                bool canLearn = WandAttunements.CanLearn(player, definition);
+
+                _actionLabel.text = canLearn ? ModLocalization.Format("$hexbattlemage_attune_learn_named", name) : ModLocalization.Format("$hexbattlemage_attunements_missing");
+                _action.interactable = canLearn;
+                _validation.text = ModLocalization.Format(canLearn ? "$hexbattlemage_attunements_validation_ready" : "$hexbattlemage_attunements_validation_missing");
+                _validation.color = canLearn ? ActiveBorder : new Color(0.91f, 0.71f, 0.64f);
+                _actionNote.text = ModLocalization.Format("$hexbattlemage_attunements_learning_note");
+                StyleButton(_action, new Color(0.52f, 0.36f, 0.16f), new Color(0.27f, 0.15f, 0.12f));
+                Border((RectTransform)_action.transform, canLearn ? SelectedBorder : new Color(0.66f, 0.40f, 0.31f), 2f, 0f, "ValidationBorder");
                 _action.onClick.AddListener(() => { WandAttunements.TryLearn(player, definition); Refresh(player); });
             }
             else if (selected)
@@ -327,15 +422,127 @@ namespace HexBattleMage.Core.UI
                     }
                 }
 
-                Label(_details, ModLocalization.Format("$hexbattlemage_attunements_free"), ref top, 18f);
+                _actionNote.text = ModLocalization.Format("$hexbattlemage_attunements_free");
                 var replacement = full ? _replacement : null;
 
-                _actionLabel.text = full ? ModLocalization.Format("$hexbattlemage_attunements_replace_action", ElementName(replacement.Value), name) : ModLocalization.Format("$hexbattlemage_attunements_activate_action", name);
+                _actionLabel.text = ModLocalization.Format("$hexbattlemage_attunements_activate_action", name);
                 _action.interactable = WandAttunements.CanActivate(player, definition, replacement);
                 _action.onClick.AddListener(() => { WandAttunements.TryActivate(player, definition, replacement); Refresh(player); });
             }
 
             _details.sizeDelta = new Vector2(0f, top + Padding);
+        }
+
+        private void DamageDetails(WandElement element, ref float top)
+        {
+            Label(_details, ModLocalization.Format("$hexbattlemage_element_damage_heading"), ref top, 19f);
+            Label(_details, WandElementText.Damage(element, 1, true), ref top, 18f);
+            Label(_details, ModLocalization.Format("$hexbattlemage_element_attune_damage_basis"), ref top, 15f);
+        }
+
+        private void PreviewRow(AttunementPreview preview, Player player, ref float top)
+        {
+            var button = Instantiate(_gui.m_tabCraft, _list);
+
+            button.name = "Element_" + preview.Id;
+            button.interactable = true;
+            button.onClick = new Button.ButtonClickedEvent();
+            button.onClick.AddListener(() => { _previewInspected = preview.Id; Refresh(player); });
+            var label = button.GetComponentInChildren<TMP_Text>(true);
+
+            label.text = ModLocalization.Format(preview.DisplayName) + "\n<color=" + Muted + ">" + ModLocalization.Format("$hexbattlemage_attunements_preview") + "</color>";
+            label.enableAutoSizing = true;
+            label.fontSizeMin = 12f;
+            label.fontSizeMax = 19f;
+            label.textWrappingMode = TextWrappingModes.Normal;
+            Position((RectTransform)button.transform, top, 70f);
+            StyleElementButton(button, false, _previewInspected == preview.Id);
+            button.gameObject.SetActive(true);
+            top += 78f;
+        }
+
+        private static void StyleButton(Button button, Color normal, Color disabled)
+        {
+            var animator = button.GetComponent<Animator>();
+
+            if (animator != null)
+            {
+                animator.enabled = false;
+            }
+
+            var image = button.GetComponent<Image>();
+
+            image.sprite = null;
+            image.type = Image.Type.Simple;
+            image.color = Color.white;
+            button.targetGraphic = image;
+            button.transition = Selectable.Transition.ColorTint;
+            var colors = button.colors;
+
+            colors.normalColor = normal;
+            colors.highlightedColor = Color.Lerp(normal, Color.white, 0.15f);
+            colors.pressedColor = Color.Lerp(normal, Color.black, 0.2f);
+            colors.selectedColor = normal;
+            colors.disabledColor = disabled;
+            colors.colorMultiplier = 1f;
+            colors.fadeDuration = 0.08f;
+            button.colors = colors;
+            image.canvasRenderer.SetColor(button.interactable ? normal : disabled);
+        }
+
+        private static void StyleElementButton(Button button, bool active, bool inspecting)
+        {
+            var surface = inspecting ? new Color(0.43f, 0.30f, 0.14f) : new Color(0.23f, 0.18f, 0.12f);
+
+            StyleButton(button, surface, surface);
+            var rect = (RectTransform)button.transform;
+
+            if (active)
+            {
+                Border(rect, ActiveBorder, 5f, 0f, "ActiveBorder");
+            }
+
+            if (inspecting)
+            {
+                Border(rect, SelectedBorder, 2f, active ? 6f : 0f, "InspectionBorder");
+            }
+        }
+
+        private static void Border(RectTransform parent, Color color, float thickness, float inset, string name)
+        {
+            var frame = new GameObject(name, typeof(RectTransform));
+
+            frame.transform.SetParent(parent, false);
+            var rect = (RectTransform)frame.transform;
+
+            rect.anchorMin = Vector2.zero;
+            rect.anchorMax = Vector2.one;
+            rect.offsetMin = new Vector2(inset, inset);
+            rect.offsetMax = new Vector2(-inset, -inset);
+
+            for (int side = 0; side < 4; side++)
+            {
+                var edge = new GameObject("Edge", typeof(RectTransform), typeof(Image));
+
+                edge.transform.SetParent(rect, false);
+                var edgeRect = (RectTransform)edge.transform;
+                var image = edge.GetComponent<Image>();
+
+                image.color = color;
+                image.raycastTarget = false;
+                edgeRect.anchorMin = side == 1 ? Vector2.right : side == 3 ? Vector2.up : Vector2.zero;
+                edgeRect.anchorMax = side == 0 ? Vector2.up : side == 2 ? Vector2.right : Vector2.one;
+                edgeRect.offsetMin = side == 1 ? new Vector2(-thickness, 0f) : side == 3 ? new Vector2(0f, -thickness) : Vector2.zero;
+                edgeRect.offsetMax = side == 0 ? new Vector2(thickness, 0f) : side == 2 ? new Vector2(0f, thickness) : Vector2.zero;
+            }
+        }
+
+        private static void FooterText(RectTransform rect, float bottom, float height)
+        {
+            rect.anchorMin = new Vector2(0.39f, 0f);
+            rect.anchorMax = new Vector2(1f, 0f);
+            rect.offsetMin = new Vector2(Padding, bottom);
+            rect.offsetMax = new Vector2(-Padding, bottom + height);
         }
 
         private string ElementName(WandElement element)
@@ -356,7 +563,7 @@ namespace HexBattleMage.Core.UI
             rect.anchorMax = new Vector2(right, 1f);
             rect.offsetMin = new Vector2(4f, bottom + 4f);
             rect.offsetMax = new Vector2(-4f, -HeaderHeight);
-            root.GetComponent<Image>().color = new Color(0.19f, 0.14f, 0.09f, 0.95f);
+            root.GetComponent<Image>().color = new Color(0.14f, 0.095f, 0.055f, 1f);
             var content = new GameObject(name + "Content", typeof(RectTransform));
 
             content.transform.SetParent(root.transform, false);

@@ -220,6 +220,7 @@ public static class PrefabDefaultsAssetBuilder
 
         if (profile.AuthoredVersion >= 1)
         {
+            MigrateProjectileColors(profile);
             return;
         }
 
@@ -255,6 +256,35 @@ public static class PrefabDefaultsAssetBuilder
         }
 
         profile.AuthoredVersion = 1;
+        MigrateProjectileColors(profile);
+    }
+
+    private static void MigrateProjectileColors(WandElementProfile profile)
+    {
+        if (profile.ProjectileVisualVersion >= 1)
+        {
+            return;
+        }
+
+        profile.ProjectileCoreColor = profile.ImpactColor;
+        profile.ProjectileHaloColor = profile.ImpactColor;
+
+        if (profile.Element == WandElement.Fire)
+        {
+            profile.ProjectileCoreColor = new Color(1f, 0.01f, 0.005f);
+            profile.ProjectileHaloColor = new Color(0.7f, 0.025f, 0.005f);
+            profile.ImpactColor = new Color(1f, 0.06f, 0.01f);
+        }
+
+        if (profile.Element == WandElement.Blight)
+        {
+            profile.ProjectileCoreColor = new Color(0.008f, 0.018f, 0.009f);
+            profile.ProjectileHaloColor = new Color(0.06f, 0.32f, 0.08f);
+            profile.ImpactColor = new Color(0.07f, 0.4f, 0.1f);
+            profile.TipColor = new Color(0.04f, 0.3f, 0.08f);
+        }
+
+        profile.ProjectileVisualVersion = 1;
     }
 
     private static void SeedFixedUpgradeCosts(GameObject prefab)

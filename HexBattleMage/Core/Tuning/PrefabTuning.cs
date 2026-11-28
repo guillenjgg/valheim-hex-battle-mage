@@ -28,6 +28,7 @@ namespace HexBattleMage.Core.Tuning
                 CloakTuning.Apply(prefab);
                 BracerTuning.Apply(prefab);
                 TrinketTuning.Apply(prefab);
+                BlackForestTuning.Apply(prefab);
             }
         }
     }

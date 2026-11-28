@@ -67,7 +67,7 @@ public static class StarterWandProgressionValidation
             Set(typeof(ObjectDB), null, "m_instance", db);
             db.m_items = new List<GameObject> { wand };
 
-            foreach (string name in new[] { "Wood", "Stone", "Resin", "Feathers" })
+            foreach (string name in new[] { "Wood", "Stone", "Resin", "Feathers", "TrophySkeleton", "SurtlingCore", "MushroomYellow" })
             {
                 var material = new GameObject(name);
 
@@ -182,7 +182,8 @@ public static class StarterWandProgressionValidation
             first.m_variant = 1;
             first.m_durability = 79f;
             var profile = bundle.LoadAsset<GameObject>(HexBattleMageRuneBlockProfile.PrefabName).GetComponent<HexBattleMageRuneBlockProfile>();
-            var fire = profile.Attunements.Single().GetComponent<HexBattleMageWandAttunementProfile>();
+            Check(profile.AttunementPreviews.Select(preview => preview.Id).SequenceEqual(new[] { "Spirit", "Frost", "Earth" }), "The Rune Block exposes the future preview catalogue.");
+            var fire = profile.Attunements.Select(reference => reference.GetComponent<HexBattleMageWandAttunementProfile>()).Single(definition => definition.Element == WandElement.Fire);
             var attunements = Mod.GetType("HexBattleMage.Core.Elements.WandAttunements");
             var learnMethod = attunements.GetMethod("TryLearn", Members);
             var activateMethod = attunements.GetMethod("TryActivate", Members);
@@ -259,6 +260,7 @@ public static class StarterWandProgressionValidation
 
             player.GetInventory().GetAllItems().Add(replacement);
             Check(replacement.GetDamage().m_fire > 0f, "A fresh replacement wand automatically uses the character's attunement.");
+            ValidateElementDamage(player, replacement, harmony);
             ValidateUi(player, root, harmony, false);
             ValidateUi(player, root, harmony, true);
             File.WriteAllText(Path.Combine(Path.GetDirectoryName(Application.dataPath), "starter-wand-progression-report.txt"), "PASS: native inventory/Rune Block recipes and Workbench exclusion; character learning/payment, separate activation, no-wand learning, shared effect across spare/replacement wands, character isolation, restored character data, item save/load, capacity/replacement enforcement at limits 1 and 2, grouped damage and character-focused station UI. World/manager/material/message bootstrap remains isolated.");
@@ -349,6 +351,57 @@ public static class StarterWandProgressionValidation
         return false;
     }
 
+    private static void ValidateElementDamage(Player player, ItemDrop.ItemData wand, Harmony harmony)
+    {
+        var formatter = Mod.GetType("HexBattleMage.Core.Elements.WandElementText").GetMethod("Damage", Members);
+        var patch = Mod.GetType("HexBattleMage.Patches.WandElementTooltipPatch");
+        var postfix = patch.GetMethod("Postfix", Members);
+        var elements = Mod.GetType("HexBattleMage.Core.Elements.WandElementManager");
+        var settings = elements.GetMethod("GetSettings", Members).Invoke(null, new object[] { WandElement.Blight });
+        var total = (ConfigEntry<float>)settings.GetType().GetProperty("TotalDamage", Members).GetValue(settings);
+        var duration = (ConfigEntry<float>)settings.GetType().GetProperty("Duration", Members).GetValue(settings);
+        var saved = new Dictionary<string, string>(player.m_customData);
+        float originalTotal = total.Value;
+        float originalDuration = duration.Value;
+
+        harmony.CreateClassProcessor(patch).Patch();
+
+        try
+        {
+            string fire = (string)formatter.Invoke(null, new object[] { WandElement.Fire, 3, true });
+
+            Check(fire.Contains("Hit damage: <color=orange>19</color>") && fire.Contains("<color=orange>6</color> every <color=orange>1s</color> for <color=orange>5s</color>"), "Fire text distinguishes quality-scaled hit damage from its configured burn ticks.");
+            player.m_customData["HexBattleMage.Attunements.Learned.Blight"] = "1";
+            player.m_customData["HexBattleMage.Attunements.Active"] = (1 << (int)WandElement.Blight).ToString();
+            const string native = "Description\n$item_blunt: 5\n$item_pierce: 5\n$item_knockback: 100\n$item_durability: 200";
+            object[] arguments = { wand, 1, native };
+
+            postfix.Invoke(null, arguments);
+            string tooltip = (string)arguments[2];
+
+            Check(tooltip.Contains("<color=orange>60</color> over <color=orange>3s</color> (<color=orange>20/s</color>)"), "Wand tooltips display Blight's full damage budget, duration and per-second rate.");
+            Check(tooltip.IndexOf("$item_pierce", StringComparison.Ordinal) < tooltip.IndexOf("Damage over time", StringComparison.Ordinal) && tooltip.IndexOf("Damage over time", StringComparison.Ordinal) < tooltip.IndexOf("$item_knockback", StringComparison.Ordinal), "Element stats sit alongside weapon damage, before secondary stats.");
+            total.Value = 120f;
+            duration.Value = 6f;
+            string tuned = (string)formatter.Invoke(null, new object[] { WandElement.Blight, 4, false });
+
+            Check(tuned.Contains("<color=orange>120</color> over <color=orange>6s</color> (<color=orange>20/s</color>)"), "Element text reads current tuned values rather than caching damage or inventing Blight quality scaling.");
+            arguments = new object[] { wand, 4, native };
+            postfix.Invoke(null, arguments);
+            Check(((string)arguments[2]).Contains("<color=orange>120</color>"), "Wand tooltip uses the same live effect formatter as attunement details.");
+            player.m_customData["HexBattleMage.Attunements.Active"] = "0";
+            arguments = new object[] { wand, 1, native };
+            postfix.Invoke(null, arguments);
+            Check((string)arguments[2] == native, "An unattuned wand does not advertise inactive elemental damage.");
+        }
+        finally
+        {
+            total.Value = originalTotal;
+            duration.Value = originalDuration;
+            player.m_customData = saved;
+        }
+    }
+
     private static void ValidateUi(Player player, GameObject root, Harmony harmony, bool narrow)
     {
         var previousPlayer = Player.m_localPlayer;
@@ -393,6 +446,7 @@ public static class StarterWandProgressionValidation
 
             gui.m_crafting = rect;
             gui.m_tabCraft = Tab(rect, 10f, font);
+            gui.m_tabCraft.interactable = false;
             gui.m_tabUpgrade = Tab(rect, 100f, font);
             var template = new GameObject("Description", typeof(RectTransform));
 
@@ -412,9 +466,9 @@ public static class StarterWandProgressionValidation
             var action = (Button)tabType.GetField("_action", Members).GetValue(component);
             var summary = (TMP_Text)tabType.GetField("_summary", Members).GetValue(component);
 
-            Check(panel.activeSelf && summary.text.Contains("ACTIVE: 1 / 1"), "The station window prominently shows the character's active limit.");
-            Check(action.GetComponentInChildren<TMP_Text>().text == "Already active" && !action.interactable, "The active element has a distinct disabled action.");
-            Check(!panel.GetComponentsInChildren<TMP_Text>().Any(label => label.text.Contains("Quality") || label.text.Contains("Viewing")), "There is no wand selector or per-item quality UI.");
+            Check(panel.activeSelf && summary.text.Contains("ACTIVE ON WAND") && summary.text.Contains("1 / 1"), "The station window prominently shows the character's active limit.");
+            Check(action.GetComponentInChildren<TMP_Text>().text == "Currently active" && !action.interactable, "The active element has a distinct disabled action.");
+            Check(!panel.GetComponentsInChildren<TMP_Text>().Any(label => label.text.Contains("Viewing")) && panel.GetComponentsInChildren<TMP_Dropdown>().Length == 0, "There is no wand selector or per-item quality UI.");
 
             foreach (var label in content.GetComponentsInChildren<TMP_Text>())
             {
@@ -422,6 +476,47 @@ public static class StarterWandProgressionValidation
                 Check(!label.isTextOverflowing, "Selected element text wraps within the detail column.");
             }
 
+            string activeDetails = string.Join(" ", content.GetComponentsInChildren<TMP_Text>().Select(label => label.text));
+
+            Check(activeDetails.Contains("materials already paid") && !activeDetails.Contains("Unlock requirements"), "Learned attunements show paid status without repeating their learning checklist.");
+            var blightRow = list.GetComponentsInChildren<Button>().First(button => button.gameObject.name == "Element_Blight");
+
+            Check(blightRow.IsInteractable(), "Unlearned attunements remain selectable when the native Craft tab template is disabled.");
+            blightRow.OnPointerClick(new UnityEngine.EventSystems.PointerEventData(null) { button = UnityEngine.EventSystems.PointerEventData.InputButton.Left });
+            var activeRow = list.GetComponentsInChildren<Button>().First(button => button.gameObject.name == "Element_Fire");
+
+            Check(activeRow.transform.Find("ActiveBorder") != null && blightRow.transform.Find("ActiveBorder") == null, "Only the equipped attunement has the thick green frame.");
+            var selectedRow = list.GetComponentsInChildren<Button>().First(button => button.gameObject.name == "Element_Blight");
+
+            Check(selectedRow.transform.Find("InspectionBorder") != null && activeRow.transform.Find("InspectionBorder") == null, "Gold inspection state is independent from the equipped green frame.");
+            Check(!action.interactable && action.GetComponentInChildren<TMP_Text>().text.Contains("Missing requirements"), "Missing requirements disable learning and show validation text.");
+            Check(action.colors.disabledColor.r > action.colors.disabledColor.g, "Missing requirements use a warm warning button surface.");
+            string blightDetails = string.Join(" ", content.GetComponentsInChildren<TMP_Text>().Select(label => label.text));
+
+            Check(blightDetails.Contains("<color=orange>60</color> over <color=orange>3s</color> (<color=orange>20/s</color>)"), "The attunement window shows the same Blight damage as the wand tooltip.");
+            var elementManager = Mod.GetType("HexBattleMage.Core.Elements.WandElementManager");
+            var blightSettings = elementManager.GetMethod("GetSettings", Members).Invoke(null, new object[] { WandElement.Blight });
+            var blightTotal = (ConfigEntry<float>)blightSettings.GetType().GetProperty("TotalDamage", Members).GetValue(blightSettings);
+            float originalBlightTotal = blightTotal.Value;
+
+            blightTotal.Value = 90f;
+            tabType.GetMethod("Refresh", Members).Invoke(component, new object[] { player });
+            Check(string.Join(" ", content.GetComponentsInChildren<TMP_Text>().Select(label => label.text)).Contains("<color=orange>90</color>"), "Changing effect damage invalidates the open attunement window's cached details.");
+            blightTotal.Value = originalBlightTotal;
+            tabType.GetMethod("Refresh", Members).Invoke(component, new object[] { player });
+
+            Check(blightDetails.Contains("Rune Block level 2") && blightDetails.Contains("Defeat") && blightDetails.IndexOf("trophyskeleton", StringComparison.OrdinalIgnoreCase) >= 0 && blightDetails.IndexOf("surtlingcore", StringComparison.OrdinalIgnoreCase) >= 0 && blightDetails.IndexOf("mushroomyellow", StringComparison.OrdinalIgnoreCase) >= 0, "Blight lists its boss, station and all material requirements before learning.");
+            foreach (string preview in new[] { "Spirit", "Frost", "Earth" })
+            {
+                var row = list.GetComponentsInChildren<Button>().First(button => button.gameObject.name == "Element_" + preview);
+
+                Check(row.IsInteractable(), "Every future attunement can be inspected.");
+                row.OnPointerClick(new UnityEngine.EventSystems.PointerEventData(null) { button = UnityEngine.EventSystems.PointerEventData.InputButton.Left });
+                Check(!action.interactable && action.GetComponentInChildren<TMP_Text>().text == "Not yet available", "Preview entries cannot grant effects or consume materials.");
+                Check(summary.text.Contains("Fire"), "Inspecting a future attunement leaves Fire equipped.");
+            }
+
+            list.GetComponentsInChildren<Button>().First(button => button.gameObject.name == "Element_Fire").onClick.Invoke();
             int children = content.childCount;
 
             tabType.GetMethod("Refresh", Members).Invoke(component, new object[] { player });
@@ -444,9 +539,24 @@ public static class StarterWandProgressionValidation
             tabType.GetMethod("Refresh", Members).Invoke(component, new object[] { player });
             var spiritRow = list.GetComponentsInChildren<Button>().First(button => button.gameObject.name == "Element_Spirit");
 
+            var learnedKey = "HexBattleMage.Attunements.Learned.Spirit";
+            bool wasLearned = player.m_customData.ContainsKey(learnedKey);
+
+            player.m_customData.Remove(learnedKey);
             spiritRow.onClick.Invoke();
+            Check(action.interactable && action.GetComponentInChildren<TMP_Text>().text == "Learn Spirit", "Meeting learning requirements enables the named Learn action.");
+            var validation = (TMP_Text)tabType.GetField("_validation", Members).GetValue(component);
+
+            Check(validation.text == "All requirements met", "The enabled learning button confirms successful validation.");
+
+            if (wasLearned)
+            {
+                player.m_customData[learnedKey] = "1";
+            }
+
+            tabType.GetMethod("Refresh", Members).Invoke(component, new object[] { player });
             Check(summary.text.Contains("1 / 1") && summary.text.Contains("Fire"), "Inspecting another element does not change the active Fire summary.");
-            Check(action.GetComponentInChildren<TMP_Text>().text == "Replace Fire with Spirit" && action.interactable, "At capacity, the action explicitly names the replacement.");
+            Check(action.GetComponentInChildren<TMP_Text>().text == "Activate Spirit" && action.interactable, "At capacity, the action explicitly names the replacement.");
             Canvas.ForceUpdateCanvases();
 
             foreach (var bar in panel.GetComponentsInChildren<Scrollbar>(true))
@@ -467,6 +577,19 @@ public static class StarterWandProgressionValidation
 
             camera.Render();
             runeProfile.Attunements = authored;
+            tabType.GetField("_contentKey", Members).SetValue(component, null);
+            tabType.GetField("_previewInspected", Members).SetValue(component, null);
+            tabType.GetField("_inspected", Members).SetValue(component, (WandElement?)WandElement.Blight);
+            tabType.GetMethod("Refresh", Members).Invoke(component, new object[] { player });
+            Canvas.ForceUpdateCanvases();
+            camera.Render();
+
+            foreach (var footer in new[] { (TMP_Text)tabType.GetField("_validation", Members).GetValue(component), (TMP_Text)tabType.GetField("_actionNote", Members).GetValue(component) })
+            {
+                footer.ForceMeshUpdate();
+                Check(!footer.isTextOverflowing, "Validation and action guidance fit at both crafting window widths.");
+            }
+
             RenderTexture.active = target;
             var texture = new Texture2D(target.width, target.height, TextureFormat.RGBA32, false);
 

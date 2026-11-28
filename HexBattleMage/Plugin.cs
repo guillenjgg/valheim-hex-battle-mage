@@ -55,6 +55,7 @@ namespace HexBattleMage
             TrinketManager.Initialize(Config);
             CloakManager.Initialize();
             ArmorManager.Initialize();
+            StaffManager.Initialize();
 
             _harmonyInstance = new Harmony(PluginGuid);
             _harmonyInstance.PatchAll(Assembly.GetExecutingAssembly());
@@ -105,6 +106,7 @@ namespace HexBattleMage
             TrinketManager.Shutdown();
             CloakManager.Shutdown();
             ArmorManager.Shutdown();
+            StaffManager.Shutdown();
             _devConfig?.Dispose();
             UnityEngine.Object.Destroy(_runeBlockNotifications);
             Log.LogInfo($"{PluginName} v{PluginVersion} unloaded.");

@@ -23,16 +23,16 @@ Current authored settings and component locations are described in [PrefabSettin
 - Equipment progression controls power, abilities, tier display names, and which appearances are available. Cosmetic style selection must not change power.
 - Apprentice currently has three branch finishes (warm bark, dark weathered bark, and pale birch), each with its own material and base-color texture. Both are Meadows cosmetics; neither grants a combat bonus.
 - Use the Style dialog from either Craft or Upgrade at the Mage Table. Selection immediately restyles the wand selected under Upgrade, otherwise the equipped wand, otherwise the only wand in inventory. Multiple unequipped wands require the player to equip or select the intended wand. No crafting, item upgrade, or materials are required. With no owned wand, the selected appearance applies when crafting the first wand. Native item upgrades retain the selected appearance.
-- Store the appearance choice in Valheim's existing item variant field. Jötunn extends equipment variant synchronization to the wand's equipment slot; the visual component applies the selected finish through `IEquipmentVisual.Setup`.
+- Store the appearance choice in Valheim's existing item variant field. JÃ¶tunn extends equipment variant synchronization to the wand's equipment slot; the visual component applies the selected finish through `IEquipmentVisual.Setup`.
 - Future mesh appearances should provide their own tip anchors. The current branch uses the mesh's positive Z tip for the light.
 - Boss gates, resource gates, tier names beyond Apprentice, upgrade costs, damage scaling, and style unlock rules remain undecided. No later tiers are currently implemented.
 
 ## Verification
 
-The installed Valheim assembly was checked for the variant dialog, item variant field, equipment visual setup, and native upgrade behavior. Jötunn 2.30.0 and the installed 2.30.2 both expose the equipment variant enable method, on an internal type accessed through reflection. These hooks need rechecking when updating Valheim or Jötunn.
+The installed Valheim assembly was checked for the variant dialog, item variant field, equipment visual setup, and native upgrade behavior. JÃ¶tunn 2.30.0 and the installed 2.30.2 both expose the equipment variant enable method, on an internal type accessed through reflection. These hooks need rechecking when updating Valheim or JÃ¶tunn.
 
 - [Valheim Modding Wiki: Item Variants](https://github.com/Valheim-Modding/Wiki/wiki/Item-Variants)
-- [Jötunn: Item Variants](https://valheim-modding.github.io/Jotunn/tutorials/item-variants.html)
+- [JÃ¶tunn: Item Variants](https://valheim-modding.github.io/Jotunn/tutorials/item-variants.html)
 
 
 
@@ -56,7 +56,7 @@ The shaft reserves ten named sockets (RuneSlot01 through RuneSlot10) from 40% to
 
 `HexMagicBracer` (Apprentice Ward Bracer) is wearable equipment with its own logical bracer slot. Equip or unequip it through the normal inventory/hotbar controls. It does not occupy either hand, the utility/belt slot, or another clothing slot. Only one bracer can be worn at a time. It stays worn when weapons are sheathed or changed, and works without a wand. Merely carrying an unequipped bracer provides no shield.
 
-The bracer is crafted and repaired at the Mage Table. The provisional recipe is 10 Wood, 4 Resin, and 2 Leather Scraps. Qualities 1–3 use the wood shield stat curve: block power 6/12/18, block force 20/25/30, durability 200/250/300 and parry bonus 1.5. Upgrade resource increments are 5 Wood, 2 Resin and 2 Leather Scraps through native quality scaling. Station-level requirements still apply at the Mage Table; later equipment tiers remain undecided. Registration clones the installed `ShieldWood` through Jotunn to retain block power, parrying, stamina use, durability and block effects, then changes the item category to Hands and removes the shield movement penalty. Native shields and the approved wand are not modified. The registered identity remains `HexMagicBracer` for existing saves.
+The bracer is crafted and repaired at the Mage Table. The provisional recipe is 10 Wood, 4 Resin, and 2 Leather Scraps. Qualities 1â€“3 use the wood shield stat curve: block power 6/12/18, block force 20/25/30, durability 200/250/300 and parry bonus 1.5. Upgrade resource increments are 5 Wood, 2 Resin and 2 Leather Scraps through native quality scaling. Station-level requirements still apply at the Mage Table; later equipment tiers remain undecided. Registration clones the installed `ShieldWood` through Jotunn to retain block power, parrying, stamina use, durability and block effects, then changes the item category to Hands and removes the shield movement penalty. Native shields and the approved wand are not modified. The registered identity remains `HexMagicBracer` for existing saves.
 
 Bracer-only Harmony patches handle equip/unequip, equipability and equipped-state queries. MageEquipmentDefinition identifies the Bracer category and slot; SupportsBlocking controls the shield role. These checks read the drop prefab component instead of matching its name. MagicBracerProfile independently supplies the shield stats. The slot uses Valheim's existing per-item `m_equipped` flag, which native item serialization already saves. Equipping another bracer replaces the worn one; restoring an already flagged bracer during `Player.EquipInventoryItems` succeeds. Native weapon and armor equipment fields remain independent. No additional dependencies or equipment-slot integrations are required.
 
@@ -170,4 +170,9 @@ Fire now requires 2 Resin + 3 Feathers + 10 Wood, replacing the earlier DeerHide
 2026-11-20: Apprentice Wand uses 5 base stamina per shot. Edit `WandTuning.Meadows01` / `wand.AttackStamina` for source tuning. `HexBattleMageWandProfile.AttackStamina` and native Attack.m_attackStamina are baked by starter progression migration 4; normal rebuilds preserve authored values. Runtime ApplySettings transfers the tuned value to each attack. Native Attack performs the stamina check/spending and applies normal skill/equipment/status cost modifiers. Eitr settings are unchanged. Rebuild the embedded bundle and DLL together.
 
 
-Apprentice bracer: fixed +5 passive armor while worn, independent of quality and blocking. MagicBracerProfile.Armor is baked by passive armor migration 1; BracerTuning.Meadows01 supplies the source override. Registration sets native armor=5 and armor-per-level=0; Player.GetBodyArmor adds the separately equipped bracer once. Qualities 1�3 retain ShieldWood block 6/12/18, block force 20/25/30, parry 1.5x, durability 200/250/300. Armor never increases on upgrade. Normal rebuilds preserve authored values; rebuild bundle and DLL together.
+Apprentice bracer: fixed +5 passive armor while worn, independent of quality and blocking. MagicBracerProfile.Armor is baked by passive armor migration 1; BracerTuning.Meadows01 supplies the source override. Registration sets native armor=5 and armor-per-level=0; Player.GetBodyArmor adds the separately equipped bracer once. Qualities 1–3 retain ShieldWood block 6/12/18, block force 20/25/30, parry 1.5x, durability 200/250/300. Armor never increases on upgrade. Normal rebuilds preserve authored values; rebuild bundle and DLL together.
+
+
+## Black Forest prototype (2026-11-21)
+
+See [BlackForest.md](BlackForest.md) for Blight behavior, owner-only untyped damage, configurable total damage/contagion, Forestbound gear and Stonebinder Staff. Named balance/recipe overrides live in Core/Tuning/BlackForestTuning.cs and AttunementTuning.cs. Defaults are baked into the referenced prefabs. BlackForestAssetBuilder.Build prepares missing assets without overwriting authored values; rebuild hexbattlemage and DLL together. Physical-damage redesign and paid enhancement purchases are separate work.

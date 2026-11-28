@@ -46,7 +46,7 @@ namespace HexBattleMage.Patches
             {
                 bool matched = false;
 
-                foreach (WandElement element in Enum.GetValues(typeof(WandElement)))
+                foreach (WandElement element in NativeEffects.Keys)
                 {
                     if (!instruction.Calls(AccessTools.Method(typeof(Character), "Add" + element + "Damage")))
                     {
@@ -97,6 +97,69 @@ namespace HexBattleMage.Patches
 
             direct.m_damage.m_damage = damage;
             character.ApplyDamage(direct, true, true, HitData.DamageModifier.Normal);
+        }
+    }
+
+    [HarmonyPatch(typeof(Projectile), nameof(Projectile.Setup))]
+    internal static class WandProjectileColorPatch
+    {
+        private static void Postfix(Projectile __instance, HitData hitData, ItemDrop.ItemData item)
+        {
+            if (!HexBattleMage.Core.Managers.ItemRegistrationManager.IsWand(item))
+            {
+                return;
+            }
+
+            if (hitData == null)
+            {
+                return;
+            }
+
+            var view = __instance.GetComponent<ZNetView>();
+
+            if (view == null || !view.IsValid())
+            {
+                return;
+            }
+
+            if (!view.IsOwner())
+            {
+                return;
+            }
+
+            view.GetZDO().Set(WandElementManager.ProjectileElementsKey, WandElementManager.GetElementMask(hitData.m_statusEffectHash));
+        }
+    }
+
+    [HarmonyPatch(typeof(Projectile), nameof(Projectile.Setup))]
+    internal static class BlightProjectileSetupPatch
+    {
+        private static void Postfix(Projectile __instance, HitData hitData, ItemDrop.ItemData item)
+        {
+            if (!HexBattleMage.Core.Managers.ItemRegistrationManager.IsWand(item))
+            {
+                return;
+            }
+
+            if (hitData == null)
+            {
+                return;
+            }
+
+            if (!WandElementManager.HasElement(hitData.m_statusEffectHash, WandElement.Blight))
+            {
+                return;
+            }
+
+            if (WandElementManager.HasElement(hitData.m_statusEffectHash, WandElement.Fire))
+            {
+                return;
+            }
+
+            if (WandElementManager.GetSettings(WandElement.Blight).Profile.SingleTargetProjectile)
+            {
+                __instance.m_aoe = 0f;
+            }
         }
     }
 

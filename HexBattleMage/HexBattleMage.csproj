@@ -145,6 +145,7 @@
     <Compile Include="Core\Elements\WandElementSettings.cs" />
     <Compile Include="Core\Elements\WandElementManager.cs" />
     <Compile Include="Core\Elements\WandElementStatus.cs" />
+    <Compile Include="Core\Elements\WandElementText.cs" />
     <Compile Include="Core\Elements\WandElementAnimation.cs" />
     <Compile Include="Patches\WandElementPatches.cs" />
     <Compile Include="Core\MageEquipmentCatalog.cs" />
@@ -216,6 +217,11 @@
     <Compile Include="Patches\CloakCollisionPatch.cs" />
     <Compile Include="Patches\CloakEitrPatches.cs" />
     <Compile Include="Core\Managers\CloakMotionSettings.cs" />
+    <Compile Include="Core\Elements\SE_HexBlight.cs" />
+    <Compile Include="Core\Tuning\BlackForestTuning.cs" />
+    <Compile Include="Core\Managers\HexBattleMageStaffProfile.cs" />
+    <Compile Include="Core\Managers\StaffManager.cs" />
+    <Compile Include="Patches\StaffProjectilePatches.cs" />
     <Compile Include="Plugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

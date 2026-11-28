@@ -28,6 +28,9 @@ namespace HexBattleMage.Core.Tuning
 
         private static void Fire(WandElementProfile element)
         {
+            element.ProjectileCoreColor = new UnityEngine.Color(1f, 0.01f, 0.005f);
+            element.ProjectileHaloColor = new UnityEngine.Color(0.7f, 0.025f, 0.005f);
+            element.ImpactColor = new UnityEngine.Color(1f, 0.06f, 0.01f);
             element.DirectDamage = 15f;
             element.DamagePerQuality = 2f;
             element.TickDamage = 6f;

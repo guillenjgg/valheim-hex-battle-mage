@@ -11,7 +11,8 @@ namespace HexBattleMage.Core.Managers
         Cloak,
         Helmet,
         Chest,
-        Legs
+        Legs,
+        Staff
     }
 
     public enum MageEquipmentSlot
@@ -23,7 +24,8 @@ namespace HexBattleMage.Core.Managers
         Cloak,
         Helmet,
         Chest,
-        Legs
+        Legs,
+        Staff
     }
 
     public sealed class MageEquipmentDefinition : MonoBehaviour

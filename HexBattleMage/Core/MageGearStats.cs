@@ -43,6 +43,7 @@ namespace HexBattleMage.Core
                 AppendDamage(text, "blunt", damage.m_blunt);
                 AppendDamage(text, "slash", damage.m_slash);
                 AppendDamage(text, "pierce", damage.m_pierce);
+                AppendDamage(text, "pickaxe", damage.m_pickaxe);
                 AppendDamage(text, "fire", damage.m_fire);
                 AppendDamage(text, "frost", damage.m_frost);
                 AppendDamage(text, "lightning", damage.m_lightning);

@@ -12,9 +12,10 @@ namespace HexBattleMage.Core.Elements
 {
     internal static class WandElementManager
     {
+        internal const string ProjectileElementsKey = "HexBattleMage.ProjectileElements";
         private const string Section = "Development / Elements";
         private static readonly Dictionary<WandElement, WandElementSettings> Settings = new Dictionary<WandElement, WandElementSettings>();
-        private static readonly Dictionary<WandElement, WandElementStatus> Effects = new Dictionary<WandElement, WandElementStatus>();
+        private static readonly Dictionary<WandElement, StatusEffect> Effects = new Dictionary<WandElement, StatusEffect>();
         private static readonly Dictionary<int, WandElementGroupStatus> GroupEffects = new Dictionary<int, WandElementGroupStatus>();
         private static HitData.DamageTypes _originalDamage;
         private static HitData.DamageTypes _originalPerQuality;
@@ -83,10 +84,21 @@ namespace HexBattleMage.Core.Elements
 
                     Settings[element] = new WandElementSettings(config, profile);
 
-                    var effect = ScriptableObject.CreateInstance<WandElementStatus>();
+                    StatusEffect effect;
+
+                    if (element == WandElement.Blight)
+                    {
+                        effect = ScriptableObject.CreateInstance<SE_HexBlight>();
+                    }
+                    else
+                    {
+                        var elemental = ScriptableObject.CreateInstance<WandElementStatus>();
+
+                        elemental.Element = element;
+                        effect = elemental;
+                    }
 
                     effect.name = "HexWandStatus" + element;
-                    effect.Element = element;
                     effect.m_name = profile.StatusDisplayName;
                     effect.m_ttl = profile.Duration;
 
@@ -113,7 +125,7 @@ namespace HexBattleMage.Core.Elements
 
                 if (configuredElements.Count != Enum.GetValues(typeof(WandElement)).Length)
                 {
-                    throw new InvalidOperationException("The wand must reference all five elemental profiles.");
+                    throw new InvalidOperationException("The wand must reference every elemental profile.");
                 }
             }
             finally
@@ -153,6 +165,70 @@ namespace HexBattleMage.Core.Elements
             }
 
             element = default(WandElement);
+            return false;
+        }
+
+        internal static int GetElementMask(int hash)
+        {
+            if (TryGetElement(hash, out var element))
+            {
+                return 1 << (int)element;
+            }
+
+            foreach (var effect in GroupEffects.Values)
+            {
+                if (effect.NameHash() == hash)
+                {
+                    return effect.ElementMask;
+                }
+            }
+
+            return 0;
+        }
+
+        internal static bool TryGetFlightColors(int mask, out Color core, out Color halo)
+        {
+            core = Color.clear;
+            halo = Color.clear;
+            int count = 0;
+
+            foreach (var entry in Settings)
+            {
+                if ((mask & (1 << (int)entry.Key)) == 0)
+                {
+                    continue;
+                }
+
+                core += entry.Value.Profile.ProjectileCoreColor;
+                halo += entry.Value.Profile.ProjectileHaloColor;
+                count++;
+            }
+
+            if (count == 0)
+            {
+                return false;
+            }
+
+            core /= count;
+            halo /= count;
+            return true;
+        }
+
+        internal static bool HasElement(int hash, WandElement element)
+        {
+            if (GetHash(element) == hash)
+            {
+                return true;
+            }
+
+            foreach (var effect in GroupEffects.Values)
+            {
+                if (effect.NameHash() == hash && (effect.ElementMask & (1 << (int)element)) != 0)
+                {
+                    return true;
+                }
+            }
+
             return false;
         }
 

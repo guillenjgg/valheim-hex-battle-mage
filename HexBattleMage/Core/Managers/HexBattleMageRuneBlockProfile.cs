@@ -1,7 +1,16 @@
+using System;
 using UnityEngine;
 
 namespace HexBattleMage.Core.Managers
 {
+    [Serializable]
+    public sealed class AttunementPreview
+    {
+        public string Id;
+        public string DisplayName;
+        public string Description = "$hexbattlemage_attunements_preview_description";
+    }
+
     public sealed class HexBattleMageRuneBlockProfile : MonoBehaviour
     {
         public const string PrefabName = "HexBattleMage_RuneBlock";
@@ -19,10 +28,15 @@ namespace HexBattleMage.Core.Managers
         [HideInInspector] public int AttunementVersion;
         [Range(1, 5)] public int MaximumActiveAttunements = 1;
         public GameObject[] Attunements = new GameObject[0];
+        [HideInInspector] public int PreviewCatalogVersion;
+        [Tooltip("Display-only entries. These cannot be learned or activated until replaced by real attunement definitions.")]
+        public AttunementPreview[] AttunementPreviews = new AttunementPreview[0];
         public string UpgradeMessage = "$hexbattlemage_runeblock_empowered";
         [Tooltip("Each boss key unlocks the corresponding next station level, shared across the world.")]
         public string[] BossDefeatKeys = { "defeated_eikthyr", "defeated_gdking", "defeated_bonemass", "defeated_dragon", "defeated_goblinking", "defeated_queen", "defeated_fader" };
-        [Tooltip("Relative paths to cumulative visual stages, in the same order as boss keys. These are children, never extension prefabs.")]
+        [Tooltip("Native boss name tokens, in the same order as BossDefeatKeys.")]
+        public string[] BossDisplayNames = { "$enemy_eikthyr", "$enemy_gdking", "$enemy_bonemass", "$enemy_dragon", "$enemy_goblinking", "$enemy_seekerqueen", "$enemy_fader" };
+        [Tooltip("Relative paths to cumulative visual stages, in the same order as boss keys.")]
         public string[] StageVisualPaths = { "Progression/BlackForest", "Progression/Swamp", "Progression/Mountains", "Progression/Plains", "Progression/Mistlands", "Progression/Ashlands", "Progression/DeepNorth" };
     }
 }
